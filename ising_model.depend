@@ -1,0 +1,27 @@
+# depslib dependency file v1.0
+1570191876 source:c:\users\savva\onedrive - university of cambridge\part2\computational projects\ising_model\ising_model\autocorrelation.cpp
+	"header.h"
+
+1570364389 c:\users\savva\onedrive - university of cambridge\part2\computational projects\ising_model\ising_model\header.h
+	<iostream>
+	<ctime>
+	<cstdio>
+	<cstdlib>
+	<cmath>
+	<fstream>
+	<string>
+	<map>
+	<vector>
+
+1570189795 source:c:\users\savva\onedrive - university of cambridge\part2\computational projects\ising_model\ising_model\bootstrap.cpp
+	"header.h"
+
+1570366268 source:c:\users\savva\onedrive - university of cambridge\part2\computational projects\ising_model\ising_model\general.cpp
+	"header.h"
+
+1570366919 source:c:\users\savva\onedrive - university of cambridge\part2\computational projects\ising_model\ising_model\main.cpp
+	"header.h"
+
+1570366932 source:c:\users\savva\onedrive - university of cambridge\part2\computational projects\ising_model\ising_model\metropolis.cpp
+	"header.h"
+
