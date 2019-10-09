@@ -14,15 +14,38 @@ double H = 0;
 unsigned int seed = (unsigned)time(0); // (unsigned)time(0);
 double *T;
 
+/*
+ANALYSIS 1:
+To start with I will analyse the evolution of the average magnetisation of the system.
+For different Lattice sizes and temperatures I will output different data files.
+PLOT 1: For a fixed lattice size plot the evolution of the system at different
+temperatures, both below and above Tc.
+PLOT 2: I will choose a specific lattice size and temperature (below Tc)
+to demonstrate the randomness of the simulation.
+PLOT 3: For a fixed temperature (below Tc) plot the evolution of the system at
+different lattice sizes. Used average magnetisation for clarity in plots.
+*/
+
+void analysis_1()
+{
+    try {
+        magnetisation_vs_time_data();
+        // magnetisation_vs_time_data_bulk();
+    }
+    catch (string er) {
+        cerr << "ERROR. EXITING PROGRAM." << endl;
+        throw er;
+    }
+}
+
 void magnetisation_vs_time_data()
 {
-    cout << "Running for magnetisation of evolving system" << endl;
-    L = 5;
+    L = 40;
     dim = 2;
     int thermalisationCycles = 0;
     int dataPoints = 5000;
     int spacingCycles = 1;
-    double Temp = 5.0;
+    double Temp = 1.5;
 
     // initialise vector
     vector<double> magn;
@@ -30,16 +53,16 @@ void magnetisation_vs_time_data()
     //initialise spins array and neighbours maps
     initialise_system_and_maps();
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, 0, Temp);
-
+    cout << "Running for magnetisation of evolving system" << endl;
     // open file
     ofstream myfile;
     string folder = ".\\data\\magn_vs_time";
     string filename = "magn_vs_time_"+to_string(dim)+"D_"+to_string(L)+"_"+to_string(Temp)+".txt";
-    string path = folder+"\\"+filename;
     filename_rename_if_exists(filename, folder);
+    string path = folder+"\\"+filename;
     myfile.open(path);
     if (!myfile.is_open()) {
-        throw path;
+        throw "Func: magnetisation_vs_time_data(). File not opened with path: "+path;
     }
     cout << "Writing in file with path: " << path << endl;
     cout << "Starting computations" << endl;
@@ -55,7 +78,7 @@ void magnetisation_vs_time_data()
 
     // write data on opened file
     myfile << Temp << endl;
-    for(int i = 0; i < dataPoints; i++) {
+    for(int i=0; i<dataPoints; i++) {
       myfile << magn[i] << endl;
     }
 
@@ -66,14 +89,87 @@ void magnetisation_vs_time_data()
     }
 }
 
+void magnetisation_vs_time_data_bulk()
+{
+    dim = 2;
+    int L_list[5] = {5,10,20,40,80};
+    int thermalisationCycles = 0;
+    int dataPoints = 5000;
+    int spacingCycles = 1;
+    double iniT = 1.0; double finT = 5.0; int numT = 9;
+    T = linspace(iniT, finT, numT);
+
+    for (int i=0; i<numT; i++) {
+        for (int j=0; j<5; j++) {
+            //set L
+            L = L_list[j];
+            //initialise vector
+            vector<double> magn;
+
+            //initialise spins array and neighbours maps
+            initialise_system_and_maps();
+            print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, 0, T[i]);
+            cout << "Running for magnetisation of evolving systems" << endl;
+            //open file
+            ofstream myfile;
+            string folder = ".\\data\\magn_vs_time";
+            string filename = "magn_vs_time_"+to_string(dim)+"D_"+to_string(L)+"_"+to_string(T[i])+".txt";
+            filename_rename_if_exists(filename, folder);
+            string path = folder+"\\"+filename;
+            myfile.open(path);
+            if (!myfile.is_open()) {
+                throw "Func: magnetisation_vs_time_data_bulk(). File not opened with path: "+path;
+            }
+            cout << "Writing in file with path: " << path << endl;
+            cout << "Starting computations" << endl;
+            //begin
+            initialise_spins_hot();
+            compute_magnetisation();
+            metropolis_function(T[i],thermalisationCycles);
+            magn.push_back(fabs(M));
+            for (int k=1; k<dataPoints; k++) {
+                metropolis_function(T[i],spacingCycles);
+                magn.push_back(fabs(M));
+            }
+
+            // write data on opened file
+            myfile << T[i] << endl;
+            for(int k=0; k<dataPoints; k++) {
+              myfile << magn[k] << endl;
+            }
+
+            // wrap up
+            delete[] spins;
+            if (myfile.is_open()){
+               myfile.close();
+            }
+        }
+    }
+}
+
+/*
+ANALYSIS 2:
+
+*/
+
+void analysis_2()
+{
+    try {
+        magnetisation_vs_temp_data();
+    }
+    catch (string er) {
+        cerr << "ERROR. EXITING PROGRAM." << endl;
+        throw er;
+    }
+}
+
 void magnetisation_vs_temp_data()
 {
-    cout << "Running for magnetisation at different temperatures data" << endl;
-    L = 10;
+    L = 32;
     dim = 2;
     int thermalisationCycles = 5000;
     int spacingCycles = 50;
-    int dataPoints = 200;      //total data points
+    int dataPoints = 2000;      //total data points
     double iniT = 1.0; double finT = 5.0; int numT = 41;
     T = linspace(iniT, finT, numT);
 
@@ -87,16 +183,16 @@ void magnetisation_vs_temp_data()
     //initialise spins array and neighbours maps
     initialise_system_and_maps();
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
-
+    cout << "Running for magnetisation at different temperatures data" << endl;
     // open file
     ofstream myfile;
     string folder = ".\\data\\magn_data";
     string filename = "magn_data_"+to_string(dim)+"D_"+to_string(L)+".txt";
-    string path = folder+"\\"+filename;
     filename_rename_if_exists(filename, folder);
+    string path = folder+"\\"+filename;
     myfile.open(path);
     if (!myfile.is_open()) {
-        throw path;
+        throw "Func: magnetisation_vs_time_data(). File not opened with path: "+path;
     }
     cout << "Writing in file with path: " << path << endl;
     cout << "Starting computations" << endl;
@@ -142,13 +238,11 @@ int main()
     clock_t tStart = clock();
     srand(seed);
     try {
-        // magnetisation_vs_time_data();
-        magnetisation_vs_temp_data();
-        // investigating_autocorrelation();
+        // analysis_1();
+        analysis_2();
     }
-    catch (string path){
-        cerr << "ERROR: FILE NOT OPENED. EXITING PROGRAM." << endl;
-        cerr << "Attempted file path: " << path << endl;
+    catch(string er) {
+        cout << er << endl;
         return 1;
     }
     cout << "Program ended in " << (double)(clock()-tStart)/CLOCKS_PER_SEC << " seconds" << endl;

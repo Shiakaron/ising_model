@@ -29,8 +29,12 @@ extern double *T;
 extern int dataPoints;
 
 //MAIN
-void magnetisation_vs_temp_data();
+void analysis_1();
 void magnetisation_vs_time_data();
+void magnetisation_vs_time_data_bulk();
+void analysis_2();
+void magnetisation_vs_temp_data();
+
 
 //METROPOLIS
 void initialise_system_and_maps();
@@ -49,8 +53,8 @@ double averageArray(double arr[], int siz);
 bool file_exists(const string& p_file);
 void filename_rename_if_exists(string& filename, string& folder);
 void print_T(int siz);
-void print_mapOfNearest();
-void print_mapOfNext2Nearest();
+void print_mapOfNearest(int max);
+void print_mapOfNext2Nearest(int max);
 void print_all_parameters(int thermalisationCycles, int dataPoints, int spacingCycles, int numT, double Temp);
 void print_spins();
 void print_array(double arr[], int siz);
