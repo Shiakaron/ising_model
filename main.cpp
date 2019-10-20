@@ -15,28 +15,15 @@ unsigned int seed = (unsigned)time(0); // (unsigned)time(0);
 double *T;
 
 /*
-ANALYSIS 1:
 To start with I will analyse the evolution of the average magnetisation of the system.
 For different Lattice sizes and temperatures I will output different data files.
 PLOT 1: For a fixed lattice size plot the evolution of the system at different
 temperatures, both below and above Tc.
 PLOT 2: I will choose a specific lattice size and temperature (below Tc)
-to demonstrate the randomness of the simulation.
+to demonstrate the randomness of the simulation and difference of hot and cold start
 PLOT 3: For a fixed temperature (below Tc) plot the evolution of the system at
 different lattice sizes. Used average magnetisation for clarity in plots.
 */
-
-void analysis_1()
-{
-    try {
-        magnetisation_vs_time_data();
-        // magnetisation_vs_time_data_bulk();
-    }
-    catch (string er) {
-        cerr << "ERROR. EXITING PROGRAM." << endl;
-        throw er;
-    }
-}
 
 void magnetisation_vs_time_data()
 {
@@ -47,13 +34,11 @@ void magnetisation_vs_time_data()
     int spacingCycles = 1;
     double Temp = 1.5;
 
-    // initialise vector
-    vector<double> magn;
-
     //initialise spins array and neighbours maps
     initialise_system_and_maps();
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, 0, Temp);
     cout << "Running for magnetisation of evolving system" << endl;
+
     // open file
     ofstream myfile;
     string folder = ".\\data\\magn_vs_time";
@@ -65,21 +50,18 @@ void magnetisation_vs_time_data()
         throw "Func: magnetisation_vs_time_data(). File not opened with path: "+path;
     }
     cout << "Writing in file with path: " << path << endl;
-    cout << "Starting computations" << endl;
+
     // begin
-    initialise_spins_hot();
+    cout << "Starting computations" << endl;
+    myfile << Temp << endl;
+    // initialise_spins_hot();
+    initialise_spins_cold();
     compute_magnetisation();
     metropolis_function(Temp,thermalisationCycles);
-    magn.push_back(fabs(M));
+    myfile << (fabs(M)) << endl;
     for (int i=1; i<dataPoints; i++) {
         metropolis_function(Temp,spacingCycles);
-        magn.push_back(fabs(M));
-    }
-
-    // write data on opened file
-    myfile << Temp << endl;
-    for(int i=0; i<dataPoints; i++) {
-      myfile << magn[i] << endl;
+        myfile << (fabs(M)) << endl;
     }
 
     // wrap up
@@ -147,27 +129,11 @@ void magnetisation_vs_time_data_bulk()
     }
 }
 
-/*
-ANALYSIS 2:
-
-*/
-
-void analysis_2()
-{
-    try {
-        magnetisation_vs_temp_data();
-    }
-    catch (string er) {
-        cerr << "ERROR. EXITING PROGRAM." << endl;
-        throw er;
-    }
-}
-
 void magnetisation_vs_temp_data()
 {
-    L = 32;
+    L = 64;
     dim = 2;
-    int thermalisationCycles = 5000;
+    int thermalisationCycles = 10000;
     int spacingCycles = 50;
     int dataPoints = 2000;      //total data points
     double iniT = 1.0; double finT = 5.0; int numT = 41;
@@ -238,10 +204,12 @@ int main()
     clock_t tStart = clock();
     srand(seed);
     try {
-        // analysis_1();
-        analysis_2();
+        magnetisation_vs_time_data();
+        // magnetisation_vs_time_data_bulk();
+        // magnetisation_vs_temp_data();
     }
     catch(string er) {
+        cerr << "ERROR. EXITING PROGRAM." << endl;
         cout << er << endl;
         return 1;
     }

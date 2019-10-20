@@ -33,7 +33,7 @@ def thermalisation_1():
                     t.append(sweep)
                     sweep += 1
             # first data in txt file is the temperature
-            ax.plot(t[1:2500], M[1:2500], label="T = "+str(T))
+            ax.plot(t[1:2000], M[1:2000], label="T = "+str(T))
     ax.set_title("|Magnetisation| vs time, L = "+str(L))
     ax.set_ylabel("|M|")
     ax.set_xlabel("t/sweeps")
@@ -114,7 +114,7 @@ def thermalisation_3():
     plt.show()
 
 def main():
-    # thermalisation_1()
+    thermalisation_1()
     # thermalisation_2()
     # thermalisation_3()
 

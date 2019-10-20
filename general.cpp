@@ -91,9 +91,13 @@ void print_mapOfNearest(int max){
             cout << temp_vec[j] << " ";
         }
         cout << endl;
-        if (i == max) {
+        // if (i == max) {
+        //     cout << "..." << endl;
+        //     break;
+        // }
+        if (i == max/2) {
             cout << "..." << endl;
-            break;
+            i = N - max/2;
         }
     }
 }
@@ -108,9 +112,9 @@ void print_mapOfNext2Nearest(int max){
             cout << temp_vec[j] << " ";
         }
         cout << endl;
-        if (i == max) {
+        if (i == max/2) {
             cout << "..." << endl;
-            break;
+            i = N - max/2;
         }
     }
 }
@@ -129,10 +133,10 @@ void print_all_parameters(int thermalisationCycles, int dataPoints, int spacingC
     else {
         cout << "Temperature of system: " << Temp << endl;
     }
-    print_mapOfNearest(100);
+    print_mapOfNearest(50);
     if (n2n!=0) {
         cout << "Next2Nearest interaction coefficient: " << n2n << endl;
-        print_mapOfNext2Nearest(100);
+        print_mapOfNext2Nearest(50);
     }
 
 }

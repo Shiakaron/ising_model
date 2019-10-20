@@ -14,6 +14,7 @@ def plot_1():
 
     L_list = []
     fig, ax = plt.subplots()
+    ax.axvline(2.2692, label="$T_c$", linestyle="--",color="k")
     for p_file in p_files:
         L = (os.path.splitext(os.path.basename(p_file))[0]).split('_',3)[3]
         avgM = []
