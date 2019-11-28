@@ -35,7 +35,7 @@ void magnetisation_vs_time_data_bulk();
 void magnetisation_vs_temp_data();
 void autocorrelation_investigation();
 void autocorrelation_peaks_data();
-int initialise_model();
+int initial_menu();
 
 
 //METROPOLIS

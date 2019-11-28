@@ -403,7 +403,7 @@ void autocorrelation_peaks_data()
     }
 }
 
-int initialise_model() {
+int initial_menu() {
     cout << "Ising Model, made by Savvas Shiakas (ss2477)" << endl;
     cout << "Please select an analysis by entering integer:" << endl;
     cout << "1 for Magnetisation vs Time\n";
@@ -412,9 +412,7 @@ int initialise_model() {
     cout << "4 for Autocorrelation vs Temperature\n";
     cout << "5 for Autocorrelation vs Temperature around T_c - high computation time";
     cout << "Other integers to Exit the program\n";
-
     int choice = user_integer_input();
-
     return choice;
 }
 
