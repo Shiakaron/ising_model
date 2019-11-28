@@ -48,14 +48,14 @@ double* bootstrap_error(double data[], int array_size, int bin_number, bool corr
     if (correlated==true) {
         double *autocorr;
         autocorr = autocorrelation(data, array_size);
-        int decor_t = 0;
+        int tau_2e = 0;
         for (int i = 0; i < array_size; i++){
            if (autocorr[i] <= exp(-2)){
-               decor_t = i;
+               tau_2e = i;
                break;
            }
         }
-        double term = sqrt(1+decor_t);
+        double term = sqrt(1+tau_2e);
         err_O *= term; err_dev *= term;
     }
 

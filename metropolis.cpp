@@ -8,8 +8,9 @@ void initialise_system_and_maps() {
 }
 
 void initialise_spins_cold() {
+    int s = 2*(rand()%2)-1; //return -1 or 1 randomly (50/50)
     for (int i = 0; i<N; i++) {
-        spins[i] = 1;
+        spins[i] = s; // initialise all to the value of s
     }
 }
 

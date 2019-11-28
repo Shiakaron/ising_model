@@ -72,6 +72,19 @@ double averageArray(double arr[], int siz) {
     return average;
 }
 
+observable compute_average_and_sigma(double arr[], int siz) {
+    observable O;
+    //average first
+    O.value = averageArray(arr,siz);
+    //sigma
+    double sum = 0.0;
+    for(int i=0; i<siz; i++){
+        sum += (arr[i] - O.value)*(arr[i] - O.value);
+    }
+    O.error = sqrt(sum)/(siz);
+    return O;
+}
+
 void print_T(int siz) {
     cout << "Temperatures to compute are:" << endl;
     cout << "[ ";
@@ -133,12 +146,6 @@ void print_all_parameters(int thermalisationCycles, int dataPoints, int spacingC
     else {
         cout << "Temperature of system: " << Temp << endl;
     }
-    print_mapOfNearest(50);
-    if (n2n!=0) {
-        cout << "Next2Nearest interaction coefficient: " << n2n << endl;
-        print_mapOfNext2Nearest(50);
-    }
-
 }
 
 void print_spins() {
@@ -182,5 +189,51 @@ void print_spins_2D() {
         cout << "The function print_spins_2D() only works properly with a 2D system.\n";
         cout << "Currently dim = " << dim << endl;
     }
+}
 
+int user_integer_input() {
+    int x = 0;
+    bool valid = false;
+    while (!valid)       /* loop continually until valid input received */
+    {
+        // cout << "\nenter an integer: ";
+        if (! (cin >> x) ) {            /* check stream state */
+            /* if eof() or bad() break read loop */
+            if (cin.eof() || cin.bad()) {
+                cerr << "(user canceled or unreconverable error)\n";
+                return 1;
+            }
+            else if (cin.fail()) {      /* if failbit */
+                cerr << "error: invalid input.\n";
+                cin.clear();            /* clear failbit */
+                /* extract any characters that remain unread */
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            }
+        }
+        else {  /* on succesful read of int */
+            // check if there are more characters
+            int c = cin.peek();
+            // cout << "cin.peek= " << c << endl;
+            if ( c == EOF ) {
+                cerr << "(user canceled or unreconverable error)\n";
+                return 1;
+            }
+            else if (c!=10 && c!=32){
+                // 10 == no character after integer input
+                // 32 == space after integer input
+                cerr << "error: invalid input.\n";
+                cin.clear();            /* clear failbit */
+                /* extract any characters that remain unread */
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            }
+            else {
+                /* extract any characters that remain unread */
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                valid = true;  /* then break read loop */
+            }
+        }
+    }
+
+    cout << "You have entered: " << x << '\n';
+    return x;
 }

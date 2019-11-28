@@ -7,13 +7,14 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <limits>
 
 using namespace std;
 
-// struct observable{
-//     double value;
-//     double error;
-// };
+struct observable{
+    double value;
+    double error;
+};
 
 extern int dim;
 extern int L;
@@ -29,11 +30,12 @@ extern double *T;
 extern int dataPoints;
 
 //MAIN
-void analysis_1();
 void magnetisation_vs_time_data();
 void magnetisation_vs_time_data_bulk();
-void analysis_2();
 void magnetisation_vs_temp_data();
+void autocorrelation_investigation();
+void autocorrelation_peaks_data();
+int initialise_model();
 
 
 //METROPOLIS
@@ -50,6 +52,7 @@ void metropolis_function(double T, int cycles);
 double* linspace(double a, double b, int N);
 double sumArray(double arr[], int siz);
 double averageArray(double arr[], int siz);
+observable compute_average_and_sigma(double arr[], int siz);
 bool file_exists(const string& p_file);
 void filename_rename_if_exists(string& filename, string& folder);
 void print_T(int siz);
@@ -59,6 +62,7 @@ void print_all_parameters(int thermalisationCycles, int dataPoints, int spacingC
 void print_spins();
 void print_array(double arr[], int siz);
 void print_spins_2D();
+int user_integer_input();
 
 //BOOTSTRAP ERROR ANALYSIS
 double* bootstrap_error(double data[], int array_size, int bin_number, bool decorelate);

@@ -11,7 +11,7 @@ def thermalisation_1():
     dim = 2
     L = 40
     filename = "magn_vs_time_"+str(dim)+"D_"+str(L)
-    folder = "."
+    folder = "magn_vs_time"
     for file in sorted(os.listdir(folder)):
         if file.startswith(filename):
             p_files.append(os.path.join(folder,file))
@@ -50,7 +50,7 @@ def thermalisation_2():
     L = 40
     T = "1.500000"
     filename = "magn_vs_time_"+str(dim)+"D_"+str(L)+"_"+T
-    folder = "."
+    folder = "magn_vs_time"
     for file in sorted(os.listdir(folder)):
         if file.startswith(filename):
             p_files.append(os.path.join(folder,file))
@@ -85,7 +85,7 @@ def thermalisation_3():
     p_files = []
     T = 1.5
     #filename = "magn_vs_time_"+str(dim)+"D_"+str(L)
-    folder = "."
+    folder = "magn_vs_time"
     for file in sorted(os.listdir(folder)):
         if file.endswith(str(T)+"00000.txt"):
             p_files.append(os.path.join(folder,file))
@@ -104,19 +104,19 @@ def thermalisation_3():
                 t.append(sweep)
                 sweep += 1
         # first data in txt file is the temperature
-        ax.plot(t[1:1000], M[1:1000], label="L = "+str(L))
+        ax.plot(t[1:500], M[1:500], label="L = "+str(L))
 
-    ax.set_title("|Magnetisation| vs time, T = "+str(T))
-    ax.set_ylabel("|M|")
+    ax.set_title("<|Magnetisation|> vs time, T = "+str(T))
+    ax.set_ylabel("m")
     ax.set_xlabel("t/sweeps")
     ax.legend()
     fig.savefig(folder+"\\thermalisation_3.png")
     plt.show()
 
 def main():
-    thermalisation_1()
+    # thermalisation_1()
     # thermalisation_2()
-    # thermalisation_3()
+    thermalisation_3()
 
 if (__name__ == '__main__'):
     main()

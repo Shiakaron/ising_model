@@ -5,9 +5,12 @@ import os
 
 
 def plot_1():
+    """
+    magnetisaion vs temperature with different lattice sizes
+    """
     p_files = []
     dim = 2
-    folder = "."
+    folder = "magn_data"
     for file in sorted(os.listdir(folder)):
         if file.endswith(".txt") and not file.endswith(").txt"):
             p_files.append(os.path.join(folder,file))
@@ -28,7 +31,6 @@ def plot_1():
                     T.append(float(row[0]))
                     avgM.append(float(row[1]))
                     errM.append(float(row[2]))
-            # first data in txt file is the temperature
             ax.errorbar(T, avgM, errM, ls='',marker='+', label="L = "+str(L))
 
     ax.set_title("|Magnetisation| per site vs Temperature")
