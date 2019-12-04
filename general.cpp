@@ -191,8 +191,11 @@ void print_spins_2D() {
     }
 }
 
-int user_integer_input() {
-    int x = 0;
+int user_integer_input(int min, int max) {
+    /*
+    This function performs the necessary checks on the user's input. 
+    */
+    int x;
     bool valid = false;
     while (!valid)       /* loop continually until valid input received */
     {
@@ -218,7 +221,7 @@ int user_integer_input() {
                 cerr << "(user canceled or unreconverable error)\n";
                 return 1;
             }
-            else if (c!=10 && c!=32){
+            else if (c!=10 && c!=32) {
                 // 10 == no character after integer input
                 // 32 == space after integer input
                 cerr << "error: invalid input.\n";
@@ -226,14 +229,20 @@ int user_integer_input() {
                 /* extract any characters that remain unread */
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
             }
-            else {
+            // check if int is in range min-max
+            else if ( x < min || x > max) {
+                cerr << "error: input not in range.\n";
+                cin.clear();            /* clear failbit */
                 /* extract any characters that remain unread */
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            }
+            else {
                 valid = true;  /* then break read loop */
             }
+
         }
     }
 
-    cout << "You have entered: " << x << '\n';
+    // cout << "You have entered: " << x << '\n';
     return x;
 }

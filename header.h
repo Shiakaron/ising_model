@@ -62,7 +62,7 @@ void print_all_parameters(int thermalisationCycles, int dataPoints, int spacingC
 void print_spins();
 void print_array(double arr[], int siz);
 void print_spins_2D();
-int user_integer_input();
+int user_integer_input(int min, int max);
 
 //BOOTSTRAP ERROR ANALYSIS
 double* bootstrap_error(double data[], int array_size, int bin_number, bool decorelate);

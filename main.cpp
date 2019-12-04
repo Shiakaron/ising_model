@@ -29,28 +29,26 @@ different lattice sizes. Used average magnetisation for clarity in plots.
 void magnetisation_vs_time_data()
 {
     cout << "Running for magnetisation of evolving system" << endl;
-    L = 40;
     dim = 2;
+    L = 40;
     int thermalisationCycles = 0;
     int dataPoints = 5000;
     int spacingCycles = 1;
     double Temp = 1.5;
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, 0, Temp);
     cout << "Proceed with default parameters? Enter 0 for YES, 1 for NO\n";
-    int user_input = user_integer_input();
-    if (user_input != 0) {
-        cout << "Dimensions\n";
-        dim = user_integer_input();
-        cout << "Lattice size\n";
-        L = user_integer_input();
-        cout << "Thermalisation cycles\n";
-        thermalisationCycles = user_integer_input();
-        cout << "Number of data points\n";
-        dataPoints = user_integer_input();
-        cout << "Cycles in between data points\n";
-        spacingCycles = user_integer_input();
-        cout << "Temperature\n";
-        Temp = user_integer_input();
+    int user_input = user_integer_input(0,1);
+    if (user_input == 1) {
+        cout << "Dimensions (2-3):\n";
+        dim = user_integer_input(2,3);
+        cout << "Lattice size (8-256):\n";
+        L = user_integer_input(8,256);
+        cout << "Thermalisation cycles (0-5000):\n";
+        thermalisationCycles = user_integer_input(0,5000);
+        cout << "Number of data points (100-10000):\n";
+        dataPoints = user_integer_input(100,10000);
+        cout << "Temperature (1-50) (i.e enter 15 for 1.5 Kelvin):\n";
+        Temp = double(user_integer_input(1,50))/10;
     }
 
     //initialise spins array and neighbours maps
@@ -147,13 +145,41 @@ void magnetisation_vs_time_data_bulk()
 
 void magnetisation_vs_temp_data()
 {
-    L = 64;
+    cout << "Running for magnetisation at different temperatures data" << endl;
     dim = 2;
+    L = 64;
     int thermalisationCycles = 10000;
     int spacingCycles = 50;
     int dataPoints = 2000;      //total data points
     double iniT = 1.0; double finT = 5.0; int numT = 41;
     T = linspace(iniT, finT, numT);
+    print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
+    cout << "Proceed with default parameters? Enter 0 for YES, 1 for NO\n";
+    int user_input = user_integer_input(0,1);
+    if (user_input == 1) {
+        cout << "Dimensions (2-3):\n";
+        dim = user_integer_input(2,3);
+        cout << "Lattice size (8-256):\n";
+        L = user_integer_input(8,256);
+        cout << "Thermalisation cycles (0-5000):\n";
+        thermalisationCycles = user_integer_input(0,5000);
+        cout << "Number of data points (100-10000):\n";
+        dataPoints = user_integer_input(100,10000);
+        cout << "Initial Temperature (1-49) (i.e enter 15 for 1.5 Kelvin):\n";
+        int iniT_int = user_integer_input(1,49);
+        iniT = double(iniT_int)/10;
+        cout << "Final Temperature (" << iniT_int <<"-50) (i.e enter 15 for 1.5 Kelvin):\n";
+        int finT_int = user_integer_input(iniT_int,50);
+        finT = double(finT_int)/10;
+        if (iniT_int != finT_int) {
+            cout << "Number of Temperature points (2-41).\n";
+            numT = user_integer_input(2,41);
+        }
+        else {
+            numT = 1;
+        }
+        T = linspace(iniT, finT, numT);
+    }
 
     // initialise vectors, pointers and time variable
     vector<double> magn;
@@ -164,8 +190,6 @@ void magnetisation_vs_temp_data()
 
     //initialise spins array and neighbours maps
     initialise_system_and_maps();
-    print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
-    cout << "Running for magnetisation at different temperatures data" << endl;
 
     // open file
     ofstream myfile;
@@ -229,13 +253,41 @@ with the same parameters.
 
 void autocorrelation_investigation()
 {
+    cout << "Running autocorrelation investigation" << endl;
     L = 64;
     dim = 2;
     int thermalisationCycles = 500;
     int dataPoints = 10000;
     int spacingCycles = 1;
-    double iniT = 1.0; double finT = 5.0; int numT = 41;
+    double iniT = 1.0; double finT = 5.0; int numT = 11;
     T = linspace(iniT, finT, numT);
+    print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
+    cout << "Proceed with default parameters? Enter 0 for YES, 1 for NO\n";
+    int user_input = user_integer_input(0,1);
+    if (user_input == 1) {
+        cout << "Dimensions (2-3):\n";
+        dim = user_integer_input(2,3);
+        cout << "Lattice size (8-256):\n";
+        L = user_integer_input(8,256);
+        cout << "Thermalisation cycles (0-5000):\n";
+        thermalisationCycles = user_integer_input(0,5000);
+        cout << "Number of data points (100-10000):\n";
+        dataPoints = user_integer_input(100,10000);
+        cout << "Initial Temperature (1-49) (i.e enter 15 for 1.5 Kelvin):\n";
+        int iniT_int = user_integer_input(1,49);
+        iniT = double(iniT_int)/10;
+        cout << "Final Temperature (" << iniT_int <<"-50) (i.e enter 15 for 1.5 Kelvin):\n";
+        int finT_int = user_integer_input(iniT_int,50);
+        finT = double(finT_int)/10;
+        if (iniT_int != finT_int) {
+            cout << "Number of Temperature points (2-41).\n";
+            numT = user_integer_input(2,41);
+        }
+        else {
+            numT = 1;
+        }
+        T = linspace(iniT, finT, numT);
+    }
 
     //initialise vectors, pointers and time variable
     double *arrayM;
@@ -246,8 +298,6 @@ void autocorrelation_investigation()
 
     //initialise spins array and neighbours maps
     initialise_system_and_maps();
-    print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
-    cout << "Running autocorrelation investigation" << endl;
 
     // open myfile
     ofstream myfile;
@@ -403,16 +453,17 @@ void autocorrelation_peaks_data()
     }
 }
 
-int initial_menu() {
+int initial_menu()
+{
     cout << "Ising Model, made by Savvas Shiakas (ss2477)" << endl;
     cout << "Please select an analysis by entering integer:" << endl;
-    cout << "1 for Magnetisation vs Time\n";
-    cout << "2 for Magnetisation vs Time - Bulk - high computation time and identical to option 1\n";
-    cout << "3 for Magnetisation vs Temperature\n";
-    cout << "4 for Autocorrelation vs Temperature\n";
-    cout << "5 for Autocorrelation vs Temperature around T_c - high computation time";
-    cout << "Other integers to Exit the program\n";
-    int choice = user_integer_input();
+    cout << "1 for Magnetisation vs Time.\n";
+    cout << "2 for Magnetisation vs Time (Bulk data, different lattice sizes and temperatures).\n";
+    cout << "3 for Magnetisation vs Temperature.\n";
+    cout << "4 for Autocorrelation vs Temperature.\n";
+    cout << "5 for Autocorrelation vs Temperature around T_c - high computation time.\n";
+    cout << "0 to Exit the program.\n";
+    int choice = user_integer_input(0,5);
     return choice;
 }
 
@@ -422,15 +473,20 @@ int main(int argc, char** argv)
     srand(seed);
 
     // user friendly function to run the code
-    int user_choice = initialise_model();
+    int user_choice = initial_menu();
 
     try {
         switch(user_choice) {
             case 1: magnetisation_vs_time_data();
-            case 2: magnetisation_vs_temp_data();
-            case 3: magnetisation_vs_time_data_bulk();
+            break;
+            case 2: magnetisation_vs_time_data_bulk();
+            break;
+            case 3: magnetisation_vs_temp_data();
+            break;
             case 4: autocorrelation_investigation();
+            break;
             case 5: autocorrelation_peaks_data();
+            break;
         }
     }
     catch(string er) {
