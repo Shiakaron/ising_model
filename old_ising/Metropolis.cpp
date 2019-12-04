@@ -12,6 +12,7 @@ void initiStateHotND() {
     for (int i = 0; i<V; i++) {
         F_2[i] = 2*(rand()%2)-1;    //return -1 or 1 randomly (50/50)
     }
+    //cout << "I am here3\n";
 }
 
 double computeMagnetisationND() {
@@ -21,6 +22,7 @@ double computeMagnetisationND() {
     }
     m /= V;
     return m;
+
 }
 
 double denergyND(int index) {
@@ -112,6 +114,7 @@ double denergyND_periodic(int index){
 
     //next to nearest neighbours
     if (Next2Nearest != 0) {
+        //cout << "I am here5\n";
         //dim = 1 is a special case
         if (dim == 1) {
             temp = index-2;
@@ -204,7 +207,7 @@ void flipFunctionND(double T, int cycles) {
     int index;
     //for testing outliers
     //int flip_values[cycles];
-
+    //cout << "I am here4\n";
     for(int r =0; r < cycles; r++){
 
         for(int k = 0; k<V; k++){ //begin attempting to flip

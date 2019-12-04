@@ -895,7 +895,7 @@ void produceConfigurations3D_2(double T, int cycles, int configs) {
 
 /*********** failed attempt at multithreading *************/
 
-quantity magnetisationData_mt(double T_mt, int confs_to_print) {
+quantity magnetisationData_mt(double T_mt) {
     //initialise
     double* arrayM;
     arrayM = new double[dataPoints];
@@ -904,23 +904,15 @@ quantity magnetisationData_mt(double T_mt, int confs_to_print) {
     double tempM_mt;
     int *F_mt;
     F_mt = new int[V];
-    //for configurations
-    string conf_filename = "conf_"+to_string(T_mt);
-    conf_div = dataPoints/confs_to_print;
-    conf_counter = 1;
     //compute magnetisation
     initiStateHotND_mt(F_mt);
     flipFunctionND_mt(F_mt, T_mt, tempM_mt, nCycles);
     tempM_mt = computeMagnetisationND_mt(F_mt);
     arrayM[0] = fabs(tempM_mt);
-    printConfiguration(conf_filename+"_"+to_string(conf_counter)+".txt");
-    conf_counter++;
+    // start main loop
     for (int k = 1; k < dataPoints; k++){
         flipFunctionND_mt(F_mt, T_mt, tempM_mt, mCycles);
         arrayM[k] = fabs(tempM_mt);
-        if (dataPoints%conf_div==0) {
-            printConfiguration(conf_filename+"_"+to_string(conf_counter)+".txt");
-        }
     }
     //compute averages and error
     aveM = averageArray(arrayM, dataPoints);
@@ -937,12 +929,57 @@ quantity magnetisationData_mt(double T_mt, int confs_to_print) {
     return return_value;
 }
 
-/*********** print configuration *************/
+
+/*********** for Athenodorou *************/
+
+quantity magnetisationData_Atheno(double Temp, int confs_to_print) {
+    //initialise
+    double* arrayM;
+    arrayM = new double[dataPoints];
+    double aveM;
+    double errM;
+    //cout << "I am here 2\n";
+    //compute magnetisation
+    initiStateHotND();
+    flipFunctionND(Temp, nCycles);
+    tempM = computeMagnetisationND();
+    arrayM[0] = fabs(tempM);
+    //for configurations
+    int conf_div = dataPoints/confs_to_print;
+    int conf_counter = 1;
+    string conf_file = "conf_"+to_string(Temp);
+    string conf_filename =conf_file+"_"+to_string(conf_counter)+".txt";
+    filename_rename_if_exists(conf_filename);
+    printConfiguration(conf_filename);
+    conf_counter++;
+    // start main loop
+    for (int k = 1; k < dataPoints; k++){
+        flipFunctionND(Temp, mCycles);
+        arrayM[k] = fabs(tempM);
+        if (k%conf_div==0) {
+            conf_filename = conf_file+"_"+to_string(conf_counter)+".txt";
+            filename_rename_if_exists(conf_filename);
+            printConfiguration(conf_filename);
+            conf_counter++;
+        }
+    }
+    //compute averages and error
+    aveM = averageArray(arrayM, dataPoints);
+    errM = jackknife_new(arrayM, n_b);
+    //add both to return value
+    quantity return_value;
+    return_value.value = aveM;
+    return_value.error = errM;
+    //wrap up
+    delete[] arrayM;
+    cout << Temp << ": finished" << endl;
+    //return
+    return return_value;
+}
 
 void printConfiguration(const string &filename) {
     ofstream file;
-    filename_rename_if_exists(filename);
-    file.open(filename)
+    file.open(filename);
     int spin;
     for (int i =0; i<V; i++) {
         if (F_2[i] == 1) {
@@ -971,19 +1008,19 @@ int main(int argc, char** argv) {
     // delete[] F;
 
     // producing data for the report
-    bool magn = true;
+    bool magn = false;
     bool susc = false;
+    bool Athenodorou_1 = true;
     if (magn) {
         clock_t tStart = clock();
         cout << "running for magnetisation data" << endl;
         L = 16;
         dim = 2;
-        Next2Nearest = 0.5;
         V =(int)(pow(L,dim)+0.5);
         nCycles = 10000;        //number of cycles of Monte Carlo primary
         mCycles = 100;           //number of cycles of Monte Carlo secondary
         dataPoints = 1000;      //total data points
-        configurations_to_print = 100; // number of configurations to print
+        int configurations_to_print = 100; // number of configurations to print
         iniT = 1.0; finT = 4.0; numT = 31;
         // iniT = 2.0; finT = 2.1125; numT = 10;
         // iniT = 2.125; finT = 2.2375; numT = 10;
@@ -1006,7 +1043,7 @@ int main(int argc, char** argv) {
         quantity temp;
         // compute data
         for (int i = 0; i<numT; i++) {
-            temp = magnetisationData_mt(T[i],configurations_to_print);
+            temp = magnetisationData_mt(T[i]);
             magn.push_back(temp.value);
             err_magn.push_back(temp.error);
         }
@@ -1085,93 +1122,49 @@ int main(int argc, char** argv) {
         cout << "Program ended in " << (double)(clock()-tStart)/CLOCKS_PER_SEC << " seconds" << endl;
         delete[] T;
     }
-
-    // failed attempts at multithreading
-    // run in terminal:
-    // g++ -std=c++14 -pthread autocorrelation.cpp bootstrap.cpp general.cpp ising.cpp jacknife.cpp main.cpp Metropolis.cpp wolff.cpp -o
-    bool susc_mt = false;
-    bool magn_mt = false;
-    bool wolff_mt = false;
-    if (susc_mt) {
+    if (Athenodorou_1) {
         clock_t tStart = clock();
-        cout << "running for susceptibility on multiple threads" << endl;
-        L = 20;
-        dim = 3;
-        V = L*L*L;
-        nCycles = 10000;        //number of cycles of Monte Carlo primary
-        mCycles = 50;           //number of cycles of Monte Carlo secondary
-        dataPoints = 20000;      //total data points
-        cout << "L = " << L << endl;
-        cout << "Dimensions = " << dim << endl;
-        cout << "Thermalisation cycles = " << nCycles << endl;
-        cout << "Number of data points = " << dataPoints << endl;
-        cout << "Cycles in between data points = " << mCycles << endl;
-        vector<future<quantity>> futures;
-        vector<double> susc;
-        vector<double> err_susc;
-        iniT = 4.0; finT = 5.0; numT = 41;
-        T = linspace(iniT, finT, numT);
-
-        for (int i =0; i<numT; i++) {
-            cout << T[i] << ": creating thread " << endl;
-            futures.push_back(async(susceptibilityData3, T[i]));
-        }
-        cout << "all threads created" << endl;
-        for (auto &e : futures){
-            quantity temp = e.get();
-            susc.push_back(temp.value);
-            err_susc.push_back(temp.error);
-        }
-        // open file
-        ofstream myfile;
-        string filename = "susceptibility3D_"+to_string(L)+".txt";
-        filename_rename_if_exists(filename);
-        cout << "creating susceptibility data file with name " + filename << endl;
-        myfile.open(filename);
-        // write data on open file
-        for(int i = 0; i < numT; i++) {
-           myfile << T[i] << " " << susc[i] << " " << err_susc[i] << endl;
-        }
-        // wrap up
-        if (myfile.is_open()){
-            myfile.close();
-        }
-        cout << "Program ended in " << (double)(clock()-tStart)/CLOCKS_PER_SEC << " seconds" << endl;
-        delete[] T;
-    }
-    if (magn_mt) {
-        clock_t tStart = clock();
-        cout << "running for magnetisation data on multiple threads" << endl;
-        L = 48;
+        cout << "running for magnetisation data" << endl;
+        L = 16;
         dim = 2;
-        V = pow(L,dim);
-        nCycles = 40000;        //number of cycles of Monte Carlo primary
+        Next2Nearest = 1;
+        V =(int)(pow(L,dim)+0.5);
+        F_2 = new int[V];
+        nCycles = 10000;        //number of cycles of Monte Carlo primary
         mCycles = 100;           //number of cycles of Monte Carlo secondary
         dataPoints = 1000;      //total data points
+        int configurations_to_print = 100; // number of configurations to print
+        iniT = 1.0; finT = 4.0; numT = 11;
+        // iniT = 2.0; finT = 2.1125; numT = 10;
+        // iniT = 2.125; finT = 2.2375; numT = 10;
+        // iniT = 2.25; finT = 2.3625; numT = 10;
+        // iniT = 2.375; finT = 2.4875; numT = 10;
+        // iniT = 2.5; finT = 3.4; numT = 10;
+        // iniT = 3.5; finT = 4.4; numT = 10;
+        // iniT = 4.5; finT = 4.5; numT = 1;
+        T = linspace(iniT, finT, numT);
         cout << "L = " << L << endl;
         cout << "Dimensions = " << dim << endl;
         cout << "Thermalisation cycles = " << nCycles << endl;
         cout << "Number of data points = " << dataPoints << endl;
         cout << "Cycles in between data points = " << mCycles << endl;
-        vector<future<quantity>> futures;
+        cout << "Temperatures to compute are: " << endl;
+        print_T_to_console();
+        cout << "Starting computations" << endl;
         vector<double> magn;
         vector<double> err_magn;
-        iniT = 1.0; finT = 5.0; numT = 41;
-        T = linspace(iniT, finT, numT);
-
+        quantity temp;
+        // compute data
         for (int i = 0; i<numT; i++) {
-            cout << T[i] << ": creating thread " << endl;
-            futures.push_back(async(magnetisationData_mt, T[i]));
-        }
-        cout << "all threads created" << endl;
-        for (auto &e : futures){
-            quantity temp = e.get();
+            //cout << "I am here 1\n";
+            temp = magnetisationData_Atheno(T[i],configurations_to_print);
             magn.push_back(temp.value);
             err_magn.push_back(temp.error);
         }
         // open file
         ofstream myfile;
         string filename = "magnetisation_"+to_string(L)+".txt";
+        cout << "file name is " << filename << endl;
         filename_rename_if_exists(filename);
         cout << "creating magnetisation data file with name " + filename << endl;
         myfile.open(filename);
@@ -1186,42 +1179,143 @@ int main(int argc, char** argv) {
         cout << "Program ended in " << (double)(clock()-tStart)/CLOCKS_PER_SEC << " seconds" << endl;
         delete[] T;
     }
-    if (wolff_mt) {
-        clock_t tStart = clock();
-        cout << "running for wolff susceptibility on multiple threads" << endl;
-        vector<future<quantity>> futures;
 
-        int data_points = 1000;
-        vector<double> susceptibilities;
-        vector<double> err_susceptibilities;
-
-        double *T;
-
-        T = linspace(2.26, 2.4, data_points);
-        for(int i = 0; i < data_points; i++) {
-           futures.push_back(async(wolff, T[i]));
-        }
-
-        for (auto &e : futures){
-           quantity temp = e.get();
-           susceptibilities.push_back(temp.value);
-           err_susceptibilities.push_back(temp.error);
-        }
-
-        string filename ("susceptibility" + to_string(L) + ".txt");
-        ofstream myfile;
-        myfile.open(filename);
-
-        for(int i = 0; i < data_points; i++) {
-           myfile << T[i] << "," << susceptibilities[i] << "," << err_susceptibilities[i] << endl;
-        }
-
-        if (myfile.is_open()){
-           myfile.close();
-        }
-
-        cout << "Program ended in " << (double)(clock()-tStart)/CLOCKS_PER_SEC << " seconds" << endl;
-    }
+    // failed attempts at multithreading
+    // run in terminal:
+    // // g++ -std=c++14 -pthread autocorrelation.cpp bootstrap.cpp general.cpp ising.cpp jacknife.cpp main.cpp Metropolis.cpp wolff.cpp -o
+    // bool susc_mt = false;
+    // bool magn_mt = false;
+    // bool wolff_mt = false;
+    // if (susc_mt) {
+    //     clock_t tStart = clock();
+    //     cout << "running for susceptibility on multiple threads" << endl;
+    //     L = 20;
+    //     dim = 3;
+    //     V = L*L*L;
+    //     nCycles = 10000;        //number of cycles of Monte Carlo primary
+    //     mCycles = 50;           //number of cycles of Monte Carlo secondary
+    //     dataPoints = 20000;      //total data points
+    //     cout << "L = " << L << endl;
+    //     cout << "Dimensions = " << dim << endl;
+    //     cout << "Thermalisation cycles = " << nCycles << endl;
+    //     cout << "Number of data points = " << dataPoints << endl;
+    //     cout << "Cycles in between data points = " << mCycles << endl;
+    //     vector<future<quantity>> futures;
+    //     vector<double> susc;
+    //     vector<double> err_susc;
+    //     iniT = 4.0; finT = 5.0; numT = 41;
+    //     T = linspace(iniT, finT, numT);
+    //
+    //     for (int i =0; i<numT; i++) {
+    //         cout << T[i] << ": creating thread " << endl;
+    //         futures.push_back(async(susceptibilityData3, T[i]));
+    //     }
+    //     cout << "all threads created" << endl;
+    //     for (auto &e : futures){
+    //         quantity temp = e.get();
+    //         susc.push_back(temp.value);
+    //         err_susc.push_back(temp.error);
+    //     }
+    //     // open file
+    //     ofstream myfile;
+    //     string filename = "susceptibility3D_"+to_string(L)+".txt";
+    //     filename_rename_if_exists(filename);
+    //     cout << "creating susceptibility data file with name " + filename << endl;
+    //     myfile.open(filename);
+    //     // write data on open file
+    //     for(int i = 0; i < numT; i++) {
+    //        myfile << T[i] << " " << susc[i] << " " << err_susc[i] << endl;
+    //     }
+    //     // wrap up
+    //     if (myfile.is_open()){
+    //         myfile.close();
+    //     }
+    //     cout << "Program ended in " << (double)(clock()-tStart)/CLOCKS_PER_SEC << " seconds" << endl;
+    //     delete[] T;
+    // }
+    // if (magn_mt) {
+    //     clock_t tStart = clock();
+    //     cout << "running for magnetisation data on multiple threads" << endl;
+    //     L = 48;
+    //     dim = 2;
+    //     V = pow(L,dim);
+    //     nCycles = 40000;        //number of cycles of Monte Carlo primary
+    //     mCycles = 100;           //number of cycles of Monte Carlo secondary
+    //     dataPoints = 1000;      //total data points
+    //     cout << "L = " << L << endl;
+    //     cout << "Dimensions = " << dim << endl;
+    //     cout << "Thermalisation cycles = " << nCycles << endl;
+    //     cout << "Number of data points = " << dataPoints << endl;
+    //     cout << "Cycles in between data points = " << mCycles << endl;
+    //     vector<future<quantity>> futures;
+    //     vector<double> magn;
+    //     vector<double> err_magn;
+    //     iniT = 1.0; finT = 5.0; numT = 41;
+    //     T = linspace(iniT, finT, numT);
+    //
+    //     for (int i = 0; i<numT; i++) {
+    //         cout << T[i] << ": creating thread " << endl;
+    //         futures.push_back(async(magnetisationData_mt, T[i]));
+    //     }
+    //     cout << "all threads created" << endl;
+    //     for (auto &e : futures){
+    //         quantity temp = e.get();
+    //         magn.push_back(temp.value);
+    //         err_magn.push_back(temp.error);
+    //     }
+    //     // open file
+    //     ofstream myfile;
+    //     string filename = "magnetisation_"+to_string(L)+".txt";
+    //     filename_rename_if_exists(filename);
+    //     cout << "creating magnetisation data file with name " + filename << endl;
+    //     myfile.open(filename);
+    //     // write data on open file
+    //     for(int i = 0; i < numT; i++) {
+    //        myfile << T[i] << " " << magn[i] << " " << err_magn[i] << endl;
+    //     }
+    //     // wrap up
+    //     if (myfile.is_open()){
+    //         myfile.close();
+    //     }
+    //     cout << "Program ended in " << (double)(clock()-tStart)/CLOCKS_PER_SEC << " seconds" << endl;
+    //     delete[] T;
+    // }
+    // if (wolff_mt) {
+    //     clock_t tStart = clock();
+    //     cout << "running for wolff susceptibility on multiple threads" << endl;
+    //     vector<future<quantity>> futures;
+    //
+    //     int data_points = 1000;
+    //     vector<double> susceptibilities;
+    //     vector<double> err_susceptibilities;
+    //
+    //     double *T;
+    //
+    //     T = linspace(2.26, 2.4, data_points);
+    //     for(int i = 0; i < data_points; i++) {
+    //        futures.push_back(async(wolff, T[i]));
+    //     }
+    //
+    //     for (auto &e : futures){
+    //        quantity temp = e.get();
+    //        susceptibilities.push_back(temp.value);
+    //        err_susceptibilities.push_back(temp.error);
+    //     }
+    //
+    //     string filename ("susceptibility" + to_string(L) + ".txt");
+    //     ofstream myfile;
+    //     myfile.open(filename);
+    //
+    //     for(int i = 0; i < data_points; i++) {
+    //        myfile << T[i] << "," << susceptibilities[i] << "," << err_susceptibilities[i] << endl;
+    //     }
+    //
+    //     if (myfile.is_open()){
+    //        myfile.close();
+    //     }
+    //
+    //     cout << "Program ended in " << (double)(clock()-tStart)/CLOCKS_PER_SEC << " seconds" << endl;
+    // }
 
     return 0;
 }
