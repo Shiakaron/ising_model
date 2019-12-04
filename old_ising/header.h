@@ -98,7 +98,8 @@ void testMetropolisND2();
 void testMetropolisND2_1(double T, int cycles, int configs);
 void produceConfigurations3D(int L_arg, int cycles, int configs);
 void produceConfigurations3D_2(double T, int cycles, int configs);
-quantity magnetisationData_mt(double T_mt);
+quantity magnetisationData_mt(double T_mt, int confs_to_print);
+void printConfiguration(const string &filename);
 
 //AUTOCORRELATION
 void autocorrelationInvestigationNew();

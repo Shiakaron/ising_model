@@ -895,7 +895,7 @@ void produceConfigurations3D_2(double T, int cycles, int configs) {
 
 /*********** failed attempt at multithreading *************/
 
-quantity magnetisationData_mt(double T_mt) {
+quantity magnetisationData_mt(double T_mt, int confs_to_print) {
     //initialise
     double* arrayM;
     arrayM = new double[dataPoints];
@@ -904,14 +904,23 @@ quantity magnetisationData_mt(double T_mt) {
     double tempM_mt;
     int *F_mt;
     F_mt = new int[V];
+    //for configurations
+    string conf_filename = "conf_"+to_string(T_mt);
+    conf_div = dataPoints/confs_to_print;
+    conf_counter = 1;
     //compute magnetisation
     initiStateHotND_mt(F_mt);
     flipFunctionND_mt(F_mt, T_mt, tempM_mt, nCycles);
     tempM_mt = computeMagnetisationND_mt(F_mt);
     arrayM[0] = fabs(tempM_mt);
+    printConfiguration(conf_filename+"_"+to_string(conf_counter)+".txt");
+    conf_counter++;
     for (int k = 1; k < dataPoints; k++){
         flipFunctionND_mt(F_mt, T_mt, tempM_mt, mCycles);
         arrayM[k] = fabs(tempM_mt);
+        if (dataPoints%conf_div==0) {
+            printConfiguration(conf_filename+"_"+to_string(conf_counter)+".txt");
+        }
     }
     //compute averages and error
     aveM = averageArray(arrayM, dataPoints);
@@ -928,6 +937,28 @@ quantity magnetisationData_mt(double T_mt) {
     return return_value;
 }
 
+/*********** print configuration *************/
+
+void printConfiguration(const string &filename) {
+    ofstream file;
+    filename_rename_if_exists(filename);
+    file.open(filename)
+    int spin;
+    for (int i =0; i<V; i++) {
+        if (F_2[i] == 1) {
+            spin = 1;
+        }
+        else {
+            spin = 0;
+        }
+        file << spin << endl;
+    }
+    if(file.is_open()){
+        file.close();
+        cout << filename << endl;
+    }
+}
+
 /*********** main *************/
 
 int main(int argc, char** argv) {
@@ -940,8 +971,8 @@ int main(int argc, char** argv) {
     // delete[] F;
 
     // producing data for the report
-    bool magn = false;
-    bool susc = true;
+    bool magn = true;
+    bool susc = false;
     if (magn) {
         clock_t tStart = clock();
         cout << "running for magnetisation data" << endl;
@@ -951,6 +982,7 @@ int main(int argc, char** argv) {
         nCycles = 40000;        //number of cycles of Monte Carlo primary
         mCycles = 100;           //number of cycles of Monte Carlo secondary
         dataPoints = 10000;      //total data points
+        configurations_to_print = 100; // number of configurations to print
         iniT = 1.1; finT = 1.1; numT = 1;
         // iniT = 2.0; finT = 2.1125; numT = 10;
         // iniT = 2.125; finT = 2.2375; numT = 10;
@@ -973,7 +1005,7 @@ int main(int argc, char** argv) {
         quantity temp;
         // compute data
         for (int i = 0; i<numT; i++) {
-            temp = magnetisationData_mt(T[i]);
+            temp = magnetisationData_mt(T[i],configurations_to_print);
             magn.push_back(temp.value);
             err_magn.push_back(temp.error);
         }

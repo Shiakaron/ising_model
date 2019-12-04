@@ -175,6 +175,8 @@ void printArraytoFile3D_2(const string &filename, double T) {
 
 }
 
+
+
 bool file_exists(const string& name) {
     ifstream infile(name);
     return infile.good();
@@ -204,7 +206,7 @@ void filename_rename_if_exists(string& filename) {
         ending = filename.substr(dot_index);
         //cout << ending << endl;
         // add the (number) in between the two parts
-        int t = 0;
+        int t = 1;
         while (exists) {
             string number = "("+to_string(t)+")";
             filename = name+number+ending;
