@@ -976,14 +976,15 @@ int main(int argc, char** argv) {
     if (magn) {
         clock_t tStart = clock();
         cout << "running for magnetisation data" << endl;
-        L = 128;
+        L = 16;
         dim = 2;
-        V = pow(L,dim);
-        nCycles = 40000;        //number of cycles of Monte Carlo primary
+        Next2Nearest = 0.5;
+        V =(int)(pow(L,dim)+0.5);
+        nCycles = 10000;        //number of cycles of Monte Carlo primary
         mCycles = 100;           //number of cycles of Monte Carlo secondary
-        dataPoints = 10000;      //total data points
+        dataPoints = 1000;      //total data points
         configurations_to_print = 100; // number of configurations to print
-        iniT = 1.1; finT = 1.1; numT = 1;
+        iniT = 1.0; finT = 4.0; numT = 31;
         // iniT = 2.0; finT = 2.1125; numT = 10;
         // iniT = 2.125; finT = 2.2375; numT = 10;
         // iniT = 2.25; finT = 2.3625; numT = 10;
