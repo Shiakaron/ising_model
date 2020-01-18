@@ -5,6 +5,9 @@ import os
 from scipy.optimize import curve_fit
 
 def plot_0(L,T,limit):
+    """
+    
+    """
     p_file = None
     folder = "autocorrelation_data"
     filename = "autocorr_data_"+str(L)+"_L_"+str("{0:.6f}".format(T))+"_T.txt"
