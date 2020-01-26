@@ -10,7 +10,8 @@ def plot_1():
     """
     p_files = []
     dim = 2
-    folder = "magn_data"
+    # please change file path when running on different devices
+    folder = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\data\\magn_data"
     for file in sorted(os.listdir(folder)):
         if file.endswith(".txt") and not file.endswith(").txt"):
             p_files.append(os.path.join(folder,file))
@@ -33,8 +34,8 @@ def plot_1():
                     errM.append(float(row[2]))
             ax.errorbar(T, avgM, errM, ls='',marker='+', label="L = "+str(L))
 
-    ax.set_title("|Magnetisation| per site vs Temperature")
-    ax.set_ylabel("|M|/N")
+    ax.set_title("<|Magnetisation|> vs Temperature")
+    ax.set_ylabel("m")
     ax.set_xlabel("T")
     ax.legend()
     fig.savefig(folder+"\\magn_vs_temp.png")

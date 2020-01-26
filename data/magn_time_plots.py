@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 import csv
 import os
 
+# please fix filepaths if you are running this on different devices
+folder = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\data\\magn_vs_time"
+
 def thermalisation_1():
     """
     Plot at different temperatures but same L
@@ -11,7 +14,6 @@ def thermalisation_1():
     dim = 2
     L = 40
     filename = "magn_vs_time_"+str(dim)+"D_"+str(L)
-    folder = "magn_vs_time"
     for file in sorted(os.listdir(folder)):
         if file.startswith(filename):
             p_files.append(os.path.join(folder,file))
@@ -50,7 +52,6 @@ def thermalisation_2():
     L = 40
     T = "1.500000"
     filename = "magn_vs_time_"+str(dim)+"D_"+str(L)+"_"+T
-    folder = "magn_vs_time"
     for file in sorted(os.listdir(folder)):
         if file.startswith(filename):
             p_files.append(os.path.join(folder,file))
@@ -84,8 +85,6 @@ def thermalisation_3():
     """
     p_files = []
     T = 1.5
-    #filename = "magn_vs_time_"+str(dim)+"D_"+str(L)
-    folder = "magn_vs_time"
     for file in sorted(os.listdir(folder)):
         if file.endswith(str(T)+"00000.txt"):
             p_files.append(os.path.join(folder,file))
@@ -114,8 +113,8 @@ def thermalisation_3():
     plt.show()
 
 def main():
-    # thermalisation_1()
-    # thermalisation_2()
+    thermalisation_1()
+    thermalisation_2()
     thermalisation_3()
 
 if (__name__ == '__main__'):

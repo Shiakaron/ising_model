@@ -15,15 +15,20 @@ unsigned int seed = (unsigned)time(0); // (unsigned)time(0);
 double *T;
 
 /*
-TESTING THE PROGRAM CORE FUNCTIONS
-To start with I will analyse the evolution of the average magnetisation of the system.
-For different Lattice sizes and temperatures I will output different data files.
-PLOT 1: For a fixed lattice size plot the evolution of the system at different
-temperatures, both below and above Tc.
-PLOT 2: I will choose a specific lattice size and temperature (below Tc)
-to demonstrate the randomness of the simulation and difference of hot and cold start
-PLOT 3: For a fixed temperature (below Tc) plot the evolution of the system at
-different lattice sizes. Used average magnetisation for clarity in plots.
+TESTING THE PROGRAM'S CORE FUNCTIONS
+To start with analysing the evolution of the average magnetisation of the system. I will do this with different Lattice sizes and a range of temperatures. Following that I will test how the average magnetisation of an evolved system changes with temperature. I will do this for different lattice sizes to show finite size effects.
+
+PLOT 1:
+For a fixed lattice size plot the evolution of the system at different temperatures, both below and above Tc.
+
+PLOT 2:
+I will choose a specific lattice size and temperature (below Tc) to demonstrate the randomness of the simulation and difference between hot and cold start
+
+PLOT 3:
+For a fixed temperature (below Tc) plot the evolution of the system at different lattice sizes. Use average magnetisation for clarity in plots.
+
+PLOT 4:
+<|magnetisaiton|> vs temperature for different lattice sizes. Shows finite size effects and how greater lattice size are closer to the real solution.
 */
 
 void magnetisation_vs_time_data()
@@ -47,7 +52,7 @@ void magnetisation_vs_time_data()
         thermalisationCycles = user_integer_input(0,5000);
         cout << "Number of data points (100-10000):\n";
         dataPoints = user_integer_input(100,10000);
-        cout << "Temperature (1-50) (i.e enter 15 for 1.5 Kelvin):\n";
+        cout << "Temperature (enter 15 for 1.5 Kelvin) (1-50):\n";
         Temp = double(user_integer_input(1,50))/10;
     }
 
@@ -165,10 +170,10 @@ void magnetisation_vs_temp_data()
         thermalisationCycles = user_integer_input(0,5000);
         cout << "Number of data points (100-10000):\n";
         dataPoints = user_integer_input(100,10000);
-        cout << "Initial Temperature (1-49) (i.e enter 15 for 1.5 Kelvin):\n";
+        cout << "Initial Temperature (1-49) i.e enter 15 for 1.5 Kelvin:\n";
         int iniT_int = user_integer_input(1,49);
         iniT = double(iniT_int)/10;
-        cout << "Final Temperature (" << iniT_int <<"-50) (i.e enter 15 for 1.5 Kelvin):\n";
+        cout << "Final Temperature (" << iniT_int <<"-50) i.e enter 15 for 1.5 Kelvin:\n";
         int finT_int = user_integer_input(iniT_int,50);
         finT = double(finT_int)/10;
         if (iniT_int != finT_int) {
@@ -242,22 +247,22 @@ void magnetisation_vs_temp_data()
 
 /*
 AUTOCORRELATION
-1. The first function will investigate the autcorrelation function and it's behaviour
-over a wide range of temperatures. A single value will be recorded at each temperature where
-the autocorr drops by 1/e, tau_e.
-2. Secondly we want to examine the value of tau_e around the critical temperature. From
-the previous analysis it is evident that there is a large variance over the value even
-with the same parameters.
+1. Firstly, autocorrelation_investigation() will investigate the autcorrelation function and it's behaviour over a wide range of temperatures. A single value will be recorded at each temperature where the autocorr drops by 1/e, tau_e.
+2. Lastly, we want to examine the value of tau_e around the critical temperature. From the previous analysis it is evident that there is a large variance over the value even with the same parameters.
+
+N.B.:
+It was observed that the total number of data points you collect for your autocorrelation analysis noticably affects the values of tau_e around the critical point. More data points -> higher values of tau_e. Without wasting (computational) time investigating this effect I fixed the number of data points collected to 1000, a small number to reduce computational time and big enough to yield  data for bigger L's. The reduced computational time can be used for more tau_e calculations with the same parameters to get a more precise average.
+
 
 */
 
 void autocorrelation_investigation()
 {
     cout << "Running autocorrelation investigation" << endl;
-    L = 64;
+    L = 32;
     dim = 2;
-    int thermalisationCycles = 500;
-    int dataPoints = 10000;
+    int thermalisationCycles = 3000;
+    int dataPoints = 1000;
     int spacingCycles = 1;
     double iniT = 1.0; double finT = 5.0; int numT = 11;
     T = linspace(iniT, finT, numT);
@@ -273,10 +278,10 @@ void autocorrelation_investigation()
         thermalisationCycles = user_integer_input(0,5000);
         cout << "Number of data points (100-10000):\n";
         dataPoints = user_integer_input(100,10000);
-        cout << "Initial Temperature (1-49) (i.e enter 15 for 1.5 Kelvin):\n";
+        cout << "Initial Temperature i.e enter 15 for 1.5 Kelvin (1-49):\n";
         int iniT_int = user_integer_input(1,49);
         iniT = double(iniT_int)/10;
-        cout << "Final Temperature (" << iniT_int <<"-50) (i.e enter 15 for 1.5 Kelvin):\n";
+        cout << "Final Temperature i.e enter 15 for 1.5 Kelvin (" << iniT_int <<"-50):\n";
         int finT_int = user_integer_input(iniT_int,50);
         finT = double(finT_int)/10;
         if (iniT_int != finT_int) {
@@ -302,7 +307,7 @@ void autocorrelation_investigation()
     // open myfile
     ofstream myfile;
     ofstream myfile2;
-    string folder = ".\\data\\autocorrelation_data";
+    string folder = ".\\data\\autocorrelation_data\\investigation";
     string filename = "autocorr_times_"+to_string(L)+"_L.txt";
     string filename2;
     filename_rename_if_exists(filename, folder);
@@ -321,7 +326,7 @@ void autocorrelation_investigation()
         path2 = folder+"\\"+filename2;
         myfile2.open(path2);
         if (!myfile2.is_open()) {
-            throw "Func: autocorrelation_investigation() (in temperatures for-loop). File not opened with path: "+path2;
+            throw "Func: autocorrelation_investigation() (in temperatures for-loop). File not opened with path: " + path2;
         }
         tStartTemp = clock();
         arrayM = new double[dataPoints];
@@ -370,26 +375,55 @@ void autocorrelation_investigation()
 
 void autocorrelation_peaks_data()
 {
-    cout << "Please enter lattice size L:" << endl;
-    cin >> L;
-    // L = 16;
+    cout << "Running autocorrelation around critical tepmerature" << endl;
+    L = 28;
     dim = 2;
-    int thermalisationCycles = 500;
-    int dataPoints = 10000;
+    int thermalisationCycles = 1000;
+    int dataPoints = 1000;
     int spacingCycles = 1;
-    double iniT = 2.23; double finT = 2.37; int numT = 8;
+    double iniT = 2.21; double finT = 2.39; int numT = 10;
     T = linspace(iniT, finT, numT);
-    int numTau = 1000;
+    print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
+    cout << "Proceed with default parameters? Enter 0 for YES, 1 for NO\n";
+    int user_input = user_integer_input(0,1);
+    if (user_input == 1) {
+        cout << "Dimensions (2-3):\n";
+        dim = user_integer_input(2,3);
+        cout << "Lattice size (8-256):\n";
+        L = user_integer_input(8,256);
+        cout << "Thermalisation cycles (0-5000):\n";
+        thermalisationCycles = user_integer_input(0,5000);
+        cout << "Number of data points (100-10000):\n";
+        dataPoints = user_integer_input(100,10000);
+        cout << "Initial Temperature i.e enter 150 for 1.50 Kelvin (10-490):\n";
+        int iniT_int = user_integer_input(10,490);
+        iniT = double(iniT_int)/100;
+        cout << "Final Temperature i.e enter 150 for 1.50 Kelvin (" << iniT_int <<"-500):\n";
+        int finT_int = user_integer_input(iniT_int,500);
+        finT = double(finT_int)/100;
+        if (iniT_int != finT_int) {
+            cout << "Number of Temperature points (2-41).\n";
+            numT = user_integer_input(2,41);
+        }
+        else {
+            numT = 1;
+        }
+        T = linspace(iniT, finT, numT);
+    }
+    // number of taus to compute and get average
+    int numTau; // good number is 1000
+    cout << "Enter number of tau_e's to compute:\n";
+    numTau = user_integer_input(10,1000);
 
     //initialise vectors, pointers and time variable
     double *arrayM;
     double *bootstrap_values;
-    clock_t tStartTemp;
     double *autocorr;
     double *arrayTau;
     int tau_e;
     observable O_tau;
     int t_max = dataPoints;
+    clock_t tStartTemp;
 
     //initialise spins array and neighbours maps
     initialise_system_and_maps();
@@ -398,7 +432,7 @@ void autocorrelation_peaks_data()
 
     // open myfile
     ofstream myfile;
-    string folder = ".\\data\\autocorrelation_data";
+    string folder = ".\\data\\autocorrelation_data\\peaks";
     string filename = "autocorr_peak_"+to_string(L)+"_L.txt";
     filename_rename_if_exists(filename, folder);
     string path = folder+"\\"+filename;
@@ -456,12 +490,13 @@ void autocorrelation_peaks_data()
 int initial_menu()
 {
     cout << "Ising Model, made by Savvas Shiakas (ss2477)" << endl;
-    cout << "Please select an analysis by entering integer:" << endl;
+    cout << "C++ was used to produce data files which are later plotted using python\n";
+    cout << "Please select an analysis by entering an integer:" << endl;
     cout << "1 for Magnetisation vs Time.\n";
     cout << "2 for Magnetisation vs Time (Bulk data, different lattice sizes and temperatures).\n";
     cout << "3 for Magnetisation vs Temperature.\n";
-    cout << "4 for Autocorrelation vs Temperature.\n";
-    cout << "5 for Autocorrelation vs Temperature around T_c - high computation time.\n";
+    cout << "4 for Autocorrelation initial Investigation.\n";
+    cout << "5 for Autocorrelation vs Temperature around the critical temperature - high computation time.\n";
     cout << "0 to Exit the program.\n";
     int choice = user_integer_input(0,5);
     return choice;
@@ -472,28 +507,34 @@ int main(int argc, char** argv)
     clock_t tStart = clock();
     srand(seed);
 
+    // TODO: enclose in while loop for code to rerun until user selects 0
     // user friendly function to run the code
-    int user_choice = initial_menu();
-
-    try {
-        switch(user_choice) {
-            case 1: magnetisation_vs_time_data();
-            break;
-            case 2: magnetisation_vs_time_data_bulk();
-            break;
-            case 3: magnetisation_vs_temp_data();
-            break;
-            case 4: autocorrelation_investigation();
-            break;
-            case 5: autocorrelation_peaks_data();
-            break;
+    bool running_program = true;
+    while (running_program) {
+        int user_choice = initial_menu();
+        try {
+            switch(user_choice) {
+                case 0: running_program = false;
+                break;
+                case 1: magnetisation_vs_time_data();
+                break;
+                case 2: magnetisation_vs_time_data_bulk();
+                break;
+                case 3: magnetisation_vs_temp_data();
+                break;
+                case 4: autocorrelation_investigation();
+                break;
+                case 5: autocorrelation_peaks_data();
+                break;
+            }
+        }
+        catch(string er) {
+            cerr << "ERROR. EXITING PROGRAM." << endl;
+            cout << er << endl;
+            return 1;
         }
     }
-    catch(string er) {
-        cerr << "ERROR. EXITING PROGRAM." << endl;
-        cout << er << endl;
-        return 1;
-    }
+
     cout << "Program ended in " << (double)(clock()-tStart)/CLOCKS_PER_SEC << " seconds" << endl;
     return 0;
 }

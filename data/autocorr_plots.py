@@ -6,15 +6,14 @@ from scipy.optimize import curve_fit
 
 def plot_0(L,T,limit):
     """
-    
+    plot of autocorrelation and magnetisation vs sweeps
     """
     p_file = None
-    folder = "autocorrelation_data"
+    folder = "autocorrelation_data\\investigation"
     filename = "autocorr_data_"+str(L)+"_L_"+str("{0:.6f}".format(T))+"_T.txt"
     for file in sorted(os.listdir(folder)):
         if file.endswith(filename):
             p_file = os.path.join(folder,file)
-
     M = []
     autoc = []
     t = []
@@ -45,7 +44,7 @@ def plot_1():
     Plot tau_e vs temperature
     """
     p_files = []
-    folder = "autocorrelation_data"
+    folder = "autocorrelation_data\\investigation"
     for file in sorted(os.listdir(folder)):
         if file.startswith("autocorr_times") and file.endswith("L.txt"):
             p_files.append(os.path.join(folder,file))
@@ -73,19 +72,19 @@ def plot_1():
 def gauss(x, mean, sigma, scale, offset):
     return (scale*np.exp(-((x-mean)/sigma)**2)+offset)
 
-def power_fit(x,pow,scale):
-    return (scale*np.power(x,pow))
+def power_fit(x,pow,scale,offset):
+    return (scale*np.power(x,pow)+offset)
 
 def plot_2():
     """
-    1. fit gauss/lorentz on tau vs T for each L to identify peak
-    2. plot tau peak vs L
+    1. fit gauss/lorentz on tau vs T peak for different L
+    2. plot of tau peak vs L
     """
     L_list = []
     value_list = []
     error_list = []
 
-    folder = "autocorrelation_data"
+    folder = "autocorrelation_data\\peaks"
     p_files = []
     for file in sorted(os.listdir(folder)):
         if file.startswith("autocorr_peak") and not file.endswith(").txt"):
