@@ -247,24 +247,23 @@ void magnetisation_vs_temp_data()
 
 /*
 AUTOCORRELATION
-1. Firstly, autocorrelation_investigation() will investigate the autcorrelation function and it's behaviour over a wide range of temperatures. A single value will be recorded at each temperature where the autocorr drops by 1/e, tau_e.
-2. Lastly, we want to examine the value of tau_e around the critical temperature. From the previous analysis it is evident that there is a large variance over the value even with the same parameters.
+Firstly, autocorrelation_initial_investigation() will investigate the autcorrelation function and it's behaviour over a wide range of temperatures and over a "long time". A single value will be recorded at each temperature where the autocorr drops by 1/e, tau_e.
 
-N.B.:
-It was observed that the total number of data points you collect for your autocorrelation analysis noticably affects the values of tau_e around the critical point. More data points -> higher values of tau_e. Without wasting (computational) time investigating this effect I fixed the number of data points collected to 1000, a small number to reduce computational time and big enough to yield  data for bigger L's. The reduced computational time can be used for more tau_e calculations with the same parameters to get a more precise average.
+In the paper M. P. Nightingale and H. W. J. Blöte, Phys. Rev. Lett. 76 (1996) they found: "from a finite-size scaling analysis of these autocorrelation times, the dynamic critical exponent z is determined as z = 2.1665 (12)" where "tau_e ∼ L^z at the incipient critical point."
 
-
+PLOT 1:
+Tau_e vs temperature for range 1-5 Kelvin. I will collect data for a range of Lattice sizes.
 */
 
-void autocorrelation_investigation()
+void autocorrelation_initial_investigation()
 {
-    cout << "Running autocorrelation investigation" << endl;
-    L = 32;
+    cout << "Running autocorrelation initial investigation" << endl;
+    L = 128;
     dim = 2;
     int thermalisationCycles = 3000;
-    int dataPoints = 1000;
+    int dataPoints = 20000; // "long time"
     int spacingCycles = 1;
-    double iniT = 1.0; double finT = 5.0; int numT = 11;
+    double iniT = 2.0; double finT = 3.0; int numT = 11;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
     cout << "Proceed with default parameters? Enter 0 for YES, 1 for NO\n";
@@ -277,7 +276,7 @@ void autocorrelation_investigation()
         cout << "Thermalisation cycles (0-5000):\n";
         thermalisationCycles = user_integer_input(0,5000);
         cout << "Number of data points (100-10000):\n";
-        dataPoints = user_integer_input(100,10000);
+        dataPoints = user_integer_input(1000,20000);
         cout << "Initial Temperature i.e enter 15 for 1.5 Kelvin (1-49):\n";
         int iniT_int = user_integer_input(1,49);
         iniT = double(iniT_int)/10;
@@ -306,31 +305,21 @@ void autocorrelation_investigation()
 
     // open myfile
     ofstream myfile;
-    ofstream myfile2;
-    string folder = ".\\data\\autocorrelation_data\\investigation";
+    string folder = ".\\data\\autocorrelation_data\\initial_investigation";
     string filename = "autocorr_times_"+to_string(L)+"_L.txt";
-    string filename2;
     filename_rename_if_exists(filename, folder);
     string path = folder+"\\"+filename;
-    string path2;
     myfile.open(path);
     if (!myfile.is_open()) {
-        throw "Func: autocorrelation_investigation(). File not opened with path: "+path;
+        throw "Func: autocorrelation_initial_investigation(). File not opened with path: "+path;
     }
     cout << "Writing in file with path: " << path << endl;
     cout << "Starting computations" << endl;
     for (int i = 0; i<numT; i++) {
-        // open myfile2
-        filename2 =  "autocorr_data_"+to_string(L)+"_L_"+to_string(T[i])+"_T.txt";
-        filename_rename_if_exists(filename2, folder);
-        path2 = folder+"\\"+filename2;
-        myfile2.open(path2);
-        if (!myfile2.is_open()) {
-            throw "Func: autocorrelation_investigation() (in temperatures for-loop). File not opened with path: " + path2;
-        }
         tStartTemp = clock();
         arrayM = new double[dataPoints];
-        // begin
+
+        // magnetisation array
         initialise_spins_cold();
         compute_magnetisation();
         metropolis_function(T[i],thermalisationCycles);
@@ -342,7 +331,7 @@ void autocorrelation_investigation()
 
         // autocorrelation array
         autocorr = autocorrelation(arrayM, dataPoints);
-        tau_e = 0;
+        tau_e = dataPoints;
         for (int j = 0; j < dataPoints; j++){
            if (autocorr[j] <= exp(-1)){
                tau_e = j;
@@ -350,16 +339,8 @@ void autocorrelation_investigation()
            }
         }
 
-        // write in myfile
+        // write in myfile -> tau_e vs temp
         myfile << T[i] << " " << tau_e << endl;
-
-        // write in myfile2
-        for(int j=0; j<dataPoints; j++) {
-           myfile2 << arrayM[j] << " " << autocorr[j] << endl;
-        }
-        if (myfile2.is_open()){
-            myfile2.close();
-        }
 
         cout << "T = " << T[i] << ", tau_e = " << tau_e << ", Time: " << (double)(clock()-tStartTemp)/CLOCKS_PER_SEC << " seconds" << endl;
     }
@@ -373,15 +354,16 @@ void autocorrelation_investigation()
     }
 }
 
-void autocorrelation_peaks_data()
+
+void autocorrelation_peak_investigation()
 {
-    cout << "Running autocorrelation around critical tepmerature" << endl;
-    L = 28;
+    cout << "Running autocorrelation around critical temperature" << endl;
+    L = 128;
     dim = 2;
     int thermalisationCycles = 1000;
-    int dataPoints = 1000;
+    int dataPoints = 20000;
     int spacingCycles = 1;
-    double iniT = 2.21; double finT = 2.39; int numT = 10;
+    double iniT = 2.21; double finT = 2.35; int numT = 10;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
     cout << "Proceed with default parameters? Enter 0 for YES, 1 for NO\n";
@@ -394,12 +376,12 @@ void autocorrelation_peaks_data()
         cout << "Thermalisation cycles (0-5000):\n";
         thermalisationCycles = user_integer_input(0,5000);
         cout << "Number of data points (100-10000):\n";
-        dataPoints = user_integer_input(100,10000);
-        cout << "Initial Temperature i.e enter 150 for 1.50 Kelvin (10-490):\n";
-        int iniT_int = user_integer_input(10,490);
+        dataPoints = user_integer_input(1000,20000);
+        cout << "Initial Temperature i.e enter 150 for 1.50 Kelvin (200-240):\n";
+        int iniT_int = user_integer_input(200,240);
         iniT = double(iniT_int)/100;
-        cout << "Final Temperature i.e enter 150 for 1.50 Kelvin (" << iniT_int <<"-500):\n";
-        int finT_int = user_integer_input(iniT_int,500);
+        cout << "Final Temperature i.e enter 150 for 1.50 Kelvin (" << iniT_int <<"-300):\n";
+        int finT_int = user_integer_input(iniT_int,300);
         finT = double(finT_int)/100;
         if (iniT_int != finT_int) {
             cout << "Number of Temperature points (2-41).\n";
@@ -410,10 +392,10 @@ void autocorrelation_peaks_data()
         }
         T = linspace(iniT, finT, numT);
     }
-    // number of taus to compute and get average
-    int numTau; // good number is 1000
-    cout << "Enter number of tau_e's to compute:\n";
-    numTau = user_integer_input(10,1000);
+    // number of tau_e's to compute and get average
+    int numTau;
+    cout << "Enter number of tau_e's to compute and average over:\n";
+    numTau = user_integer_input(1,100);
 
     //initialise vectors, pointers and time variable
     double *arrayM;
@@ -438,7 +420,7 @@ void autocorrelation_peaks_data()
     string path = folder+"\\"+filename;
     myfile.open(path);
     if (!myfile.is_open()) {
-        throw "Func: autocorrelation_peaks_data(). File not opened with path: "+path;
+        throw "Func: autocorrelation_peak_investigation(). File not opened with path: "+path;
     }
     cout << "Writing in file with path: " << path << endl;
     cout << "Starting computations" << endl;
@@ -489,14 +471,12 @@ void autocorrelation_peaks_data()
 
 int initial_menu()
 {
-    cout << "Ising Model, made by Savvas Shiakas (ss2477)" << endl;
-    cout << "C++ was used to produce data files which are later plotted using python\n";
-    cout << "Please select an analysis by entering an integer:" << endl;
+    cout << "Please select an analysis by entering an integer:\n";
     cout << "1 for Magnetisation vs Time.\n";
     cout << "2 for Magnetisation vs Time (Bulk data, different lattice sizes and temperatures).\n";
     cout << "3 for Magnetisation vs Temperature.\n";
-    cout << "4 for Autocorrelation initial Investigation.\n";
-    cout << "5 for Autocorrelation vs Temperature around the critical temperature - high computation time.\n";
+    cout << "4 for Tau_e vs Temperature initial investigation.\n";
+    cout << "5 for Tau_e vs Temperature close to critical temperature.\n";
     cout << "0 to Exit the program.\n";
     int choice = user_integer_input(0,5);
     return choice;
@@ -506,34 +486,31 @@ int main(int argc, char** argv)
 {
     clock_t tStart = clock();
     srand(seed);
-
-    // TODO: enclose in while loop for code to rerun until user selects 0
+    cout << "Ising Model, made by Savvas Shiakas (ss2477)" << endl;
+    cout << "C++ was used to produce data files which are later plotted using Python\n\n";
     // user friendly function to run the code
-    bool running_program = true;
-    while (running_program) {
-        int user_choice = initial_menu();
-        try {
-            switch(user_choice) {
-                case 0: running_program = false;
-                break;
-                case 1: magnetisation_vs_time_data();
-                break;
-                case 2: magnetisation_vs_time_data_bulk();
-                break;
-                case 3: magnetisation_vs_temp_data();
-                break;
-                case 4: autocorrelation_investigation();
-                break;
-                case 5: autocorrelation_peaks_data();
-                break;
-            }
+    int user_choice = initial_menu();
+    try {
+        switch(user_choice) {
+            case 1: magnetisation_vs_time_data();
+            break;
+            case 2: magnetisation_vs_time_data_bulk();
+            break;
+            case 3: magnetisation_vs_temp_data();
+            break;
+            case 4: autocorrelation_initial_investigation();
+            break;
+            case 5: autocorrelation_peak_investigation();
+            break;
         }
-        catch(string er) {
-            cerr << "ERROR. EXITING PROGRAM." << endl;
-            cout << er << endl;
-            return 1;
-        }
+        cout << "Operation complete.";
     }
+    catch(string er) {
+        cerr << "ERROR. EXITING PROGRAM." << endl;
+        cout << er << endl;
+        return 1;
+    }
+
 
     cout << "Program ended in " << (double)(clock()-tStart)/CLOCKS_PER_SEC << " seconds" << endl;
     return 0;

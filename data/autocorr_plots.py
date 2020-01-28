@@ -4,47 +4,18 @@ import csv
 import os
 from scipy.optimize import curve_fit
 
-def plot_0(L,T,limit):
-    """
-    plot of autocorrelation and magnetisation vs sweeps
-    """
-    p_file = None
-    folder = "autocorrelation_data\\investigation"
-    filename = "autocorr_data_"+str(L)+"_L_"+str("{0:.6f}".format(T))+"_T.txt"
-    for file in sorted(os.listdir(folder)):
-        if file.endswith(filename):
-            p_file = os.path.join(folder,file)
-    M = []
-    autoc = []
-    t = []
-    fig, ax = plt.subplots()
-    ax.axhline(np.exp(-1), label="$e^{-1}$", linestyle="--",color="k")
-    with open(p_file) as csvfile:
-        lines = csv.reader(csvfile, delimiter=" ")
-        sweep = 0
-        for row in lines:
-            M.append(float(row[0]))
-            autoc.append(float(row[1]))
-            t.append(sweep)
-            sweep += 1
-            if (sweep==limit):
-                break
-    ax.plot(t,M,label="M")
-    ax.plot(t,autoc,label="Autocorrelation")
-    ax.set_title("Autocorrelation and <|M|> vs time \nL = "+str(L)+ ", T = "+str(T))
-    ax.set_ylabel(r"<|M|> and A($\tau$)")
-    ax.set_xlabel("t/sweeps")
-    ax.legend()
-    figname = "MnA_vs_t_"+str(L)+"_L_"+str(T)+"_T.png"
-    fig.savefig(folder+"\\"+figname)
-    plt.show()
+def gauss(x, mean, sigma, scale, offset):
+    return (scale*np.exp(-((x-mean)/sigma)**2)+offset)
+
+def power_fit(x,pow,scale,offset):
+    return (scale*np.power(x,pow)+offset)
 
 def plot_1():
     """
     Plot tau_e vs temperature
     """
     p_files = []
-    folder = "autocorrelation_data\\investigation"
+    folder = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\data\\autocorrelation_data\\initial_investigation"
     for file in sorted(os.listdir(folder)):
         if file.startswith("autocorr_times") and file.endswith("L.txt"):
             p_files.append(os.path.join(folder,file))
@@ -62,18 +33,12 @@ def plot_1():
                 tau_list.append(float(row[1]))
         ax.plot(T_list,tau_list,marker='+',label="L = "+str(L))
     ax.set_title("Time lag vs Temperature")
-    ax.set_ylabel(r"$\tau_e$")
-    ax.set_xlabel("T")
+    ax.set_ylabel(r"$\tau_e / sweeps$")
+    ax.set_xlabel("T / K")
     ax.set_yscale("log")
     ax.legend()
-    fig.savefig(folder+"\\tau_e_vs_temp.png")
+    fig.savefig(folder+"\\tau_e_vs_temp.pdf")
     plt.show()
-
-def gauss(x, mean, sigma, scale, offset):
-    return (scale*np.exp(-((x-mean)/sigma)**2)+offset)
-
-def power_fit(x,pow,scale,offset):
-    return (scale*np.power(x,pow)+offset)
 
 def plot_2():
     """
@@ -84,7 +49,7 @@ def plot_2():
     value_list = []
     error_list = []
 
-    folder = "autocorrelation_data\\peaks"
+    folder="C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\data\\autocorrelation_data\\peak_investigation"
     p_files = []
     for file in sorted(os.listdir(folder)):
         if file.startswith("autocorr_peak") and not file.endswith(").txt"):
@@ -149,9 +114,8 @@ def plot_2():
     plt.show()
 
 def main():
-    # plot_0(32,2.25,400)
-    # plot_1()
-    plot_2()
+    plot_1()
+    # plot_2()
 
 if (__name__ == '__main__'):
     main()
