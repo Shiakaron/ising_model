@@ -35,15 +35,15 @@ void magnetisation_vs_time_data()
 {
     cout << "Running for magnetisation of evolving system" << endl;
     dim = 2;
-    L = 40;
+    L = 80;
     int thermalisationCycles = 0;
-    int dataPoints = 5000;
+    int dataPoints = 10000;
     int spacingCycles = 1;
-    double Temp = 1.5;
+    double Temp = 2.23;
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, 0, Temp);
-    cout << "Proceed with default parameters? Enter 0 for YES, 1 for NO\n";
+    cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
     int user_input = user_integer_input(0,1);
-    if (user_input == 1) {
+    if (user_input == 0) {
         cout << "Dimensions (2-3):\n";
         dim = user_integer_input(2,3);
         cout << "Lattice size (8-256):\n";
@@ -67,13 +67,13 @@ void magnetisation_vs_time_data()
     string path = folder+"\\"+filename;
     myfile.open(path);
     if (!myfile.is_open()) {
-        throw "Func: magnetisation_vs_time_data(). File not opened with path: "+path;
+        throw "Func: magnetisation_vs_time_data(). File not opened with path: " + path + "\nPlease fix path";
     }
     cout << "Writing in file with path: " << path << endl;
     cout << "Starting computations" << endl;
     myfile << Temp << endl;
-    // initialise_spins_hot();
-    initialise_spins_cold();
+    initialise_spins_hot();
+    //initialise_spins_cold();
     compute_magnetisation();
     metropolis_function(Temp,thermalisationCycles);
     myfile << (fabs(M)) << endl;
@@ -120,12 +120,12 @@ void magnetisation_vs_time_data_bulk()
             string path = folder+"\\"+filename;
             myfile.open(path);
             if (!myfile.is_open()) {
-                throw "Func: magnetisation_vs_time_data_bulk(). File not opened with path: "+path;
+                throw "Func: magnetisation_vs_time_data_bulk(). File not opened with path: " + path + "\nPlease fix path";
             }
             cout << "Writing in file with path: " << path << endl;
             // begin
             cout << "Starting computations" << endl;
-            // compute magnetisation 
+            // compute magnetisation
             initialise_spins_hot();
             compute_magnetisation();
             metropolis_function(T[i],thermalisationCycles);
@@ -161,9 +161,9 @@ void magnetisation_vs_temp_data()
     double iniT = 1.0; double finT = 5.0; int numT = 41;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
-    cout << "Proceed with default parameters? Enter 0 for YES, 1 for NO\n";
+    cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
     int user_input = user_integer_input(0,1);
-    if (user_input == 1) {
+    if (user_input == 0) {
         cout << "Dimensions (2-3):\n";
         dim = user_integer_input(2,3);
         cout << "Lattice size (8-256):\n";
@@ -256,7 +256,7 @@ Secondly I will focus my attention around the peak, T_c ~ 2.27 K, where I will a
 In the paper M. P. Nightingale and H. W. J. Blöte, Phys. Rev. Lett. 76 (1996) they found: "from a finite-size scaling analysis of these autocorrelation times, the dynamic critical exponent z is determined as z = 2.1665 (12)" where "tau_e ∼ L^z at the incipient critical point."
 
 PLOT 1:
-Tau_e vs temperature for range 1-5 Kelvin. I will collect data for a range of Lattice sizes.
+Tau_e vs temperature for range 1-5 Kelvin. I will collect data for a range of Lattice sizes. Up to the point where computational time is too much of a cost.
 
 PLOT 2,3:
 For each L and T compute multiple tau_e's around critical point to get average. Fit a gaussian on each L to get the peak values. Then plot tau_e_peak vs Lattice size and fit a*L^z to get a relationship.
@@ -265,17 +265,17 @@ For each L and T compute multiple tau_e's around critical point to get average. 
 void autocorrelation_initial_investigation()
 {
     cout << "Running autocorrelation initial investigation" << endl;
-    L = 128;
+    L = 16;
     dim = 2;
-    int thermalisationCycles = 3000;
-    int dataPoints = 20000; // "long time"
+    int thermalisationCycles = 15000; // enough to ensure thermalisation
+    int dataPoints = 5000; // "long time"
     int spacingCycles = 1;
-    double iniT = 2.0; double finT = 3.0; int numT = 11;
+    double iniT = 1.5; double finT = 4.5; int numT = 31;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
-    cout << "Proceed with default parameters? Enter 0 for YES, 1 for NO\n";
+    cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
     int user_input = user_integer_input(0,1);
-    if (user_input == 1) {
+    if (user_input == 0) {
         cout << "Dimensions (2-3):\n";
         dim = user_integer_input(2,3);
         cout << "Lattice size (8-256):\n";
@@ -303,14 +303,13 @@ void autocorrelation_initial_investigation()
     //initialise vectors, pointers and time variable
     double *arrayM;
     double *bootstrap_values;
-    clock_t tStartTemp;
     double *autocorr;
     int tau_e;
 
     //initialise spins array and neighbours maps
     initialise_system_and_maps();
 
-    // open myfile
+    // open myfile -> record: T , tau_e
     ofstream myfile;
     string folder = ".\\data\\autocorrelation_data\\initial_investigation";
     string filename = "autocorr_times_"+to_string(L)+"_L.txt";
@@ -318,13 +317,31 @@ void autocorrelation_initial_investigation()
     string path = folder+"\\"+filename;
     myfile.open(path);
     if (!myfile.is_open()) {
-        throw "Func: autocorrelation_initial_investigation(). File not opened with path: "+path;
+        throw "Func: autocorrelation_initial_investigation(). File not opened with path: " + path + "\nPlease fix path";
     }
     cout << "Writing in file with path: " << path << endl;
+
+    // myfile2 -> bulk data, for each L and T record: magn, autocorr
+    ofstream myfile2;
+    string folder2 = ".\\data\\autocorrelation_data\\initial_investigation\\bulkdata";
+    string filename2;
+    string path2;
+
+    // begin
+    clock_t tStartTemp;
     cout << "Starting computations" << endl;
     for (int i = 0; i<numT; i++) {
         tStartTemp = clock();
         arrayM = new double[dataPoints];
+
+        // open myfile2
+        filename2 = "autocorr_times_"+to_string(L)+"_L_"+to_string(T[i])+".txt";
+        filename_rename_if_exists(filename2, folder2);
+        path2 = folder2+"\\"+filename2;
+        myfile2.open(path2);
+        if (!myfile2.is_open()) {
+            throw "Func: autocorrelation_initial_investigation(). File not opened with path: " + path2 + "\nPlease fix path";
+        }
 
         // magnetisation array
         initialise_spins_cold();
@@ -346,6 +363,15 @@ void autocorrelation_initial_investigation()
            }
         }
 
+        // write in myfile2
+        for (int j = 0; j < dataPoints; j++){
+            myfile2 << arrayM[j] << " " << autocorr[j] << endl;
+        }
+        // close myfile2
+        if (myfile2.is_open()){
+            myfile2.close();
+        }
+
         // write in myfile -> tau_e vs temp
         myfile << T[i] << " " << tau_e << endl;
 
@@ -365,23 +391,23 @@ void autocorrelation_initial_investigation()
 void autocorrelation_peak_investigation()
 {
     cout << "Running autocorrelation around critical temperature. High computation time! Proceed with caution!" << endl;
-    L = 48;
+    L = 16;
     dim = 2;
-    int thermalisationCycles = 5000;
+    int thermalisationCycles = 15000; // enough time to ensure thermalisation
     int dataPoints = 5000; //"long time", less than before but still long enough
     int spacingCycles = 1;
-    double iniT = 2.23; double finT = 2.31; int numT = 9;
+    double iniT = 2.23; double finT = 2.35; int numT = 7;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
-    cout << "Proceed with default parameters? Enter 0 for YES, 1 for NO\n";
+    cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
     int user_input = user_integer_input(0,1);
-    if (user_input == 1) {
+    if (user_input == 0) {
         cout << "Dimensions (2-3):\n";
         dim = user_integer_input(2,3);
         cout << "Lattice size (8-256):\n";
         L = user_integer_input(8,256);
-        cout << "Thermalisation cycles (0-5000):\n";
-        thermalisationCycles = user_integer_input(0,5000);
+        cout << "Thermalisation cycles (0-10000):\n";
+        thermalisationCycles = user_integer_input(0,10000);
         cout << "Number of data points (100-20000):\n";
         dataPoints = user_integer_input(1000,20000);
         cout << "Initial Temperature i.e enter 150 for 1.50 Kelvin (150-270):\n";
@@ -401,8 +427,8 @@ void autocorrelation_peak_investigation()
     }
     // number of tau_e's to compute and get average
     int numTau;
-    cout << "Enter number of tau_e's to compute and average over (beware of high computation time!):\n";
-    numTau = user_integer_input(1,100);
+    cout << "Enter number of tau_e's to compute and average over. Beware of high computation time! (1-1000):\n";
+    numTau = user_integer_input(1,1000);
 
     //initialise vectors, pointers and time variable
     double *arrayM;
@@ -427,18 +453,18 @@ void autocorrelation_peak_investigation()
     string path = folder+"\\"+filename;
     myfile.open(path);
     if (!myfile.is_open()) {
-        throw "Func: autocorrelation_peak_investigation(). File not opened with path: "+path+"\nPlease fix path";
+        throw "Func: autocorrelation_peak_investigation(). File not opened with path: " + path + "\nPlease fix path";
     }
     cout << "Writing in file with path: " << path << endl;
 
     // open myfile2 -> all computed values (to check what is going on)
     ofstream myfile2;
     string filename2 = "autocorr_peak_"+to_string(L)+"_L_fulldata.txt";
-    filename_rename_if_exists(filename2,folder2);
+    filename_rename_if_exists(filename2,folder);
     string path2 = folder+"\\"+filename2;
     myfile2.open(path2);
     if (!myfile2.is_open()) {
-        throw "Func: autocorrelation_peak_investigation(). File not opened with path: "+path2+"\nPlease fix path";
+        throw "Func: autocorrelation_peak_investigation(). File not opened with path: " + path2 + "\nPlease fix path";
     }
     cout << "Writing in file with path: " << path2 << endl;
 
@@ -449,7 +475,8 @@ void autocorrelation_peak_investigation()
         arrayTau = new double[numTau];
         for (int k=0; k<numTau; k++) {
             arrayM = new double[dataPoints];
-            // magnetisation array
+
+            // compute magnetisation
             initialise_spins_hot();
             compute_magnetisation();
             metropolis_function(T[i],thermalisationCycles);

@@ -12,7 +12,7 @@ def thermalisation_1():
     """
     p_files = []
     dim = 2
-    L = 40
+    L = 48
     filename = "magn_vs_time_"+str(dim)+"D_"+str(L)
     for file in sorted(os.listdir(folder)):
         if file.startswith(filename):

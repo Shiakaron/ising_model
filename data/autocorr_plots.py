@@ -37,7 +37,7 @@ def plot_1():
     ax.set_xlabel("T / K")
     ax.set_yscale("log")
     ax.legend()
-    fig.savefig(folder+"\\tau_e_vs_temp.pdf")
+    fig.savefig(folder+"\\tau_e_vs_temp.png")
     plt.show()
 
 def plot_2():
