@@ -100,6 +100,9 @@ void magnetisation_vs_time_data_bulk()
     double iniT = 1.0; double finT = 5.0; int numT = 9;
     T = linspace(iniT, finT, numT);
 
+    ofstream myfile;
+    string folder = ".\\data\\magn_vs_time";
+
     for (int i=0; i<numT; i++) {
         for (int j=0; j<5; j++) {
             //set L
@@ -112,8 +115,6 @@ void magnetisation_vs_time_data_bulk()
             print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, 0, T[i]);
 
             //open file
-            ofstream myfile;
-            string folder = ".\\data\\magn_vs_time";
             string filename = "magn_vs_time_"+to_string(dim)+"D_"+to_string(L)+"_"+to_string(T[i])+".txt";
             filename_rename_if_exists(filename, folder);
             string path = folder+"\\"+filename;
@@ -122,8 +123,9 @@ void magnetisation_vs_time_data_bulk()
                 throw "Func: magnetisation_vs_time_data_bulk(). File not opened with path: "+path;
             }
             cout << "Writing in file with path: " << path << endl;
+            // begin
             cout << "Starting computations" << endl;
-            //begin
+            // compute magnetisation 
             initialise_spins_hot();
             compute_magnetisation();
             metropolis_function(T[i],thermalisationCycles);
@@ -173,7 +175,7 @@ void magnetisation_vs_temp_data()
         cout << "Initial Temperature (1-49) i.e enter 15 for 1.5 Kelvin:\n";
         int iniT_int = user_integer_input(1,49);
         iniT = double(iniT_int)/10;
-        cout << "Final Temperature (" << iniT_int <<"-50) i.e enter 15 for 1.5 Kelvin:\n";
+        cout << "Final Temperature (" << iniT_int <<"-50):\n";
         int finT_int = user_integer_input(iniT_int,50);
         finT = double(finT_int)/10;
         if (iniT_int != finT_int) {
@@ -249,10 +251,15 @@ void magnetisation_vs_temp_data()
 AUTOCORRELATION
 Firstly, autocorrelation_initial_investigation() will investigate the autcorrelation function and it's behaviour over a wide range of temperatures and over a "long time". A single value will be recorded at each temperature where the autocorr drops by 1/e, tau_e.
 
+Secondly I will focus my attention around the peak, T_c ~ 2.27 K, where I will attempt to get an estimate of the time lag tau_e by computing the value multiple times.
+
 In the paper M. P. Nightingale and H. W. J. Blöte, Phys. Rev. Lett. 76 (1996) they found: "from a finite-size scaling analysis of these autocorrelation times, the dynamic critical exponent z is determined as z = 2.1665 (12)" where "tau_e ∼ L^z at the incipient critical point."
 
 PLOT 1:
 Tau_e vs temperature for range 1-5 Kelvin. I will collect data for a range of Lattice sizes.
+
+PLOT 2,3:
+For each L and T compute multiple tau_e's around critical point to get average. Fit a gaussian on each L to get the peak values. Then plot tau_e_peak vs Lattice size and fit a*L^z to get a relationship.
 */
 
 void autocorrelation_initial_investigation()
@@ -280,7 +287,7 @@ void autocorrelation_initial_investigation()
         cout << "Initial Temperature i.e enter 15 for 1.5 Kelvin (1-49):\n";
         int iniT_int = user_integer_input(1,49);
         iniT = double(iniT_int)/10;
-        cout << "Final Temperature i.e enter 15 for 1.5 Kelvin (" << iniT_int <<"-50):\n";
+        cout << "Final Temperature (" << iniT_int <<"-50):\n";
         int finT_int = user_integer_input(iniT_int,50);
         finT = double(finT_int)/10;
         if (iniT_int != finT_int) {
@@ -357,13 +364,13 @@ void autocorrelation_initial_investigation()
 
 void autocorrelation_peak_investigation()
 {
-    cout << "Running autocorrelation around critical temperature" << endl;
-    L = 128;
+    cout << "Running autocorrelation around critical temperature. High computation time! Proceed with caution!" << endl;
+    L = 48;
     dim = 2;
-    int thermalisationCycles = 1000;
-    int dataPoints = 20000;
+    int thermalisationCycles = 5000;
+    int dataPoints = 5000; //"long time", less than before but still long enough
     int spacingCycles = 1;
-    double iniT = 2.21; double finT = 2.35; int numT = 10;
+    double iniT = 2.23; double finT = 2.31; int numT = 9;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
     cout << "Proceed with default parameters? Enter 0 for YES, 1 for NO\n";
@@ -375,13 +382,13 @@ void autocorrelation_peak_investigation()
         L = user_integer_input(8,256);
         cout << "Thermalisation cycles (0-5000):\n";
         thermalisationCycles = user_integer_input(0,5000);
-        cout << "Number of data points (100-10000):\n";
+        cout << "Number of data points (100-20000):\n";
         dataPoints = user_integer_input(1000,20000);
-        cout << "Initial Temperature i.e enter 150 for 1.50 Kelvin (200-240):\n";
-        int iniT_int = user_integer_input(200,240);
+        cout << "Initial Temperature i.e enter 150 for 1.50 Kelvin (150-270):\n";
+        int iniT_int = user_integer_input(150,270);
         iniT = double(iniT_int)/100;
-        cout << "Final Temperature i.e enter 150 for 1.50 Kelvin (" << iniT_int <<"-300):\n";
-        int finT_int = user_integer_input(iniT_int,300);
+        cout << "Final Temperature (" << iniT_int <<"-350):\n";
+        int finT_int = user_integer_input(iniT_int,350);
         finT = double(finT_int)/100;
         if (iniT_int != finT_int) {
             cout << "Number of Temperature points (2-41).\n";
@@ -394,7 +401,7 @@ void autocorrelation_peak_investigation()
     }
     // number of tau_e's to compute and get average
     int numTau;
-    cout << "Enter number of tau_e's to compute and average over:\n";
+    cout << "Enter number of tau_e's to compute and average over (beware of high computation time!):\n";
     numTau = user_integer_input(1,100);
 
     //initialise vectors, pointers and time variable
@@ -412,26 +419,38 @@ void autocorrelation_peak_investigation()
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
     cout << "Running autocorrelation peak data for L = " << L << endl;
 
-    // open myfile
+    string folder = ".\\data\\autocorrelation_data\\peak_investigation";
+    // open myfile -> average and std
     ofstream myfile;
-    string folder = ".\\data\\autocorrelation_data\\peaks";
     string filename = "autocorr_peak_"+to_string(L)+"_L.txt";
     filename_rename_if_exists(filename, folder);
     string path = folder+"\\"+filename;
     myfile.open(path);
     if (!myfile.is_open()) {
-        throw "Func: autocorrelation_peak_investigation(). File not opened with path: "+path;
+        throw "Func: autocorrelation_peak_investigation(). File not opened with path: "+path+"\nPlease fix path";
     }
     cout << "Writing in file with path: " << path << endl;
+
+    // open myfile2 -> all computed values (to check what is going on)
+    ofstream myfile2;
+    string filename2 = "autocorr_peak_"+to_string(L)+"_L_fulldata.txt";
+    filename_rename_if_exists(filename2,folder2);
+    string path2 = folder+"\\"+filename2;
+    myfile2.open(path2);
+    if (!myfile2.is_open()) {
+        throw "Func: autocorrelation_peak_investigation(). File not opened with path: "+path2+"\nPlease fix path";
+    }
+    cout << "Writing in file with path: " << path2 << endl;
+
+    // begin
     cout << "Starting computations" << endl;
     for (int i = 0; i<numT; i++) {
         tStartTemp = clock();
         arrayTau = new double[numTau];
         for (int k=0; k<numTau; k++) {
-            cout << "\r" << k*100/numTau << " %  ";
             arrayM = new double[dataPoints];
-            // begin
-            initialise_spins_cold();
+            // magnetisation array
+            initialise_spins_hot();
             compute_magnetisation();
             metropolis_function(T[i],thermalisationCycles);
             arrayM[0] = M;
@@ -449,6 +468,10 @@ void autocorrelation_peak_investigation()
                    break;
                }
             }
+
+            // print out, write in file, put in array
+            cout << "(" << k+1 << "/" << numTau << ")T = " << T[i] <<  ", tau = " << tau_e << endl;
+            myfile2 << T[i] << " " << tau_e << endl;
             arrayTau[k] = double(tau_e);
         }
         //compute average and sigma of arrayTau
@@ -466,6 +489,9 @@ void autocorrelation_peak_investigation()
     delete[] autocorr;
     if (myfile.is_open()){
         myfile.close();
+    }
+    if (myfile2.is_open()){
+        myfile2.close();
     }
 }
 
@@ -503,7 +529,7 @@ int main(int argc, char** argv)
             case 5: autocorrelation_peak_investigation();
             break;
         }
-        cout << "Operation complete.";
+        cout << "\nOperation complete.";
     }
     catch(string er) {
         cerr << "ERROR. EXITING PROGRAM." << endl;
@@ -512,6 +538,6 @@ int main(int argc, char** argv)
     }
 
 
-    cout << "Program ended in " << (double)(clock()-tStart)/CLOCKS_PER_SEC << " seconds" << endl;
+    cout << "\nProgram ended in " << (double)(clock()-tStart)/CLOCKS_PER_SEC << " seconds" << endl;
     return 0;
 }

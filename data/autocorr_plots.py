@@ -42,8 +42,8 @@ def plot_1():
 
 def plot_2():
     """
-    1. fit gauss/lorentz on tau vs T peak for different L
-    2. plot of tau peak vs L
+    1. fit gauss/lorentz on tau vs T for different L to get tau_peak
+    2. plot of tau_peak vs L
     """
     L_list = []
     value_list = []
