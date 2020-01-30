@@ -305,7 +305,7 @@ void autocorrelation_initial_investigation()
     double *bootstrap_values;
     double *autocorr;
     int tau_e;
-
+    clock_t tStartTemp;
     //initialise spins array and neighbours maps
     initialise_system_and_maps();
 
@@ -328,12 +328,10 @@ void autocorrelation_initial_investigation()
     string path2;
 
     // begin
-    clock_t tStartTemp;
+    arrayM = new double[dataPoints];
     cout << "Starting computations" << endl;
     for (int i = 0; i<numT; i++) {
         tStartTemp = clock();
-        arrayM = new double[dataPoints];
-
         // open myfile2
         filename2 = "autocorr_times_"+to_string(L)+"_L_"+to_string(T[i])+".txt";
         filename_rename_if_exists(filename2, folder2);
@@ -406,8 +404,8 @@ void autocorrelation_peak_investigation()
         dim = user_integer_input(2,3);
         cout << "Lattice size (8-256):\n";
         L = user_integer_input(8,256);
-        cout << "Thermalisation cycles (0-10000):\n";
-        thermalisationCycles = user_integer_input(0,10000);
+        cout << "Thermalisation cycles (0-15000):\n";
+        thermalisationCycles = user_integer_input(0,15000);
         cout << "Number of data points (100-20000):\n";
         dataPoints = user_integer_input(1000,20000);
         cout << "Initial Temperature i.e enter 150 for 1.50 Kelvin (150-270):\n";
@@ -459,7 +457,7 @@ void autocorrelation_peak_investigation()
 
     // open myfile2 -> all computed values (to check what is going on)
     ofstream myfile2;
-    string filename2 = "autocorr_peak_"+to_string(L)+"_L_fulldata.txt";
+    string filename2 = "autocorr_peak_"+to_string(L)+"_L_allTaus.txt";
     filename_rename_if_exists(filename2,folder);
     string path2 = folder+"\\"+filename2;
     myfile2.open(path2);
@@ -468,22 +466,36 @@ void autocorrelation_peak_investigation()
     }
     cout << "Writing in file with path: " << path2 << endl;
 
+    // myfile3 -> bulk data, for each L and T record: magn, autocorr
+    ofstream myfile3;
+    string folder3 = ".\\data\\autocorrelation_data\\peak_investigation\\bulkdata";
+    string filename3;
+    string path3;
+
     // begin
+    arrayTau = new double[numTau];
+    arrayM = new double[dataPoints];
     cout << "Starting computations" << endl;
     for (int i = 0; i<numT; i++) {
         tStartTemp = clock();
-        arrayTau = new double[numTau];
         for (int k=0; k<numTau; k++) {
-            arrayM = new double[dataPoints];
+            // open myfile3
+            filename3 = "autocorr_times_"+to_string(L)+"_L_"+to_string(T[i])+"_"+to_string(k)+".txt";
+            filename_rename_if_exists(filename3, folder3);
+            path3 = folder3+"\\"+filename3;
+            myfile3.open(path3);
+            if (!myfile3.is_open()) {
+                throw "Func: autocorrelation_initial_investigation(). File not opened with path: " + path3 + "\nPlease fix path";
+            }
 
             // compute magnetisation
-            initialise_spins_hot();
+            initialise_spins_cold();
             compute_magnetisation();
             metropolis_function(T[i],thermalisationCycles);
-            arrayM[0] = M;
+            arrayM[0] = fabs((double)M/N);
             for (int j=1; j<dataPoints; j++) {
                 metropolis_function(T[i],spacingCycles);
-                arrayM[j] = M;
+                arrayM[j] = fabs((double)M/N);
             }
 
             // identify tau_e
@@ -495,11 +507,20 @@ void autocorrelation_peak_investigation()
                    break;
                }
             }
+            // write in myfile3
+            for (int j = 0; j < dataPoints; j++){
+                myfile3 << arrayM[j] << " " << autocorr[j] << endl;
+            }
+            // close myfile3
+            if (myfile3.is_open()){
+                myfile3.close();
+            }
 
-            // print out, write in file, put in array
-            cout << "(" << k+1 << "/" << numTau << ")T = " << T[i] <<  ", tau = " << tau_e << endl;
+            // print out, write in myfile2, put in array
+            cout << "(" << k+1 << "/" << numTau << ") T = " << T[i] <<  ", tau = " << tau_e << endl;
             myfile2 << T[i] << " " << tau_e << endl;
             arrayTau[k] = double(tau_e);
+
         }
         //compute average and sigma of arrayTau
         O_tau = compute_average_and_sigma(arrayTau, numTau);
@@ -510,8 +531,8 @@ void autocorrelation_peak_investigation()
     }
 
     // wrap up
-    delete[] arrayTau;
     delete[] arrayM;
+    delete[] arrayTau;
     delete[] bootstrap_values;
     delete[] autocorr;
     if (myfile.is_open()){
