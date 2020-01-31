@@ -389,12 +389,12 @@ void autocorrelation_initial_investigation()
 void autocorrelation_peak_investigation()
 {
     cout << "Running autocorrelation around critical temperature. High computation time! Proceed with caution!" << endl;
-    L = 16;
+    L = 24;
     dim = 2;
     int thermalisationCycles = 15000; // enough time to ensure thermalisation
     int dataPoints = 5000; //"long time", less than before but still long enough
     int spacingCycles = 1;
-    double iniT = 2.23; double finT = 2.35; int numT = 7;
+    double iniT = 2.23; double finT = 2.37; int numT = 8;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
@@ -408,11 +408,11 @@ void autocorrelation_peak_investigation()
         thermalisationCycles = user_integer_input(0,15000);
         cout << "Number of data points (100-20000):\n";
         dataPoints = user_integer_input(1000,20000);
-        cout << "Initial Temperature i.e enter 150 for 1.50 Kelvin (150-270):\n";
-        int iniT_int = user_integer_input(150,270);
+        cout << "Initial Temperature i.e enter 150 for 1.50 Kelvin (150-440):\n";
+        int iniT_int = user_integer_input(150,440);
         iniT = double(iniT_int)/100;
-        cout << "Final Temperature (" << iniT_int <<"-350):\n";
-        int finT_int = user_integer_input(iniT_int,350);
+        cout << "Final Temperature (" << iniT_int <<"-450):\n";
+        int finT_int = user_integer_input(iniT_int,450);
         finT = double(finT_int)/100;
         if (iniT_int != finT_int) {
             cout << "Number of Temperature points (2-41).\n";

@@ -56,6 +56,7 @@ def plot_2():
 
     fig, axs = plt.subplots(1,2,figsize=(16,6))
     fig.suptitle("Time lag vs Temperature")
+
     for p_file in p_files:
         L = (os.path.splitext(os.path.basename(p_file))[0]).split('_',4)[2]
         T = []
@@ -70,22 +71,16 @@ def plot_2():
 
         axs[0].errorbar(T,tau,tau_err,marker='+',linestyle=" ",label=L)
 
-        # print("T")
-        # print(T)
-        # print(tau)
-        # print(tau_err)
-        # left_limit = 40
-        # right_limit = len(tau)-left_limit
-        if int(L) in [16]:
+        if int(L) in [16,20,24,32,48,64]:
             try:
-                popt, pcov = curve_fit(gauss, T, tau, sigma=tau_err, absolute_sigma=True, maxfev=5000)
+                popt, pcov = curve_fit(gauss, T, tau, sigma=tau_err, absolute_sigma=True, maxfev=1000, p0=[2.3, 0.1, 100, 0])
                 value_list.append(popt[2]+popt[3])
-                error_list.append(np.sqrt((np.diag(pcov)))[2]+np.sqrt((np.diag(pcov)))[3])
+                error_list.append(abs(np.sqrt(abs((np.diag(pcov)))[2]) - np.sqrt(abs((np.diag(pcov))[3]))) + max(tau_err))
                 x = np.linspace(T[0],T[-1],100)
-                axs[0].plot(x,gauss(x, *popt), label="fit-"+L)
+                axs[0].plot(x,gauss(x, *popt), color="c",linewidth=1)
                 print(L)
                 print("popt :",popt)
-                print("pcov^2 :",np.sqrt(np.diag(pcov)))
+                print("pcov^2 :",np.diag(pcov))
                 print(value_list[-1],error_list[-1])
             except:
                 max_tau = max(tau)
@@ -95,20 +90,21 @@ def plot_2():
             L_list.append(int(L))
 
     print(L_list,value_list,error_list)
-    axs[1].plot(L_list,value_list,marker='+',linestyle=" ")
-    x = np.linspace(10,40,1000)
+    axs[1].errorbar(L_list,value_list,error_list,marker='+',linestyle=" ")
+    popt2, pcov2 = curve_fit(power_fit, L_list, value_list, sigma=error_list, absolute_sigma=True, maxfev=1000, p0=[1,1,0])
+    x2 = np.linspace(L_list[0],L_list[-1],100)
+    axs[1].plot(x2,power_fit(x2,*popt2))
     axs[1].set_ylabel(r"$\tau_e$")
     axs[1].set_xlabel("L")
-
+    #axs[1].legend()
+    print(popt2[0],abs(np.sqrt(abs((np.diag(pcov)))[0])))
     axs[0].legend()
     axs[0].set_ylabel(r"$\tau_e$")
     axs[0].set_xlabel("T")
 
 
-    # fig.savefig(folder+"\\tau_e_vs_temp2.png")
 
-    # fig2, ax2 = plt.subplots()
-    # ax2.errorbar(L_list,value_list,error_list,ls='', marker='+', color='Red')
+    fig.savefig(folder+"\\tau_e_peak_vs_temp.png")
 
     plt.show()
 
