@@ -69,33 +69,44 @@ def plot_2():
                 tau.append(float(row[1]))
                 tau_err.append(float(row[2]))
 
-        axs[0].errorbar(T,tau,tau_err,marker='+',linestyle=" ",label=L)
-
-        if int(L) in [16,20,24,32,48,64]:
+        if int(L) in [16,20,24,28,32,36,40]:
+            axs[0].errorbar(T,tau,tau_err,marker='+',linestyle=" ",label=L)
+            np.seterr(all="ignore")
             try:
-                popt, pcov = curve_fit(gauss, T, tau, sigma=tau_err, absolute_sigma=True, maxfev=1000, p0=[2.3, 0.1, 100, 0])
+                popt, pcov = curve_fit(gauss, T, tau, sigma=tau_err, absolute_sigma=True, maxfev=3000, p0=[2.3, 0.1, 100, 0], bounds=((2.28,-np.inf,-np.inf,-np.inf),(2.32,np.inf,np.inf,np.inf)))
                 value_list.append(popt[2]+popt[3])
-                error_list.append(abs(np.sqrt(abs((np.diag(pcov)))[2]) - np.sqrt(abs((np.diag(pcov))[3]))) + max(tau_err))
+                error = abs(np.sqrt(abs((np.diag(pcov)))[2]) - np.sqrt(abs((np.diag(pcov))[3]))) + max(tau_err)
+                if (np.isfinite(error)):
+                    #print(error)
+                    error_list.append(error)
+                else:
+                    max_tau = max(tau)
+                    # value_list.append(max_tau)
+                    error_list.append(tau_err[tau.index(max_tau)])
                 x = np.linspace(T[0],T[-1],100)
                 axs[0].plot(x,gauss(x, *popt), color="c",linewidth=1)
-                print(L)
-                print("popt :",popt)
-                print("pcov^2 :",np.diag(pcov))
-                print(value_list[-1],error_list[-1])
+                # print("popt :",popt)
+                # print("pcov^2 :",np.diag(pcov))
+                # print(value_list[-1],error_list[-1])
             except:
-                max_tau = max(tau)
-                value_list.append(max_tau)
-                error_list.append(tau_err[tau.index(max_tau)])
-                print(L,value_list[-1],error_list[-1])
+                print("couldnt do gauss fit")
+                # max_tau = max(tau)
+                # value_list.append(max_tau)
+                # error_list.append(tau_err[tau.index(max_tau)])
             L_list.append(int(L))
+            print(L_list[-1],value_list[-1],error_list[-1])
 
-    print(L_list,value_list,error_list)
+    print(L_list)
+    print(value_list)
+    print(error_list)
     axs[1].errorbar(L_list,value_list,error_list,marker='+',linestyle=" ")
-    popt2, pcov2 = curve_fit(power_fit, L_list, value_list, sigma=error_list, absolute_sigma=True, maxfev=1000, p0=[1,1,0])
+    popt2, pcov2 = curve_fit(power_fit, L_list, value_list, sigma=error_list, absolute_sigma=True, maxfev=2000, p0=[1,1,0])
     x2 = np.linspace(L_list[0],L_list[-1],100)
     axs[1].plot(x2,power_fit(x2,*popt2))
     axs[1].set_ylabel(r"$\tau_e$")
     axs[1].set_xlabel("L")
+
+
     #axs[1].legend()
     print(popt2[0],abs(np.sqrt(abs((np.diag(pcov)))[0])))
     axs[0].legend()
