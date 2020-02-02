@@ -393,7 +393,7 @@ void autocorrelation_peak_investigation()
     int thermalisationCycles = 15000; // enough time to ensure thermalisation
     int dataPoints = 5000; //"long time", less than before but still long enough
     int spacingCycles = 1;
-    double iniT = 2.19; double finT = 2.19; int numT = 1;
+    double iniT = 2.23; double finT = 2.37; int numT = 8;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
@@ -492,7 +492,7 @@ void autocorrelation_peak_investigation()
                    break;
                }
             }
-            
+
             // print out, write in myfile2, put in array
             cout << "(" << k+1 << "/" << numTau << ") T = " << T[i] <<  ", tau = " << tau_e << endl;
             myfile2 << T[i] << " " << tau_e << endl;

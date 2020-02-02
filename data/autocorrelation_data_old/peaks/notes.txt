@@ -1,7 +1,0 @@
-peaks data computed with:
-
-thermalisationCycles = 1000;
-dataPoints = 1000;
-spacingCycles = 1;
-double iniT = 2.21; double finT = 2.39; int numT = 10;
-numTau = 1000;

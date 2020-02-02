@@ -36,7 +36,7 @@ def plot_1():
                 tau_list.append(float(row[1]))
         ax.plot(T_list,tau_list,marker='+',label="L = "+str(L))
     ax.set_title("Time lag vs Temperature")
-    ax.set_ylabel(r"$\tau_e / sweeps$")
+    ax.set_ylabel(r"$\tau_e$ / sweeps")
     ax.set_xlabel("T / K")
     ax.set_yscale("log")
     ax.legend()
@@ -57,8 +57,9 @@ def plot_2():
         if file.startswith("autocorr_peak") and file.endswith("L.txt"):
             p_files.append(os.path.join(folder,file))
 
-    fig, axs = plt.subplots(1,2,figsize=(16,6))
-    fig.suptitle("Time lag vs Temperature")
+    fig1, ax1 = plt.subplots()
+    fig2, ax2 = plt.subplots()
+    # fig.suptitle("Time lag vs Temperature")
 
     for p_file in p_files:
         L = (os.path.splitext(os.path.basename(p_file))[0]).split('_',4)[2]
@@ -73,35 +74,37 @@ def plot_2():
                 tau_err.append(float(row[2]))
 
         if int(L) in [16,20,24,28,32,36,40]:
-            axs[0].errorbar(T,tau,tau_err,marker='+',linestyle=" ",label=L)
+            ax1.errorbar(T,tau,tau_err,marker='+',linestyle=" ",label=L)
             popt, pcov = curve_fit(gauss2, T, tau, sigma=tau_err, absolute_sigma=True, maxfev=5000, p0=[2.3, 0.1, 100], bounds=((2.28,-np.inf,-np.inf),(2.32,np.inf,np.inf)))
             value_list.append(popt[2])
             error = abs(np.sqrt(abs((np.diag(pcov)))[2]))
             error_list.append(error)
             x = np.linspace(T[0],T[-1],100)
-            axs[0].plot(x,gauss2(x, *popt), color="c",linewidth=1)
+            ax1.plot(x,gauss2(x, *popt), color="c",linewidth=1)
             L_list.append(int(L))
-            print(L_list[-1],value_list[-1],error_list[-1])
+            # print(L_list[-1],value_list[-1],error_list[-1])
 
-    axs[0].legend()
-    axs[0].set_ylabel(r"$\tau_e$")
-    axs[0].set_xlabel("T")
-    axs[1].set_ylabel(r"$\tau_e$")
-    axs[1].set_xlabel("L")
-    axs[1].errorbar(L_list,value_list,error_list,marker='+',linestyle=" ")
+    ax1.legend()
+    ax1.set_title(r"Gaussian Fit on peak $\tau_e$ vs Temperature")
+    ax1.set_ylabel(r"$\tau_e$ / sweeps")
+    ax1.set_xlabel("T / K")
+
+    ax2.set_title(r"Power fit on peak $\tau_e$ vs Lattice size")
+    ax2.set_ylabel(r"$\tau_e$ / sweeps")
+    ax2.set_xlabel("L")
+    ax2.errorbar(L_list,value_list,error_list,marker='+',linestyle=" ")
     popt2, pcov2 = curve_fit(power_fit, L_list, value_list, sigma=error_list, absolute_sigma=True, maxfev=2000, p0=[1,1,0])
     x2 = np.linspace(L_list[0],L_list[-1],100)
-    axs[1].plot(x2,power_fit(x2,*popt2))
-    print(popt2[0],abs(np.sqrt(abs((np.diag(pcov2)))[0])))
-
-
-
-    fig.savefig(folder+"\\tau_e_peak_vs_temp.png")
+    ax2.plot(x2,power_fit(x2,*popt2),label = "pow = "+popt2[0]+r"$\pm$"+abs(np.sqrt(abs((np.diag(pcov2)))[0])))
+    print("power = ",popt2[0],abs(np.sqrt(abs((np.diag(pcov2)))[0])))
+    ax2.legend()
+    fig1.savefig(folder+"\\tau_e_peak_vs_temp.png")
+    fig2.savefig(folder+"\\tau_e_peak_vs_L.png")
 
     plt.show()
 
 def main():
-    # plot_1()
+    plot_1()
     plot_2()
 
 if (__name__ == '__main__'):
