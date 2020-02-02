@@ -465,12 +465,6 @@ void autocorrelation_peak_investigation()
     }
     cout << "Writing in file with path: " << path2 << endl;
 
-    // myfile3 -> bulk data, for each L and T record: magn, autocorr
-    ofstream myfile3;
-    string folder3 = ".\\data\\autocorrelation_data\\peak_investigation\\bulkdata";
-    string filename3;
-    string path3;
-
     // begin
     arrayTau = new double[numTau];
     arrayM = new double[dataPoints];
@@ -478,14 +472,6 @@ void autocorrelation_peak_investigation()
     for (int i = 0; i<numT; i++) {
         tStartTemp = clock();
         for (int k=0; k<numTau; k++) {
-            // open myfile3
-            filename3 = "autocorr_times_"+to_string(L)+"_L_"+to_string(T[i])+"_"+to_string(k)+".txt";
-            filename_rename_if_exists(filename3, folder3);
-            path3 = folder3+"\\"+filename3;
-            myfile3.open(path3);
-            if (!myfile3.is_open()) {
-                throw "Func: autocorrelation_initial_investigation(). File not opened with path: " + path3 + "\nPlease fix path";
-            }
 
             // compute magnetisation
             initialise_spins_cold();
@@ -506,15 +492,7 @@ void autocorrelation_peak_investigation()
                    break;
                }
             }
-            // write in myfile3
-            for (int j = 0; j < dataPoints; j++){
-                myfile3 << arrayM[j] << " " << autocorr[j] << endl;
-            }
-            // close myfile3
-            if (myfile3.is_open()){
-                myfile3.close();
-            }
-
+            
             // print out, write in myfile2, put in array
             cout << "(" << k+1 << "/" << numTau << ") T = " << T[i] <<  ", tau = " << tau_e << endl;
             myfile2 << T[i] << " " << tau_e << endl;
