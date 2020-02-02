@@ -7,6 +7,9 @@ from scipy.optimize import curve_fit
 def gauss(x, mean, sigma, scale, offset):
     return (scale*np.exp(-((x-mean)/sigma)**2)+offset)
 
+def gauss2(x, mean, sigma, scale):
+    return (scale*np.exp(-((x-mean)/sigma)**2))
+
 def power_fit(x,pow,scale,offset):
     return (scale*np.power(x,pow)+offset)
 
@@ -71,47 +74,50 @@ def plot_2():
 
         if int(L) in [16,20,24,28,32,36,40]:
             axs[0].errorbar(T,tau,tau_err,marker='+',linestyle=" ",label=L)
-            np.seterr(all="ignore")
-            try:
-                popt, pcov = curve_fit(gauss, T, tau, sigma=tau_err, absolute_sigma=True, maxfev=3000, p0=[2.3, 0.1, 100, 0], bounds=((2.28,-np.inf,-np.inf,-np.inf),(2.32,np.inf,np.inf,np.inf)))
-                value_list.append(popt[2]+popt[3])
-                error = abs(np.sqrt(abs((np.diag(pcov)))[2]) - np.sqrt(abs((np.diag(pcov))[3]))) + max(tau_err)
-                if (np.isfinite(error)):
-                    #print(error)
-                    error_list.append(error)
-                else:
-                    max_tau = max(tau)
-                    # value_list.append(max_tau)
-                    error_list.append(tau_err[tau.index(max_tau)])
-                x = np.linspace(T[0],T[-1],100)
-                axs[0].plot(x,gauss(x, *popt), color="c",linewidth=1)
+            #np.seterr(all="ignore")
+            #try:
+                #popt, pcov = curve_fit(gauss, T, tau, sigma=tau_err, absolute_sigma=True, maxfev=5000, p0=[2.3, 0.1, 100, 0], bounds=((2.28,-np.inf,-np.inf,-np.inf),(2.32,np.inf,np.inf,np.inf)))
+                #value_list.append(popt[2]+popt[3])
+                #error = abs(np.sqrt(abs((np.diag(pcov)))[2]) + np.sqrt(abs((np.diag(pcov))[3]))) #+ max(tau_err)
+            popt, pcov = curve_fit(gauss2, T, tau, sigma=tau_err, absolute_sigma=True, maxfev=5000, p0=[2.3, 0.1, 100], bounds=((2.28,-np.inf,-np.inf),(2.32,np.inf,np.inf)))
+            value_list.append(popt[2])
+            error = abs(np.sqrt(abs((np.diag(pcov)))[2]))
+            if (np.isfinite(error)):
+                #print(error)
+                error_list.append(error)
+            else:
+                print(L,"error was inf")
+                max_tau = max(tau)
+                # value_list.append(max_tau)
+                error_list.append(tau_err[tau.index(max_tau)])
+            x = np.linspace(T[0],T[-1],100)
+            axs[0].plot(x,gauss2(x, *popt), color="c",linewidth=1)
                 # print("popt :",popt)
                 # print("pcov^2 :",np.diag(pcov))
                 # print(value_list[-1],error_list[-1])
-            except:
-                print("couldnt do gauss fit")
+            # except:
+            #     print("error occured in gauss fit")
                 # max_tau = max(tau)
                 # value_list.append(max_tau)
                 # error_list.append(tau_err[tau.index(max_tau)])
             L_list.append(int(L))
             print(L_list[-1],value_list[-1],error_list[-1])
+            #print(pcov)
+            #print(np.sqrt(abs(np.diag(pcov))))
 
-    print(L_list)
-    print(value_list)
-    print(error_list)
+    axs[0].legend()
+    axs[0].set_ylabel(r"$\tau_e$")
+    axs[0].set_xlabel("T")
+    # print(L_list)
+    # print(value_list)
+    # print(error_list)
+    axs[1].set_ylabel(r"$\tau_e$")
+    axs[1].set_xlabel("L")
     axs[1].errorbar(L_list,value_list,error_list,marker='+',linestyle=" ")
     popt2, pcov2 = curve_fit(power_fit, L_list, value_list, sigma=error_list, absolute_sigma=True, maxfev=2000, p0=[1,1,0])
     x2 = np.linspace(L_list[0],L_list[-1],100)
     axs[1].plot(x2,power_fit(x2,*popt2))
-    axs[1].set_ylabel(r"$\tau_e$")
-    axs[1].set_xlabel("L")
-
-
-    #axs[1].legend()
-    print(popt2[0],abs(np.sqrt(abs((np.diag(pcov)))[0])))
-    axs[0].legend()
-    axs[0].set_ylabel(r"$\tau_e$")
-    axs[0].set_xlabel("T")
+    print(popt2[0],abs(np.sqrt(abs((np.diag(pcov2)))[0])))
 
 
 

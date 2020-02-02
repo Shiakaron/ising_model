@@ -388,12 +388,12 @@ void autocorrelation_initial_investigation()
 void autocorrelation_peak_investigation()
 {
     cout << "Running autocorrelation around critical temperature. High computation time! Proceed with caution!" << endl;
-    L = 40;
+    L = 20;
     dim = 2;
     int thermalisationCycles = 15000; // enough time to ensure thermalisation
     int dataPoints = 5000; //"long time", less than before but still long enough
     int spacingCycles = 1;
-    double iniT = 2.23; double finT = 2.33; int numT = 2;
+    double iniT = 2.19; double finT = 2.19; int numT = 1;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
