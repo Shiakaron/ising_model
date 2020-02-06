@@ -5,7 +5,7 @@ import os
 
 # please fix filepaths if you are running this on different devices
 folder = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\data\\magn_vs_time"
-
+texfolder = "C:\\Users\\savva\\OneDrive - University of Cambridge\\Part2\\Computational Projects\\ising_model\\Report\\texfigures"
 def thermalisation_1():
     """
     Plot at different temperatures but same L
@@ -35,13 +35,12 @@ def thermalisation_1():
                     t.append(sweep)
                     sweep += 1
             # first data in txt file is the temperature
-            ax.plot(t[1:2000], M[1:2000], label="T = "+str(T))
-    ax.set_title("|Magnetisation| vs time, L = "+str(L))
+            ax.plot(t[1:2000], M[1:2000])
+    ax.set_title("|Magnetisation| vs time, L = "+str(L)+", T = "+str(T))
     ax.set_ylabel("|M|")
-    ax.set_xlabel("t/sweeps")
-    ax.legend()
-    fig.savefig(folder+"\\thermalisation_1.png")
+    ax.set_xlabel("t / sweeps")
     plt.show()
+    fig.savefig(texfolder+"\\thermalisation_1.pdf")
 
 def thermalisation_2():
     """
@@ -74,9 +73,9 @@ def thermalisation_2():
 
     ax.set_title("|Magnetisation| vs time, L ="+str(L)+", T = "+str(T))
     ax.set_ylabel("|M|")
-    ax.set_xlabel("t/sweeps")
+    ax.set_xlabel("t / sweeps")
     # ax.legend()
-    fig.savefig(folder+"\\thermalisation_2.png")
+    fig.savefig(texfolder+"\\thermalisation_2.pdf")
     plt.show()
 
 def thermalisation_3():
@@ -107,9 +106,9 @@ def thermalisation_3():
 
     ax.set_title("<|Magnetisation|> vs time, T = "+str(T))
     ax.set_ylabel("m")
-    ax.set_xlabel("t/sweeps")
+    ax.set_xlabel("t / sweeps")
     ax.legend()
-    fig.savefig(folder+"\\thermalisation_3.png")
+    fig.savefig(texfolder+"\\thermalisation_3.pdf")
     plt.show()
 
 def main():

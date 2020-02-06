@@ -4,6 +4,8 @@ import csv
 import os
 from scipy.optimize import curve_fit
 
+texfolder = "C:\\Users\\savva\\OneDrive - University of Cambridge\\Part2\\Computational Projects\\ising_model\\Report\\texfigures"
+
 def gauss(x, mean, sigma, scale, offset):
     return (scale*np.exp(-((x-mean)/sigma)**2)+offset)
 
@@ -37,10 +39,10 @@ def plot_1():
         ax.plot(T_list,tau_list,marker='+',label="L = "+str(L))
     ax.set_title("Time lag vs Temperature")
     ax.set_ylabel(r"$\tau_e$ / sweeps")
-    ax.set_xlabel("T / K")
+    ax.set_xlabel(r"T / $J/k_B$")
     ax.set_yscale("log")
     ax.legend()
-    fig.savefig(folder+"\\tau_e_vs_temp.png")
+    fig.savefig(texfolder+"\\tau_e_vs_temp.pdf")
     plt.show()
 
 def plot_2():
@@ -87,7 +89,7 @@ def plot_2():
     ax1.legend()
     ax1.set_title(r"Gaussian Fit on Time lag vs Temperature")
     ax1.set_ylabel(r"$\tau_e$ / sweeps")
-    ax1.set_xlabel("T / K")
+    ax1.set_xlabel(r"T / $J/k_B$")
 
     ax2.set_title(r"Power fit on peak Time lag vs Lattice size")
     ax2.set_ylabel(r"Peak $\tau_e$ / sweeps")
@@ -98,8 +100,8 @@ def plot_2():
     ax2.plot(x2,power_fit(x2,*popt2), label = "pow = " + '{:.2f}'.format(popt2[0]) + r"$ \pm $" + '{:.2f}'.format(abs(np.sqrt(abs((np.diag(pcov2)))[0]))))
     print("power = ",popt2[0],abs(np.sqrt(abs((np.diag(pcov2)))[0])))
     ax2.legend()
-    fig1.savefig(folder+"\\tau_e_peak_vs_temp.png")
-    fig2.savefig(folder+"\\tau_e_peak_vs_L.png")
+    fig1.savefig(texfolder+"\\tau_e_peak_vs_temp.pdf")
+    fig2.savefig(texfolder+"\\tau_e_peak_vs_L.pdf")
 
     plt.show()
 

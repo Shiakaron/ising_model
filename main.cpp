@@ -7,6 +7,7 @@ int *spins;
 map<int,vector<int>> mapOfNearest;
 map<int,vector<int>> mapOfNext2Nearest;
 int M;
+double E;
 
 double n2n = 0;
 double H = 0;
@@ -256,10 +257,10 @@ Secondly I will focus my attention around the peak, T_c ~ 2.27 K, where I will a
 In the paper M. P. Nightingale and H. W. J. Blöte, Phys. Rev. Lett. 76 (1996) they found: "from a finite-size scaling analysis of these autocorrelation times, the dynamic critical exponent z is determined as z = 2.1665 (12)" where "tau_e ∼ L^z at the incipient critical point."
 
 PLOT 1:
-Tau_e vs temperature for range 1-5 Kelvin. I will collect data for a range of Lattice sizes. Up to the point where computational time is too much of a cost.
+Tau_e vs temperature for range 1-5 Kelvin. I will collect data for a range of Lattice sizes. This will give rough idea of what to expect
 
 PLOT 2,3:
-For each L and T compute multiple tau_e's around critical point to get average. Fit a gaussian on each L to get the peak values. Then plot tau_e_peak vs Lattice size and fit a*L^z to get a relationship.
+For each L and T compute multiple tau_e's around critical point to get average (up to the point where computational time is too much of a cost). Fit a gaussian on each L to get the peak values. Then plot tau_e_peak vs Lattice size and fit a*L^z to get a relationship.
 */
 
 void autocorrelation_initial_investigation()
@@ -520,6 +521,46 @@ void autocorrelation_peak_investigation()
     }
 }
 
+/*
+ENERGY AND SPECIFIC HEAT CAPACITY
+Firstly I need create a function to measure the energy of the system. The Hamiltonian H = -J*Sum_<ij>{s_i*s_j} - mu*H*Sum_i{s_i} - n2n term. The real question here is if I want to compute the energy manually by calling the function every time I need the E value, or if I want the metropolis_function to update the energy for me every time (like it does with magnetisation). I don't tink I will need the energy after every MC sweep so I will call to compute it when I need it's value.
+
+Before computing any data I need to manual check that the algorithm iterates over all the edges with no double counting. I will check this with a function, energy_first_check(), and some couts in my compute_energy() function (will comment out after test is passed). TEST PASSED FOR DIM 2 AND 3 :D
+
+Now that the 1st test was passed with flying starts I will continue without next to nearest neighbours for the time being. Next step: plot Energy vs Temperature. I expect to see the the average energy rising from its maximum negative value to 0 as the temperature rises. The average energy is e = E/(nearest_links + next2nearest_links*J') where the denominator is the minimum energy the system can achieve. I believe average_energy() will be useful.
+
+*/
+
+void energy_first_check() {
+    cout << "Running for energy of evolving system" << endl;
+    dim = 2;
+    n2n = 1;
+    L = 3;
+    int thermalisationCycles = 0;
+    int dataPoints = 5;
+    int spacingCycles = 10;
+    double Temp = 1.5;
+    //initialise spins array and neighbours maps
+    initialise_system_and_maps();
+    //print out nearest and nexttonearest neightbours
+    print_mapOfNearest(100);
+    print_mapOfNext2Nearest(100);
+
+    initialise_spins_hot();
+    //initialise_spins_cold();
+    compute_magnetisation();
+    print_spins_2D();
+    compute_energy();
+    cout << "Energy = " << E << ", Mangetisation = " << M << endl;
+    for (int i=1; i<dataPoints; i++) {
+        metropolis_function(Temp,spacingCycles);
+        print_spins_2D();
+        compute_energy();
+        cout << "Energy = " << E << ", Mangetisation = " << M << endl;
+    }
+}
+
+
 int initial_menu()
 {
     cout << "Please select an analysis by entering an integer:\n";
@@ -528,8 +569,9 @@ int initial_menu()
     cout << "3 for Magnetisation vs Temperature.\n";
     cout << "4 for Tau_e vs Temperature initial investigation.\n";
     cout << "5 for Tau_e vs Temperature close to critical temperature.\n";
+    cout << "6\n";
     cout << "0 to Exit the program.\n";
-    int choice = user_integer_input(0,5);
+    int choice = user_integer_input(0,6);
     return choice;
 }
 
@@ -539,6 +581,7 @@ int main(int argc, char** argv)
     srand(seed);
     cout << "Ising Model, made by Savvas Shiakas (ss2477)" << endl;
     cout << "C++ was used to produce data files which are later plotted using Python\n\n";
+
     // user friendly function to run the code
     int user_choice = initial_menu();
     try {
@@ -552,6 +595,8 @@ int main(int argc, char** argv)
             case 4: autocorrelation_initial_investigation();
             break;
             case 5: autocorrelation_peak_investigation();
+            break;
+            case 6: energy_first_check();
             break;
         }
         cout << "\nOperation complete.";

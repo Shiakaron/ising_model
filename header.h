@@ -28,6 +28,7 @@ extern double H;
 extern unsigned int seed;
 extern double *T;
 extern int dataPoints;
+extern double E;
 
 //MAIN
 void magnetisation_vs_time_data();
@@ -47,6 +48,8 @@ void initialise_next2nearest_periodic();
 double compute_denergy();
 void compute_magnetisation();
 void metropolis_function(double T, int cycles);
+void compute_energy();
+double average_energy();
 
 //GENERAL
 double* linspace(double a, double b, int N);

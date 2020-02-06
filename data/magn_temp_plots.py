@@ -3,10 +3,11 @@ import matplotlib.pyplot as plt
 import csv
 import os
 
+texfolder = "C:\\Users\\savva\\OneDrive - University of Cambridge\\Part2\\Computational Projects\\ising_model\\Report\\texfigures"
 
 def plot_1():
     """
-    magnetisaion vs temperature with different lattice sizes
+    magnetisation vs temperature with different lattice sizes
     """
     p_files = []
     dim = 2
@@ -36,9 +37,9 @@ def plot_1():
 
     ax.set_title("<|Magnetisation|> vs Temperature")
     ax.set_ylabel("m")
-    ax.set_xlabel("T")
+    ax.set_xlabel(r"T / $J/k_B$")
     ax.legend()
-    fig.savefig(folder+"\\magn_vs_temp.png")
+    fig.savefig(texfolder+"\\magn_vs_temp.pdf")
     plt.show()
 
 def main():

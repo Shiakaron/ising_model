@@ -21,6 +21,7 @@ void initialise_spins_hot() {
 }
 
 void initialise_nearest_periodic() {
+    // vector = [left, right, back, forw, down,up,.....]
     // initialise useful variables
     int temp;
     int addterm;
@@ -49,6 +50,7 @@ void initialise_nearest_periodic() {
 }
 
 void initialise_next2nearest_periodic(){
+    //vector = []
     // identify next-to-nearest neighbours
     int temp;
     //dim=1 is a special case
@@ -162,6 +164,60 @@ double compute_denergy(int index) {
     // return total change in energy
     int de_total = de_nearest + de_next2nearest + de_externalfield;
     return de_total;
+}
+
+void compute_energy() {
+    double e_total = 0;
+    int s_sum;
+    int sum_nearest = 0;
+    int sum_next2nearest = 0;
+    vector<int> temp_vec;
+    //cout << "compute_energy()\n";
+    //nearest neightbours, J=1
+    //cout << "nearests\n";
+    for (int i=0; i<N; i++) {
+        cout << i << ": ";
+        //notice j+=2 to avoid double counting. For each index we consider left/back/down etc. directions
+        temp_vec = mapOfNearest[i];
+        s_sum = 0;
+        for (int j = 0; j<temp_vec.size(); j+=2) {
+            //cout << temp_vec[j] << " ";
+            s_sum += spins[temp_vec[j]];
+        }
+        //cout << endl;
+        sum_nearest += spins[i]*s_sum;
+    }
+    e_total -= sum_nearest;
+
+    //nextonearest neighbours, J'=n2n
+    if (n2n!=0) {
+        //cout << "next2nearests\n";
+        for (int i=0; i<N; i++) {
+            //cout << i << ": ";
+            temp_vec = mapOfNext2Nearest[i];
+            s_sum = 0;
+            for (int j = 0; j<temp_vec.size(); j+=2) {
+                //cout << temp_vec[j] << " ";
+                s_sum += spins[temp_vec[j]];
+            }
+            //cout << endl;
+            sum_next2nearest += spins[i]*s_sum;
+        }
+        e_total -= n2n * sum_next2nearest;
+    }
+
+    //external field, mu = 1
+    if (H!=0) {
+        e_total += H*M;
+    }
+    E = e_total;
+}
+
+double average_energy() {
+    // compute_energy first before calling this function
+    double nearest_links = dim*N;
+    double next2nearest_links = mapOfNext2Nearest[0].size(); // much faster and easier than the actual expression for the number of next to nearest links
+    return E/(nearest_links+next2nearest_links*n2n);
 }
 
 void metropolis_function(double T, int cycles) {
