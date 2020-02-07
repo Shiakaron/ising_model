@@ -13,7 +13,7 @@ double E;
 double n2n = 0;
 double H = 0;
 
-unsigned int seed = (unsigned)time(0); // (unsigned)time(0);
+unsigned int seed = 1581096802; // (unsigned)time(0);
 double *T;
 
 /*
@@ -528,12 +528,12 @@ Firstly I need create a function to measure the energy of the system. The Hamilt
 
 Before computing any data I need to manual check that the algorithm iterates over all the edges with no double counting. I will check this with a function, energy_first_check(), and some couts in my compute_energy() function (will comment out after test is passed). TEST PASSED FOR DIM 2 AND 3 :D
 
-Now that the 1st test was passed with flying starts I will continue without next to nearest neighbours for the time being. Next step: plot Energy vs Temperature. I expect to see the the average energy rising from its maximum negative value to 0 as the temperature rises. The average energy is e = E/(nearest_links + next2nearest_links*J') where the denominator is the minimum energy the system can achieve. I believe average_energy() will be necessary for the plot.
+Now that the 1st test was passed I will continue without next to nearest neighbours for the time being. Next step: plot Energy vs Temperature. I expect to see the the average energy rising from its maximum negative value to 0 as the temperature rises. The average energy is e = E/(nearest_links + next2nearest_links*J') where the denominator is the minimum energy the system can achieve. I believe average_energy() will be necessary for the plot.
 
 */
 
 void energy_first_check() {
-    cout << "Running for energy of evolving system" << endl;
+    cout << "Running for energy of evolving system, check one" << endl;
     dim = 2;
     n2n = 1;
     L = 3;
@@ -561,11 +561,124 @@ void energy_first_check() {
     }
 }
 
+void energy_second_check() {
+    cout << "Running for energy of evolving system, check two" << endl;
+    dim = 2;
+    L = 6;
+    int thermalisationCycles = 1000;
+    int dataPoints = 10;
+    int spacingCycles = 1;
+    double Temp = 5;
+    //initialise spins array and neighbours maps
+    initialise_system_and_maps();
+    print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, 0, Temp);
+    cout << N_links << endl;
+    initialise_spins_hot();
+    metropolis_function(Temp,thermalisationCycles);
+    //initialise_spins_cold();
+    print_spins_2D();
+    compute_magnetisation();
+    compute_energy();
+    cout << "E = " << E << ", e = " << average_energy() << ", M = " << M << ", m = " << fabs((double)M/N) << endl;
+    for (int i=1; i<dataPoints; i++) {
+        metropolis_function(Temp,spacingCycles);
+        if (i==8){
+            print_spins_2D();
+        }
+        compute_energy();
+        cout << "E = " << E << ", e = " << average_energy() << ", M = " << M << ", m = " << fabs((double)M/N) << endl;
+    }
+}
+
+void energy_vs_time_data() {
+    cout << "Running for energy at different temperatures data" << endl;
+    dim = 2;
+    L = 80;
+    int thermalisationCycles = 0;
+    int spacingCycles = 1;
+    int dataPoints = 2000;      //total data points
+    double iniT = 1.0; double finT = 5.0; int numT = 21;
+    T = linspace(iniT, finT, numT);
+    print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
+    cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
+    int user_input = user_integer_input(0,1);
+    if (user_input == 0) {
+        cout << "Dimensions (2-3):\n";
+        dim = user_integer_input(2,3);
+        cout << "Lattice size (8-256):\n";
+        L = user_integer_input(8,256);
+        cout << "Thermalisation cycles (0-10000):\n";
+        thermalisationCycles = user_integer_input(0,10000);
+        cout << "Number of data points (100-10000):\n";
+        dataPoints = user_integer_input(100,10000);
+        cout << "Initial Temperature (1-49) i.e enter 15 for 1.5 Kelvin:\n";
+        int iniT_int = user_integer_input(1,49);
+        iniT = double(iniT_int)/10;
+        cout << "Final Temperature (" << iniT_int <<"-50):\n";
+        int finT_int = user_integer_input(iniT_int,50);
+        finT = double(finT_int)/10;
+        if (iniT_int != finT_int) {
+            cout << "Number of Temperature points (2-41).\n";
+            numT = user_integer_input(2,41);
+        }
+        else {
+            numT = 1;
+        }
+        T = linspace(iniT, finT, numT);
+    }
+
+    clock_t tStartTemp;
+    double e_ave;
+
+    //initialise spins array and neighbours maps
+    initialise_system_and_maps();
+
+    // initiate file
+    ofstream myfile;
+    string folder = ".\\data\\energy_data\\vs_time";
+
+    cout << "Starting computations" << endl;
+    // compute data
+    for (int i = 0; i<numT; i++) {
+        tStartTemp = clock();
+        //open file
+        string filename= "energy_data_"+to_string(dim)+"D_"+to_string(L)+"_"+to_string(T[i])+".txt";
+        filename_rename_if_exists(filename, folder);
+        string path = folder+"\\"+filename;
+        myfile.open(path);
+        if (!myfile.is_open()) {
+            throw "Func: energy_vs_temp_data(). File not opened with path: "+path;
+        }
+        // begin
+        initialise_spins_hot();
+        compute_magnetisation(); // why not
+        metropolis_function(T[i],thermalisationCycles);
+        compute_energy();
+        myfile << average_energy() << endl;
+        //arrayE[0] = average_energy();
+        for (int j=1; j<dataPoints; j++) {
+            metropolis_function(T[i],spacingCycles);
+            compute_energy();
+            //arrayE[j] = average_energy();
+            myfile << average_energy() << endl;
+        }
+
+        if (myfile.is_open()){
+            myfile.close();
+        }
+    }
+
+   // wrap up
+   //delete[] arrayE;
+   delete[] spins;
+   delete[] T;
+}
+
 void energy_vs_temp_data() {
     cout << "Running for energy at different temperatures data" << endl;
     dim = 2;
-    L = 48;
-    int thermalisationCycles = 5000;
+    L = 8;
+    int thermalisationCycles = 1000;
     int spacingCycles = 50;
     int dataPoints = 1000;      //total data points
     double iniT = 1.0; double finT = 5.0; int numT = 41;
@@ -609,7 +722,7 @@ void energy_vs_temp_data() {
 
     // open file
     ofstream myfile;
-    string folder = ".\\data\\energy_data";
+    string folder = ".\\data\\energy_data\\vs_temp";
     string filename = "energy_data_"+to_string(dim)+"D_"+to_string(L)+".txt";
     filename_rename_if_exists(filename, folder);
     string path = folder+"\\"+filename;
@@ -658,9 +771,10 @@ int initial_menu()
     cout << "3 for Magnetisation vs Temperature.\n";
     cout << "4 for Tau_e vs Temperature initial investigation.\n";
     cout << "5 for Tau_e vs Temperature close to critical temperature.\n";
-    cout << "6 for Energy vs Temperature.\n";
+    cout << "6 for Energy vs Time.\n";
+    cout << "7 for Energy vs Temperature\n";
     cout << "0 to Exit the program.\n";
-    int choice = user_integer_input(0,6);
+    int choice = user_integer_input(0,7);
     return choice;
 }
 
@@ -685,7 +799,9 @@ int main(int argc, char** argv)
             break;
             case 5: autocorrelation_peak_investigation();
             break;
-            case 6: energy_vs_temp_data();
+            case 6: energy_vs_time_data();
+            break;
+            case 7: energy_vs_temp_data();
             break;
         }
         cout << "\nOperation complete.";

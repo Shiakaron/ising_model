@@ -10,7 +10,7 @@ def plot_1():
     """
     p_files = []
     dim = 2
-    folder = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\data\\energy_data"
+    folder = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\data\\energy_data\\vs_temp"
     for file in sorted(os.listdir(folder)):
         if file.endswith(".txt") and not file.endswith(").txt"):
             p_files.append(os.path.join(folder,file))
