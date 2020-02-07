@@ -3,6 +3,7 @@
 int dim;
 int L;
 int N;
+double N_links;
 int *spins;
 map<int,vector<int>> mapOfNearest;
 map<int,vector<int>> mapOfNext2Nearest;
@@ -207,7 +208,7 @@ void magnetisation_vs_temp_data()
     string path = folder+"\\"+filename;
     myfile.open(path);
     if (!myfile.is_open()) {
-        throw "Func: magnetisation_vs_time_data(). File not opened with path: "+path;
+        throw "Func: magnetisation_vs_temp_data(). File not opened with path: "+path;
     }
     cout << "Writing in file with path: " << path << endl;
     cout << "Starting computations" << endl;
@@ -527,7 +528,7 @@ Firstly I need create a function to measure the energy of the system. The Hamilt
 
 Before computing any data I need to manual check that the algorithm iterates over all the edges with no double counting. I will check this with a function, energy_first_check(), and some couts in my compute_energy() function (will comment out after test is passed). TEST PASSED FOR DIM 2 AND 3 :D
 
-Now that the 1st test was passed with flying starts I will continue without next to nearest neighbours for the time being. Next step: plot Energy vs Temperature. I expect to see the the average energy rising from its maximum negative value to 0 as the temperature rises. The average energy is e = E/(nearest_links + next2nearest_links*J') where the denominator is the minimum energy the system can achieve. I believe average_energy() will be useful.
+Now that the 1st test was passed with flying starts I will continue without next to nearest neighbours for the time being. Next step: plot Energy vs Temperature. I expect to see the the average energy rising from its maximum negative value to 0 as the temperature rises. The average energy is e = E/(nearest_links + next2nearest_links*J') where the denominator is the minimum energy the system can achieve. I believe average_energy() will be necessary for the plot.
 
 */
 
@@ -560,6 +561,94 @@ void energy_first_check() {
     }
 }
 
+void energy_vs_temp_data() {
+    cout << "Running for energy at different temperatures data" << endl;
+    dim = 2;
+    L = 48;
+    int thermalisationCycles = 5000;
+    int spacingCycles = 50;
+    int dataPoints = 1000;      //total data points
+    double iniT = 1.0; double finT = 5.0; int numT = 41;
+    T = linspace(iniT, finT, numT);
+    print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
+    cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
+    int user_input = user_integer_input(0,1);
+    if (user_input == 0) {
+        cout << "Dimensions (2-3):\n";
+        dim = user_integer_input(2,3);
+        cout << "Lattice size (8-256):\n";
+        L = user_integer_input(8,256);
+        cout << "Thermalisation cycles (0-10000):\n";
+        thermalisationCycles = user_integer_input(0,10000);
+        cout << "Number of data points (100-10000):\n";
+        dataPoints = user_integer_input(100,10000);
+        cout << "Initial Temperature (1-49) i.e enter 15 for 1.5 Kelvin:\n";
+        int iniT_int = user_integer_input(1,49);
+        iniT = double(iniT_int)/10;
+        cout << "Final Temperature (" << iniT_int <<"-50):\n";
+        int finT_int = user_integer_input(iniT_int,50);
+        finT = double(finT_int)/10;
+        if (iniT_int != finT_int) {
+            cout << "Number of Temperature points (2-41).\n";
+            numT = user_integer_input(2,41);
+        }
+        else {
+            numT = 1;
+        }
+        T = linspace(iniT, finT, numT);
+    }
+
+    // pointers and time variable
+    double *arrayE;
+    double *bootstrap_values;
+    clock_t tStartTemp;
+    arrayE = new double[dataPoints];
+
+    //initialise spins array and neighbours maps
+    initialise_system_and_maps();
+
+    // open file
+    ofstream myfile;
+    string folder = ".\\data\\energy_data";
+    string filename = "energy_data_"+to_string(dim)+"D_"+to_string(L)+".txt";
+    filename_rename_if_exists(filename, folder);
+    string path = folder+"\\"+filename;
+    myfile.open(path);
+    if (!myfile.is_open()) {
+        throw "Func: energy_vs_temp_data(). File not opened with path: "+path;
+    }
+    cout << "Writing in file with path: " << path << endl;
+    cout << "Starting computations" << endl;
+    // compute data
+    for (int i = 0; i<numT; i++) {
+        tStartTemp = clock();
+        // begin
+        initialise_spins_hot();
+        compute_magnetisation();
+        metropolis_function(T[i],thermalisationCycles);
+        compute_energy();
+        arrayE[0] = average_energy();
+        for (int j=1; j<dataPoints; j++) {
+            metropolis_function(T[i],spacingCycles);
+            compute_energy();
+            arrayE[j] = average_energy();
+        }
+        // average and error
+        bootstrap_values = bootstrap_error(arrayE, dataPoints, 128, true);
+
+        //write in file and cout things
+        myfile << T[i] << " " << bootstrap_values[0] << " " << bootstrap_values[1] << endl;
+        cout << "T = " << T[i] << ", E = " << bootstrap_values[0] << " +- " << bootstrap_values[1] << ", Time taken: " << (double)(clock()-tStartTemp)/CLOCKS_PER_SEC << " seconds" << endl;
+    }
+
+   // wrap up
+   delete[] arrayE;
+   delete[] spins;
+   delete[] T;
+   if (myfile.is_open()){
+       myfile.close();
+   }
+}
 
 int initial_menu()
 {
@@ -569,7 +658,7 @@ int initial_menu()
     cout << "3 for Magnetisation vs Temperature.\n";
     cout << "4 for Tau_e vs Temperature initial investigation.\n";
     cout << "5 for Tau_e vs Temperature close to critical temperature.\n";
-    cout << "6\n";
+    cout << "6 for Energy vs Temperature.\n";
     cout << "0 to Exit the program.\n";
     int choice = user_integer_input(0,6);
     return choice;
@@ -580,7 +669,7 @@ int main(int argc, char** argv)
     clock_t tStart = clock();
     srand(seed);
     cout << "Ising Model, made by Savvas Shiakas (ss2477)" << endl;
-    cout << "C++ was used to produce data files which are later plotted using Python\n\n";
+    cout << "C++ was used to produce data files ('low' level -> faster computation) which are later analysed and plotted using Python.\n\n";
 
     // user friendly function to run the code
     int user_choice = initial_menu();
@@ -596,7 +685,7 @@ int main(int argc, char** argv)
             break;
             case 5: autocorrelation_peak_investigation();
             break;
-            case 6: energy_first_check();
+            case 6: energy_vs_temp_data();
             break;
         }
         cout << "\nOperation complete.";

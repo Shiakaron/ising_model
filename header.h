@@ -19,6 +19,7 @@ struct observable{
 extern int dim;
 extern int L;
 extern int N;
+extern double N_links;
 extern int *spins;
 extern map<int,vector<int>> mapOfNearest;
 extern map<int,vector<int>> mapOfNext2Nearest;

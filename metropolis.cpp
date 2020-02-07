@@ -5,6 +5,7 @@ void initialise_system_and_maps() {
     spins = new int[N];
     initialise_nearest_periodic();
     initialise_next2nearest_periodic();
+    N_links = dim*N + mapOfNext2Nearest[0].size()*n2n;
 }
 
 void initialise_spins_cold() {
@@ -176,7 +177,7 @@ void compute_energy() {
     //nearest neightbours, J=1
     //cout << "nearests\n";
     for (int i=0; i<N; i++) {
-        cout << i << ": ";
+        //cout << i << ": ";
         //notice j+=2 to avoid double counting. For each index we consider left/back/down etc. directions
         temp_vec = mapOfNearest[i];
         s_sum = 0;
@@ -215,9 +216,7 @@ void compute_energy() {
 
 double average_energy() {
     // compute_energy first before calling this function
-    double nearest_links = dim*N;
-    double next2nearest_links = mapOfNext2Nearest[0].size(); // much faster and easier than the actual expression for the number of next to nearest links
-    return E/(nearest_links+next2nearest_links*n2n);
+    return E/N_links;
 }
 
 void metropolis_function(double T, int cycles) {
