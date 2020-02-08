@@ -42,6 +42,7 @@ int initial_menu();
 
 //METROPOLIS
 void initialise_system_and_maps();
+void initialise_spins_auto(double Temp);
 void initialise_spins_cold();
 void initialise_spins_hot();
 void initialise_nearest_periodic();

@@ -677,11 +677,11 @@ void energy_vs_time_data() {
 void energy_vs_temp_data() {
     cout << "Running for energy at different temperatures data" << endl;
     dim = 2;
-    L = 8;
-    int thermalisationCycles = 1000;
+    L = 128;
+    int thermalisationCycles = 5000;
     int spacingCycles = 50;
     int dataPoints = 1000;      //total data points
-    double iniT = 1.0; double finT = 5.0; int numT = 41;
+    double iniT = 1.4; double finT = 1.5; int numT = 2;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
@@ -736,7 +736,7 @@ void energy_vs_temp_data() {
     for (int i = 0; i<numT; i++) {
         tStartTemp = clock();
         // begin
-        initialise_spins_hot();
+        initialise_spins_auto(T[i]);
         compute_magnetisation();
         metropolis_function(T[i],thermalisationCycles);
         compute_energy();

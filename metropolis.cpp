@@ -8,6 +8,21 @@ void initialise_system_and_maps() {
     N_links = dim*N + mapOfNext2Nearest[0].size()*n2n;
 }
 
+void initialise_spins_auto(double Temp) {
+    if (dim == 2) {
+        if (Temp < 2) {
+            initialise_spins_cold();
+        }
+        else {
+            initialise_spins_hot();
+        }
+    }
+    else {
+        // TODO : fix for 3d and 4d as well
+        initialise_spins_hot();
+    }
+}
+
 void initialise_spins_cold() {
     int s = 2*(rand()%2)-1; //return -1 or 1 randomly (50/50)
     for (int i = 0; i<N; i++) {
