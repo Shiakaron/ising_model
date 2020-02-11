@@ -3,7 +3,9 @@ import matplotlib.pyplot as plt
 import csv
 import os
 
-texfolder = "C:\\Users\\savva\\OneDrive - University of Cambridge\\Part2\\Computational Projects\\ising_model\\Report\\texfigures"
+folder = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\data\\magn_data"
+folder2 = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\pngs\\"
+texfolder = "C:\\Users\\savva\\OneDrive - University of Cambridge\\Part2\\Computational Projects\\ising_model\\Report\\texfigures\\"
 
 def plot_1():
     """
@@ -12,7 +14,6 @@ def plot_1():
     p_files = []
     dim = 2
     # please change file path when running on different devices
-    folder = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\data\\magn_data"
     for file in sorted(os.listdir(folder)):
         if file.endswith(".txt") and not file.endswith(").txt"):
             p_files.append(os.path.join(folder,file))
@@ -39,7 +40,8 @@ def plot_1():
     ax.set_ylabel("m")
     ax.set_xlabel(r"T / $J/k_B$")
     ax.legend()
-    fig.savefig(texfolder+"\\magn_vs_temp.pdf")
+    fig.savefig(folder2+"magn_vs_temp.png")
+    fig.savefig(texfolder+"magn_vs_temp.pdf")
     plt.show()
 
 def main():

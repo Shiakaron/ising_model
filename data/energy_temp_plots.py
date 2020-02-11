@@ -4,13 +4,16 @@ import csv
 import os
 import itertools
 
+folder = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\data\\energy_data\\vs_temp"
+folder2 = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\pngs\\"
+texfolder = "C:\\Users\\savva\\OneDrive - University of Cambridge\\Part2\\Computational Projects\\ising_model\\Report\\texfigures\\"
+
 def plot_1():
     """
     energy vs temperature with different L's
     """
     p_files = []
     dim = 2
-    folder = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\data\\energy_data\\vs_temp"
     for file in sorted(os.listdir(folder)):
         if file.endswith(".txt") and not file.endswith(").txt"):
             p_files.append(os.path.join(folder,file))
@@ -38,12 +41,14 @@ def plot_1():
     ax.set_ylabel("e / J")
     ax.set_xlabel(r"T / $J/k_B$")
     ax.legend()
-    # fig.savefig(texfolder+"\\energy_vs_temp.pdf")
-    fig.savefig("C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\data\\energy_vs_temp.png")
-    plt.show()
+
+    fig.savefig(texfolder+"energy_vs_temp.pdf")
+    fig.savefig(folder2+"energy_vs_temp.png")
+
 
 def main():
     plot_1()
+    plt.show()
 
 if (__name__ == '__main__'):
     main()

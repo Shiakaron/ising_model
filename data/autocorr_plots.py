@@ -4,7 +4,8 @@ import csv
 import os
 from scipy.optimize import curve_fit
 
-texfolder = "C:\\Users\\savva\\OneDrive - University of Cambridge\\Part2\\Computational Projects\\ising_model\\Report\\texfigures"
+folder2 = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\pngs\\"
+texfolder = "C:\\Users\\savva\\OneDrive - University of Cambridge\\Part2\\Computational Projects\\ising_model\\Report\\texfigures\\"
 
 def gauss(x, mean, sigma, scale, offset):
     return (scale*np.exp(-((x-mean)/sigma)**2)+offset)
@@ -42,8 +43,9 @@ def plot_1():
     ax.set_xlabel(r"T / $J/k_B$")
     ax.set_yscale("log")
     ax.legend()
-    fig.savefig(texfolder+"\\tau_e_vs_temp.pdf")
-    plt.show()
+
+    fig.savefig(folder2+"tau_e_vs_temp.png")
+    fig.savefig(texfolder+"tau_e_vs_temp.pdf")
 
 def plot_2():
     """
@@ -99,15 +101,27 @@ def plot_2():
     x2 = np.linspace(L_list[0],L_list[-1],100)
     ax2.plot(x2,power_fit(x2,*popt2), label = "pow = " + '{:.2f}'.format(popt2[0]) + r"$ \pm $" + '{:.2f}'.format(abs(np.sqrt(abs((np.diag(pcov2)))[0]))))
     print("power = ",popt2[0],abs(np.sqrt(abs((np.diag(pcov2)))[0])))
+
+
+    # popt_plus = popt2 + np.sqrt((np.diag(pcov2)))
+    # print(popt2,"+",np.sqrt((np.diag(pcov2))),"=",popt_plus)
+    # ax2.plot(x2,power_fit(x2,*popt_plus), label = "pow = " + '{:.2f}'.format(popt_plus[0]),linestyle="--",color="k")
+    #
+    # popt_minus = popt2 - np.sqrt((np.diag(pcov2)))
+    # print(popt2,"+",np.sqrt((np.diag(pcov2))),"=",popt_minus)
+    # ax2.plot(x2,power_fit(x2,*popt_minus), label = "pow = " + '{:.2f}'.format(popt_minus[0]),linestyle="--",color="k")
+
     ax2.legend()
+    fig1.savefig(folder2+"tau_e_peak_vs_temp.png")
+    fig2.savefig(folder2+"tau_e_peak_vs_L.png")
     fig1.savefig(texfolder+"\\tau_e_peak_vs_temp.pdf")
     fig2.savefig(texfolder+"\\tau_e_peak_vs_L.pdf")
 
-    plt.show()
 
 def main():
     plot_1()
     plot_2()
+    plt.show()
 
 if (__name__ == '__main__'):
     main()

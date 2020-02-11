@@ -5,7 +5,8 @@ import os
 
 # please fix filepaths if you are running this on different devices
 folder = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\data\\magn_vs_time"
-texfolder = "C:\\Users\\savva\\OneDrive - University of Cambridge\\Part2\\Computational Projects\\ising_model\\Report\\texfigures"
+folder2 = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\pngs\\"
+texfolder = "C:\\Users\\savva\\OneDrive - University of Cambridge\\Part2\\Computational Projects\\ising_model\\Report\\texfigures\\"
 def thermalisation_1():
     """
     Plot at different temperatures but same L
@@ -39,8 +40,9 @@ def thermalisation_1():
     ax.set_title("|Magnetisation| vs time, L = "+str(L)+", T = "+str(T))
     ax.set_ylabel("|M|")
     ax.set_xlabel("t / sweeps")
-    plt.show()
-    fig.savefig(texfolder+"\\thermalisation_1.pdf")
+
+    fig.savefig(folder2+"thermalisation_1.png")
+    fig.savefig(texfolder+"thermalisation_1.pdf")
 
 def thermalisation_2():
     """
@@ -75,8 +77,9 @@ def thermalisation_2():
     ax.set_ylabel("|M|")
     ax.set_xlabel("t / sweeps")
     # ax.legend()
-    fig.savefig(texfolder+"\\thermalisation_2.pdf")
-    plt.show()
+    fig.savefig(folder2+"thermalisation_2.png")
+    fig.savefig(texfolder+"thermalisation_2.pdf")
+
 
 def thermalisation_3():
     """
@@ -108,13 +111,15 @@ def thermalisation_3():
     ax.set_ylabel("m")
     ax.set_xlabel("t / sweeps")
     ax.legend()
-    fig.savefig(texfolder+"\\thermalisation_3.pdf")
-    plt.show()
+    fig.savefig(folder2+"thermalisation_3.png")
+    fig.savefig(texfolder+"thermalisation_3.pdf")
+
 
 def main():
     thermalisation_1()
     thermalisation_2()
     thermalisation_3()
+    plt.show()
 
 if (__name__ == '__main__'):
     main()

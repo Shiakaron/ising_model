@@ -13,7 +13,7 @@ double E;
 double n2n = 0;
 double H = 0;
 
-unsigned int seed = 1581096802; // (unsigned)time(0);
+unsigned int seed = (unsigned)time(0); // (unsigned)time(0);
 double *T;
 
 /*
@@ -528,7 +528,11 @@ Firstly I need create a function to measure the energy of the system. The Hamilt
 
 Before computing any data I need to manual check that the algorithm iterates over all the edges with no double counting. I will check this with a function, energy_first_check(), and some couts in my compute_energy() function (will comment out after test is passed). TEST PASSED FOR DIM 2 AND 3 :D
 
-Now that the 1st test was passed I will continue without next to nearest neighbours for the time being. Next step: plot Energy vs Temperature. I expect to see the the average energy rising from its maximum negative value to 0 as the temperature rises. The average energy is e = E/(nearest_links + next2nearest_links*J') where the denominator is the minimum energy the system can achieve. I believe average_energy() will be necessary for the plot.
+Now that the 1st test was passed I will continue without next to nearest neighbours for the time being and conduct a second MANUAL check that the energy calculatation is correct for printed configurations. PASSED
+
+Checking how the energy evolves with time at different temperatures and L's is also a sanity check. energy_vs_time_data() will generate my datafiles to be plotted with python
+
+Next: plot Energy vs Temperature. I expect to see the the average energy rising from its maximum negative value to 0 as the temperature rises. The average energy is e = E/(nearest_links + next2nearest_links*J') where the denominator is the maximum |energy| the system can achieve. I believe average_energy() will be necessary for the plot if I want to plot multiple L's.
 
 */
 
@@ -582,9 +586,7 @@ void energy_second_check() {
     cout << "E = " << E << ", e = " << average_energy() << ", M = " << M << ", m = " << fabs((double)M/N) << endl;
     for (int i=1; i<dataPoints; i++) {
         metropolis_function(Temp,spacingCycles);
-        if (i==8){
-            print_spins_2D();
-        }
+        print_spins_2D();
         compute_energy();
         cout << "E = " << E << ", e = " << average_energy() << ", M = " << M << ", m = " << fabs((double)M/N) << endl;
     }
