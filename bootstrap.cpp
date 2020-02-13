@@ -1,6 +1,19 @@
 #include "header.h"
 
 double* bootstrap_error(double data[], int array_size, int bin_number, bool correlated){
+    /*
+
+    The Bootstap Error Analysis:
+    1. create bin_number bins of size array_size
+    2. randmoly assign - without replacement - data points in the bins from the data[]
+    3. For each bin compute an average
+    4. Finally compute the average of the averages and its error
+    Repeat for bins of deviation where you randomly assign data[]*data[] to get average and error on deviation
+
+    (not in official bootstrap algorithm)
+    For correlated data you can find the autocorrelation time and adjust error accordingly.
+    
+    */
     //bin_number is the number of total arrays of size array_size to be measured for the bootstrap error
     double *O;                          //the average
     O = new double[bin_number]();
@@ -44,7 +57,7 @@ double* bootstrap_error(double data[], int array_size, int bin_number, bool corr
     err_O /= bin_number; err_dev /= bin_number;
     err_O = sqrt(err_O); err_dev = sqrt(err_dev);
 
-    //even better estimate on error when data are correlated
+    //extra feature to get even better estimate on error when the data are correlated
     if (correlated==true) {
         double *autocorr;
         autocorr = autocorrelation(data, array_size);

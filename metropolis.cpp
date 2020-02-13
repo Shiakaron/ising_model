@@ -18,7 +18,7 @@ void initialise_spins_auto(double Temp) {
         }
     }
     else {
-        // TODO : fix for 3d and 4d as well
+        // TODO : update for 3d and 4d as well for similar structure with 2D
         initialise_spins_hot();
     }
 }
@@ -182,6 +182,39 @@ double compute_denergy(int index) {
     return de_total;
 }
 
+void metropolis_function(double Temp, int cycles) {
+    // initialise useful variables
+    double de = 0;
+    double beta = 1.0/Temp;
+    double x;
+    double flip_probability;
+    int flips_counter = 0;
+    int index;
+
+    for(int r=0; r<cycles; r++){
+        for(int k = 0; k<N; k++){
+            //randomly select a site
+            index = rand()%N;
+            //measure energy difference before flip
+            de = compute_denergy(index);
+            //flip if the right condition is met
+            if (de <= 0){
+                spins[index] *= -1;
+                flips_counter += spins[index];
+            }
+            else {
+                x = ((double)rand()/RAND_MAX);
+                flip_probability = exp(-beta*de);
+                if (x < flip_probability) {
+                    spins[index] *= -1;
+                    flips_counter += spins[index];
+                }
+            }
+        }
+    }
+    M += 2*flips_counter;
+}
+
 void compute_energy() {
     double e_total = 0;
     int s_sum;
@@ -229,40 +262,41 @@ void compute_energy() {
     E = e_total;
 }
 
-double average_energy() {
+double energy_per_link() {
     // compute_energy first before calling this function
     return E/N_links;
 }
 
-void metropolis_function(double T, int cycles) {
-    // initialise useful variables
-    double de = 0;
-    double beta = 1.0/T;
-    double x;
-    double flip_probability;
-    int flips_counter = 0;
-    int index;
+double energy_per_site() {
+    // compute_energy() first!!
+    return E/N;
+}
 
-    for(int r=0; r<cycles; r++){
-        for(int k = 0; k<N; k++){
-            //randomly select a site
-            index = rand()%N;
-            //measure energy difference before flip
-            de = compute_denergy(index);
-            //flip if the right condition is met
-            if (de <= 0){
-                spins[index] *= -1;
-                flips_counter += spins[index];
-            }
-            else {
-                x = ((double)rand()/RAND_MAX);
-                flip_probability = exp(-beta*de);
-                if (x < flip_probability) {
-                    spins[index] *= -1;
-                    flips_counter += spins[index];
-                }
-            }
-        }
-    }
-    M += 2*flips_counter;
+double* get_heat_capacity(double arr[], int siz, double Temp) {
+    /*
+    return heat capacity per boltzman constant
+    heat capacity / k_B = beta^2*sigma_E^2
+    sigma_E^2 = <E^2> - <E>^2
+    will use bootstrap to get average and error on deviation
+    */
+    //beta
+    double beta = 1/Temp;
+    //<E>
+    // double aveE = averageArray(arr,siz);
+    // //<E^2>
+    // double aveE_sq;
+    // double sum = 0.0;
+    // for (int i = 0; i<siz; i++) {
+    //     sum += arr[i]*arr[i];
+    // }
+    // aveE_sq=sum/siz;
+    double *bootstrap_values;
+    bootstrap_values = bootstrap_error(arr, siz, 128, true);
+    double *return_value;
+    return_value = new double[2];
+    return_value[0] = beta*beta*bootstrap_values[2];
+    return_value[1] = beta*beta*bootstrap_values[3];
+
+    return return_value;
+
 }

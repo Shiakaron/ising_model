@@ -193,7 +193,7 @@ void print_spins_2D() {
 
 int user_integer_input(int min, int max) {
     /*
-    This function performs the necessary checks on the user's input. 
+    This function performs the necessary checks on the user's input.
     */
     int x;
     bool valid = false;

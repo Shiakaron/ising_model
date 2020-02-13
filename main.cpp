@@ -523,16 +523,18 @@ void autocorrelation_peak_investigation()
 }
 
 /*
-ENERGY AND SPECIFIC HEAT CAPACITY
-Firstly I need create a function to measure the energy of the system. The Hamiltonian H = -J*Sum_<ij>{s_i*s_j} - mu*H*Sum_i{s_i} - n2n term. The real question here is if I want to compute the energy manually by calling the function every time I need the E value, or if I want the metropolis_function to update the energy for me every time (like it does with magnetisation). I don't tink I will need the energy after every MC sweep so I will call to compute it when I need it's value.
+ENERGY
+Firstly I need create a function to measure the energy of the system. The Hamiltonian H = -J*Sum_<ij>{s_i*s_j} - mu*H*Sum_i{s_i} - {n2n term}. The real question here is if I want to compute the energy manually by calling the function every time I need the E value, or if I want the metropolis_function() to update the energy for me every time (like it does with magnetisation). I don't tink I will need the energy after every MC sweep so I will call to compute it when I need it's value.
 
 Before computing any data I need to manual check that the algorithm iterates over all the edges with no double counting. I will check this with a function, energy_first_check(), and some couts in my compute_energy() function (will comment out after test is passed). TEST PASSED FOR DIM 2 AND 3 :D
 
 Now that the 1st test was passed I will continue without next to nearest neighbours for the time being and conduct a second MANUAL check that the energy calculatation is correct for printed configurations. PASSED
 
+PLOT 1:
 Checking how the energy evolves with time at different temperatures and L's is also a sanity check. energy_vs_time_data() will generate my datafiles to be plotted with python
 
-Next: plot Energy vs Temperature. I expect to see the the average energy rising from its maximum negative value to 0 as the temperature rises. The average energy is e = E/(nearest_links + next2nearest_links*J') where the denominator is the maximum |energy| the system can achieve. I believe average_energy() will be necessary for the plot if I want to plot multiple L's.
+PLOT 2:
+plot Energy vs Temperature. I expect to see the the average energy rising from its maximum negative value to 0 as the temperature rises. The average energy is e = E/(nearest_links + next2nearest_links*J') where the denominator is the maximum |energy| the system can achieve. I believe energy_per_link() will be necessary for the plot if I want to plot multiple L's.
 
 */
 
@@ -583,12 +585,12 @@ void energy_second_check() {
     print_spins_2D();
     compute_magnetisation();
     compute_energy();
-    cout << "E = " << E << ", e = " << average_energy() << ", M = " << M << ", m = " << fabs((double)M/N) << endl;
+    cout << "E = " << E << ", e = " << energy_per_link() << ", M = " << M << ", m = " << fabs((double)M/N) << endl;
     for (int i=1; i<dataPoints; i++) {
         metropolis_function(Temp,spacingCycles);
         print_spins_2D();
         compute_energy();
-        cout << "E = " << E << ", e = " << average_energy() << ", M = " << M << ", m = " << fabs((double)M/N) << endl;
+        cout << "E = " << E << ", e = " << energy_per_link() << ", M = " << M << ", m = " << fabs((double)M/N) << endl;
     }
 }
 
@@ -656,13 +658,13 @@ void energy_vs_time_data() {
         compute_magnetisation(); // why not
         metropolis_function(T[i],thermalisationCycles);
         compute_energy();
-        myfile << average_energy() << endl;
-        //arrayE[0] = average_energy();
+        myfile << energy_per_link() << endl;
+        //arrayE[0] = energy_per_link();
         for (int j=1; j<dataPoints; j++) {
             metropolis_function(T[i],spacingCycles);
             compute_energy();
-            //arrayE[j] = average_energy();
-            myfile << average_energy() << endl;
+            //arrayE[j] = energy_per_link();
+            myfile << energy_per_link() << endl;
         }
 
         if (myfile.is_open()){
@@ -742,11 +744,11 @@ void energy_vs_temp_data() {
         compute_magnetisation();
         metropolis_function(T[i],thermalisationCycles);
         compute_energy();
-        arrayE[0] = average_energy();
+        arrayE[0] = energy_per_link();
         for (int j=1; j<dataPoints; j++) {
             metropolis_function(T[i],spacingCycles);
             compute_energy();
-            arrayE[j] = average_energy();
+            arrayE[j] = energy_per_link();
         }
         // average and error
         bootstrap_values = bootstrap_error(arrayE, dataPoints, 128, true);
@@ -754,6 +756,102 @@ void energy_vs_temp_data() {
         //write in file and cout things
         myfile << T[i] << " " << bootstrap_values[0] << " " << bootstrap_values[1] << endl;
         cout << "T = " << T[i] << ", E = " << bootstrap_values[0] << " +- " << bootstrap_values[1] << ", Time taken: " << (double)(clock()-tStartTemp)/CLOCKS_PER_SEC << " seconds" << endl;
+    }
+
+   // wrap up
+   delete[] arrayE;
+   delete[] spins;
+   delete[] T;
+   if (myfile.is_open()){
+       myfile.close();
+   }
+}
+
+/*
+SPECIFIC HEAT CAPACITY
+Create a function to compute the heat capacity. Initially set it to return c units of the boltzmann constant (hoping that is a good thing to do) to give us a dimensionless heat capacity.
+
+*/
+
+void specific_heat_capacity_data() {
+    cout << "Running for energy at different temperatures data" << endl;
+    dim = 2;
+    L = 48;
+    int thermalisationCycles = 1000;
+    int spacingCycles = 50;
+    int dataPoints = 2000;      //total data points
+    double iniT = 1.0; double finT = 5.0; int numT = 21;
+    T = linspace(iniT, finT, numT);
+    print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
+    cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
+    int user_input = user_integer_input(0,1);
+    if (user_input == 0) {
+        cout << "Dimensions (2-3):\n";
+        dim = user_integer_input(2,3);
+        cout << "Lattice size (8-256):\n";
+        L = user_integer_input(8,256);
+        cout << "Thermalisation cycles (0-10000):\n";
+        thermalisationCycles = user_integer_input(0,10000);
+        cout << "Number of data points (100-10000):\n";
+        dataPoints = user_integer_input(100,10000);
+        cout << "Initial Temperature (1-49) i.e enter 15 for 1.5 Kelvin:\n";
+        int iniT_int = user_integer_input(1,49);
+        iniT = double(iniT_int)/10;
+        cout << "Final Temperature (" << iniT_int <<"-50):\n";
+        int finT_int = user_integer_input(iniT_int,50);
+        finT = double(finT_int)/10;
+        if (iniT_int != finT_int) {
+            cout << "Number of Temperature points (2-41).\n";
+            numT = user_integer_input(2,41);
+        }
+        else {
+            numT = 1;
+        }
+        T = linspace(iniT, finT, numT);
+    }
+
+    // pointers and variables
+    double *c;
+    double *arrayE;
+    double *bootstrap_values;
+    clock_t tStartTemp;
+    arrayE = new double[dataPoints];
+
+    //initialise spins array and neighbours maps
+    initialise_system_and_maps();
+
+    // open file
+    ofstream myfile;
+    string folder = ".\\data\\specific_heat";
+    string filename = "specific_heat_data_"+to_string(dim)+"D_"+to_string(L)+".txt";
+    filename_rename_if_exists(filename, folder);
+    string path = folder+"\\"+filename;
+    myfile.open(path);
+    if (!myfile.is_open()) {
+        throw "Func: specific_heat_capacity_data(). File not opened with path: "+path;
+    }
+    cout << "Writing in file with path: " << path << endl;
+    cout << "Starting computations" << endl;
+    // compute data
+    for (int i = 0; i<numT; i++) {
+        tStartTemp = clock();
+        // begin
+        initialise_spins_auto(T[i]);
+        compute_magnetisation(); // why not
+        metropolis_function(T[i],thermalisationCycles);
+        compute_energy();
+        arrayE[0] = E;
+        for (int j=1; j<dataPoints; j++) {
+            metropolis_function(T[i],spacingCycles);
+            compute_energy();
+            arrayE[j] = E;
+        }
+        //compute heat capacity
+        c = get_heat_capacity(arrayE,dataPoints,T[i]);
+
+        //write in file and cout things
+        myfile << T[i] << " " << c[0] << " " << c[1] << endl;
+        cout << "T = " << T[i] << ", c = " << c[0] << " +- " << c[1] << ", Time taken: " << (double)(clock()-tStartTemp)/CLOCKS_PER_SEC << " seconds" << endl;
     }
 
    // wrap up
@@ -775,8 +873,9 @@ int initial_menu()
     cout << "5 for Tau_e vs Temperature close to critical temperature.\n";
     cout << "6 for Energy vs Time.\n";
     cout << "7 for Energy vs Temperature\n";
+    cout << "8 for Specific heat capacity\n";
     cout << "0 to Exit the program.\n";
-    int choice = user_integer_input(0,7);
+    int choice = user_integer_input(0,8);
     return choice;
 }
 
@@ -804,6 +903,8 @@ int main(int argc, char** argv)
             case 6: energy_vs_time_data();
             break;
             case 7: energy_vs_temp_data();
+            break;
+            case 8: specific_heat_capacity_data();
             break;
         }
         cout << "\nOperation complete.";

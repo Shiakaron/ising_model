@@ -49,9 +49,11 @@ void initialise_nearest_periodic();
 void initialise_next2nearest_periodic();
 double compute_denergy();
 void compute_magnetisation();
-void metropolis_function(double T, int cycles);
+void metropolis_function(double Temp, int cycles);
 void compute_energy();
-double average_energy();
+double energy_per_link();
+double energy_per_site();
+double* get_heat_capacity(double arr[], int siz, double Temp);
 
 //GENERAL
 double* linspace(double a, double b, int N);
