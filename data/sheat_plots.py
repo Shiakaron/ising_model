@@ -40,6 +40,7 @@ def plot_1():
     ax.set_title("Specific heat vs Temperature")
     ax.set_ylabel(r"C / $k_B$")
     ax.set_xlabel(r"T / $J/k_B$")
+    #ax.set_yscale("log")
     ax.legend()
 
     # fig.savefig(texfolder+"c_vs_temp.pdf")
