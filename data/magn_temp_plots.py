@@ -22,6 +22,9 @@ def plot_1():
     fig, ax = plt.subplots()
     ax.axvline(2.2692, label="$T_c$", linestyle="--",color="k")
     for p_file in p_files:
+        D = int(((os.path.splitext(os.path.basename(p_file))[0]).split('_',3)[2])[0])
+        if (D != dim):
+            continue
         L = (os.path.splitext(os.path.basename(p_file))[0]).split('_',3)[3]
         avgM = []
         errM = []
@@ -56,9 +59,12 @@ def plot_2():
             p_files.append(os.path.join(folder,file))
 
     L_list = []
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(12,8))
     ax.axvline(2.2692, label="$T_c$", linestyle="--",color="k")
     for p_file in p_files:
+        D = int(((os.path.splitext(os.path.basename(p_file))[0]).split('_',3)[2])[0])
+        if (D != dim):
+            continue
         L = (os.path.splitext(os.path.basename(p_file))[0]).split('_',3)[3]
         avgM = []
         errM = []
@@ -77,8 +83,8 @@ def plot_2():
     ax.set_ylabel("m")
     ax.set_xlabel(r"T / $J/k_B$")
     ax.legend()
-    #fig.savefig(folder2+"magn_vs_temp2.png")
-    #fig.savefig(texfolder+"magn_vs_temp2.pdf")
+    fig.savefig(folder2+"magn_vs_temp_3D.png")
+    fig.savefig(texfolder+"magn_vs_temp_3D.pdf")
 
 
 def main():

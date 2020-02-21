@@ -156,11 +156,11 @@ void magnetisation_vs_temp_data()
 {
     cout << "Running for magnetisation at different temperatures data" << endl;
     dim = 3;
-    L = 8;
+    L = 12;
     int thermalisationCycles = 1000;
     int spacingCycles = 50;
     int dataPoints = 2000;      //total data points
-    double iniT = 1.0; double finT = 5.0; int numT = 41;
+    double iniT = 3.0; double finT = 7.0; int numT = 41;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
@@ -174,11 +174,11 @@ void magnetisation_vs_temp_data()
         thermalisationCycles = user_integer_input(0,5000);
         cout << "Number of data points (100-10000):\n";
         dataPoints = user_integer_input(100,10000);
-        cout << "Initial Temperature (1-49) i.e enter 15 for 1.5 Kelvin:\n";
-        int iniT_int = user_integer_input(1,49);
+        cout << "Initial Temperature (1-99) i.e enter 15 for 1.5 Kelvin:\n";
+        int iniT_int = user_integer_input(1,99);
         iniT = double(iniT_int)/10;
-        cout << "Final Temperature (" << iniT_int <<"-50):\n";
-        int finT_int = user_integer_input(iniT_int,50);
+        cout << "Final Temperature (" << iniT_int <<"-100):\n";
+        int finT_int = user_integer_input(iniT_int,100);
         finT = double(finT_int)/10;
         if (iniT_int != finT_int) {
             cout << "Number of Temperature points (2-41).\n";
@@ -214,7 +214,6 @@ void magnetisation_vs_temp_data()
     cout << "Starting computations" << endl;
     // compute data
     for (int i = 0; i<numT; i++) {
-        cout << "T = " << T[i] << endl;
         tStartTemp = clock();
         arrayM = new double[dataPoints];
         // begin
@@ -235,7 +234,7 @@ void magnetisation_vs_temp_data()
         // wrap up
         delete[] arrayM;
         delete[] bootstrap_values;
-        cout << "T = " << T[i] << ", m = " << fabs((double)M/N) << ", Time taken: " << (double)(clock()-tStartTemp)/CLOCKS_PER_SEC << " seconds" << endl;
+        cout << "T = " << T[i] << ", m = " << magn[i] << " +- " <<  err_magn[i] << ", Time taken: " << (double)(clock()-tStartTemp)/CLOCKS_PER_SEC << " seconds" << endl;
     }
 
    // wrap up
@@ -775,7 +774,7 @@ Following that I will compute the heat capacity around the critical temperature.
 */
 
 void specific_heat_capacity_data() {
-    cout << "Running for energy at different temperatures data" << endl;
+    cout << "Running for peat capacity at different temperatures data" << endl;
     dim = 2;
     L = 48;
     int thermalisationCycles = 1000;
@@ -865,13 +864,13 @@ void specific_heat_capacity_data() {
 }
 
 void specific_heat_capacity_peak_data() {
-    cout << "Running for energy at different temperatures data" << endl;
+    cout << "Running for heat capacity around peak data" << endl;
     dim = 2;
-    L = 16;
+    L = 48;
     int thermalisationCycles = 1000;
     int spacingCycles = 50;
-    int dataPoints = 5000;      //total data points
-    double iniT = 2.1; double finT = 2.5; int numT = 21;
+    int dataPoints = 2000;      //total data points
+    double iniT = 2.21; double finT = 2.33; int numT = 7;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
