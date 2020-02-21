@@ -155,9 +155,9 @@ void magnetisation_vs_time_data_bulk()
 void magnetisation_vs_temp_data()
 {
     cout << "Running for magnetisation at different temperatures data" << endl;
-    dim = 2;
-    L = 64;
-    int thermalisationCycles = 10000;
+    dim = 3;
+    L = 8;
+    int thermalisationCycles = 1000;
     int spacingCycles = 50;
     int dataPoints = 2000;      //total data points
     double iniT = 1.0; double finT = 5.0; int numT = 41;
@@ -218,7 +218,7 @@ void magnetisation_vs_temp_data()
         tStartTemp = clock();
         arrayM = new double[dataPoints];
         // begin
-        initialise_spins_hot();
+        initialise_spins_auto(T[i]);
         compute_magnetisation();
         metropolis_function(T[i],thermalisationCycles);
         arrayM[0] = fabs((double)M/N);
@@ -230,16 +230,13 @@ void magnetisation_vs_temp_data()
         bootstrap_values = bootstrap_error(arrayM, dataPoints, 128, true);
         magn.push_back(bootstrap_values[0]);
         err_magn.push_back(bootstrap_values[1]);
+        // write data in myfile
+        myfile << T[i] << " " << magn[i] << " " << err_magn[i] << endl;
         // wrap up
         delete[] arrayM;
         delete[] bootstrap_values;
-        cout << "Time taken: " << (double)(clock()-tStartTemp)/CLOCKS_PER_SEC << " seconds" << endl;
+        cout << "T = " << T[i] << ", m = " << fabs((double)M/N) << ", Time taken: " << (double)(clock()-tStartTemp)/CLOCKS_PER_SEC << " seconds" << endl;
     }
-
-    // write data in myfile
-   for(int i = 0; i < numT; i++) {
-      myfile << T[i] << " " << magn[i] << " " << err_magn[i] << endl;
-   }
 
    // wrap up
    delete[] spins;
@@ -771,6 +768,10 @@ void energy_vs_temp_data() {
 SPECIFIC HEAT CAPACITY
 Create a function to compute the heat capacity. Initially set it to return c units of the boltzmann constant (hoping that is a good thing to do) to give us a dimensionless heat capacity.
 
+PLOT 1:
+specific heat vs temperature. Expecting peak close to T_c and peak values increasing with L.
+
+Following that I will compute the heat capacity around the critical temperature. Fit a gaussian on the peak to get the mean
 */
 
 void specific_heat_capacity_data() {
@@ -863,6 +864,96 @@ void specific_heat_capacity_data() {
    }
 }
 
+void specific_heat_capacity_peak_data() {
+    cout << "Running for energy at different temperatures data" << endl;
+    dim = 2;
+    L = 16;
+    int thermalisationCycles = 1000;
+    int spacingCycles = 50;
+    int dataPoints = 5000;      //total data points
+    double iniT = 2.1; double finT = 2.5; int numT = 21;
+    T = linspace(iniT, finT, numT);
+    print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
+    cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
+    int user_input = user_integer_input(0,1);
+    if (user_input == 0) {
+        cout << "Dimensions (2-3):\n";
+        dim = user_integer_input(2,3);
+        cout << "Lattice size (8-256):\n";
+        L = user_integer_input(8,256);
+        cout << "Thermalisation cycles (0-10000):\n";
+        thermalisationCycles = user_integer_input(0,10000);
+        cout << "Number of data points (100-10000):\n";
+        dataPoints = user_integer_input(100,10000);
+        cout << "Initial Temperature (1-49) i.e enter 15 for 1.5 Kelvin:\n";
+        int iniT_int = user_integer_input(1,49);
+        iniT = double(iniT_int)/10;
+        cout << "Final Temperature (" << iniT_int <<"-50):\n";
+        int finT_int = user_integer_input(iniT_int,50);
+        finT = double(finT_int)/10;
+        if (iniT_int != finT_int) {
+            cout << "Number of Temperature points (2-41).\n";
+            numT = user_integer_input(2,41);
+        }
+        else {
+            numT = 1;
+        }
+        T = linspace(iniT, finT, numT);
+    }
+
+    // pointers and variables
+    double *c;
+    double *arrayE;
+    double *bootstrap_values;
+    clock_t tStartTemp;
+    arrayE = new double[dataPoints];
+
+    //initialise spins array and neighbours maps
+    initialise_system_and_maps();
+
+    // open file
+    ofstream myfile;
+    string folder = ".\\data\\specific_heat";
+    string filename = "specific_heat_peak_data_"+to_string(dim)+"D_"+to_string(L)+".txt";
+    filename_rename_if_exists(filename, folder);
+    string path = folder+"\\"+filename;
+    myfile.open(path);
+    if (!myfile.is_open()) {
+        throw "Func: specific_heat_capacity_peak_data(). File not opened with path: "+path;
+    }
+    cout << "Writing in file with path: " << path << endl;
+    cout << "Starting computations" << endl;
+    // compute data
+    for (int i = 0; i<numT; i++) {
+        tStartTemp = clock();
+        // begin
+        initialise_spins_auto(T[i]);
+        compute_magnetisation(); // why not
+        metropolis_function(T[i],thermalisationCycles);
+        compute_energy();
+        arrayE[0] = E;
+        for (int j=1; j<dataPoints; j++) {
+            metropolis_function(T[i],spacingCycles);
+            compute_energy();
+            arrayE[j] = E;
+        }
+        //compute heat capacity
+        c = get_heat_capacity(arrayE,dataPoints,T[i]);
+
+        //write in file and cout things
+        myfile << T[i] << " " << c[0] << " " << c[1] << endl;
+        cout << "T = " << T[i] << ", c = " << c[0] << " +- " << c[1] << ", Time taken: " << (double)(clock()-tStartTemp)/CLOCKS_PER_SEC << " seconds" << endl;
+    }
+
+   // wrap up
+   delete[] arrayE;
+   delete[] spins;
+   delete[] T;
+   if (myfile.is_open()){
+       myfile.close();
+   }
+}
+
 int initial_menu()
 {
     cout << "Please select an analysis by entering an integer:\n";
@@ -873,9 +964,10 @@ int initial_menu()
     cout << "5 for Tau_e vs Temperature close to critical temperature.\n";
     cout << "6 for Energy vs Time.\n";
     cout << "7 for Energy vs Temperature\n";
-    cout << "8 for Specific heat capacity\n";
+    cout << "8 for Specific heat capacity vs Temperature\n";
+    cout << "9 for Specific heat capacity vs Temperature around critical point\n";
     cout << "0 to Exit the program.\n";
-    int choice = user_integer_input(0,8);
+    int choice = user_integer_input(0,9);
     return choice;
 }
 
@@ -905,6 +997,8 @@ int main(int argc, char** argv)
             case 7: energy_vs_temp_data();
             break;
             case 8: specific_heat_capacity_data();
+            break;
+            case 9: specific_heat_capacity_peak_data();
             break;
         }
         cout << "\nOperation complete.";
