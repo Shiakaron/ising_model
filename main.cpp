@@ -866,11 +866,11 @@ void specific_heat_capacity_data() {
 void specific_heat_capacity_peak_data() {
     cout << "Running for heat capacity around peak data" << endl;
     dim = 2;
-    L = 40;
+    L = 52;
     int thermalisationCycles = 1000;
     int spacingCycles = 50;
-    int dataPoints = 2000;      //total data points
-    double iniT = 2.36; double finT = 2.40; int numT = 5;
+    int dataPoints = 5000;      //total data points
+    double iniT = 2.365; double finT = 2.37; int numT = 2;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";

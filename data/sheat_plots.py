@@ -79,13 +79,16 @@ def plot_2():
     marker = itertools.cycle(('*', '+', '.', ',', 'o'))
     limits = {
         "8":[0,-1],
+        "12":[0,-1],
         "16":[0,-1],
         "24":[3,-3],
-        "32":[5,15],
+        "28":[0,-1],
+        "32":[4,16],
         "36":[0,-1],
         "40":[0,-1],
         "44":[0,-1],
-        "48":[5,20]
+        "48":[5,20],
+        "52":[0,-1]
     }
     for key in limits:
         L = int(key)
@@ -109,15 +112,12 @@ def plot_2():
                     C_fit = avgC[left:right]
                     err_fit = errC[left:right]
                     popt, pcov = curve_fit(gauss, T_fit, C_fit, sigma=err_fit, absolute_sigma=True, maxfev=5000, p0=[2.3, 0.1, 1000], bounds=((2.25,-5,-np.inf),(2.4,5,np.inf)))
-                    # value_list.append(popt[2])
-                    # error = abs(np.sqrt(abs((np.diag(pcov)))[2]))
-                    # error_list.append(error)
                     x = np.linspace(T[left],T[right],100)
                     ax.plot(x,gauss(x, *popt), color="c",linewidth=1)
                     #print(L,popt,np.sqrt(np.diag(pcov)))
                     ln_L_list.append(np.log(int(L)))
                     y_list.append(np.log(popt[0] - T_c_inf))
-                    y_err_list.append(np.sqrt(np.diag(pcov)[0]))
+                    y_err_list.append(np.sqrt(np.diag(pcov)[0])/(popt[0] - T_c_inf))
                     print(L, ln_L_list[-1],y_list[-1],y_err_list[-1])
 
     ax.set_title("Specific heat vs Temperature around critical")
