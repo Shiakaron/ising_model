@@ -82,6 +82,9 @@ def plot_2():
         "16":[0,-1],
         "24":[3,-3],
         "32":[5,15],
+        "36":[0,-1],
+        "40":[0,-1],
+        "44":[0,-1],
         "48":[5,20]
     }
     for key in limits:
@@ -115,39 +118,7 @@ def plot_2():
                     ln_L_list.append(np.log(int(L)))
                     y_list.append(np.log(popt[0] - T_c_inf))
                     y_err_list.append(np.sqrt(np.diag(pcov)[0]))
-                    print(ln_L_list[-1],y_list[-1],y_err_list[-1])
-
-
-
-    # for p_file in p_files:
-    #     L = (os.path.splitext(os.path.basename(p_file))[0]).split('_',5)[5]
-    #     avgC = []
-    #     errC = []
-    #     T = []
-    #     if (L not in L_list):
-    #         L_list.append(L)
-    #         with open(p_file) as csvfile:
-    #             lines = csv.reader(csvfile, delimiter=' ')
-    #             for row in lines:
-    #                 T.append(float(row[0]))
-    #                 avgC.append(float(row[1]))
-    #                 errC.append(float(row[2]))
-    #         ax.errorbar(T, avgC, errC, ls='',marker = next(marker), label="L = "+str(L))
-    #         left = limits[L][0]
-    #         right = limits[L][1]
-    #         T_fit = T[left:right]
-    #         C_fit = avgC[left:right]
-    #         err_fit = errC[left:right]
-    #         popt, pcov = curve_fit(gauss, T_fit, C_fit, sigma=err_fit, absolute_sigma=True, maxfev=5000, p0=[2.3, 0.1, 100], bounds=((2.25,-5,-np.inf),(2.4,5,np.inf)))
-    #         # value_list.append(popt[2])
-    #         # error = abs(np.sqrt(abs((np.diag(pcov)))[2]))
-    #         # error_list.append(error)
-    #         x = np.linspace(T[left],T[right],100)
-    #         ax.plot(x,gauss(x, *popt), color="c",linewidth=1)
-    #         print(L,popt,np.sqrt(np.diag(pcov)))
-    #         ln_L_list.append(np.log(1/int(L)))
-    #         y_list.append(np.log(popt[0] - T_c_inf))
-    #         y_err_list.append(np.sqrt(np.diag(pcov)[0]))
+                    print(L, ln_L_list[-1],y_list[-1],y_err_list[-1])
 
     ax.set_title("Specific heat vs Temperature around critical")
     ax.set_ylabel(r"C / $k_B$")
@@ -157,8 +128,6 @@ def plot_2():
 
     #fig.savefig(texfolder+"c_vs_temp_peak.pdf")
     #fig.savefig(folder2+"c_vs_temp_peak.png")
-    fig1, ax1 = plt.subplots(figsize=(12,8))
-    ax1.scatter(ln_L_list, y_list,)
 
     fig2, ax2 = plt.subplots(figsize=(12,8))
     ax2.errorbar(ln_L_list, y_list, y_err_list,ls="",marker='+')
