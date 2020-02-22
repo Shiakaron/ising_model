@@ -135,6 +135,12 @@ def plot_2():
     x2 = np.linspace(ln_L_list[0],ln_L_list[-1],100)
     ax2.plot(x2,linear(x2, *popt2), color="c",linewidth=1)
     print(popt2,np.sqrt(np.diag(pcov2)))
+    ax2.set_title(r"$\log(T_c(\infty)$ - $T_c(L)$) vs $\log(L)$")
+    ax2.set_ylabel(r"$\log(\Delta T_c$ / $J / K_b$)")
+    ax2.set_xlabel(r"$\log(L)$")
+
+    fig2.savefig(texfolder+"heat_cap_check_Onsager.pdf")
+    fig2.savefig(folder2+"heat_cap_check_Onsager.png")
 
 def main():
     #plot_1()
