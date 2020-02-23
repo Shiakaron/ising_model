@@ -773,7 +773,7 @@ specific heat vs temperature. Expecting peak close to T_c and peak values increa
 Following that I will compute the heat capacity around the critical temperature. Fit a gaussian on the peak to get the mean
 */
 
-void specific_heat_capacity_data() {
+void heat_capacity_data() {
     cout << "Running for peat capacity at different temperatures data" << endl;
     dim = 2;
     L = 48;
@@ -822,13 +822,13 @@ void specific_heat_capacity_data() {
 
     // open file
     ofstream myfile;
-    string folder = ".\\data\\specific_heat";
-    string filename = "specific_heat_data_"+to_string(dim)+"D_"+to_string(L)+".txt";
+    string folder = ".\\data\\heat";
+    string filename = "heat_data_"+to_string(dim)+"D_"+to_string(L)+".txt";
     filename_rename_if_exists(filename, folder);
     string path = folder+"\\"+filename;
     myfile.open(path);
     if (!myfile.is_open()) {
-        throw "Func: specific_heat_capacity_data(). File not opened with path: "+path;
+        throw "Func: heat_capacity_data(). File not opened with path: "+path;
     }
     cout << "Writing in file with path: " << path << endl;
     cout << "Starting computations" << endl;
@@ -863,7 +863,7 @@ void specific_heat_capacity_data() {
    }
 }
 
-void specific_heat_capacity_peak_data() {
+void heat_capacity_peak_data() {
     cout << "Running for heat capacity around peak data" << endl;
     dim = 2;
     L = 52;
@@ -912,13 +912,13 @@ void specific_heat_capacity_peak_data() {
 
     // open file
     ofstream myfile;
-    string folder = ".\\data\\specific_heat";
-    string filename = "specific_heat_peak_data_"+to_string(dim)+"D_"+to_string(L)+".txt";
+    string folder = ".\\data\\heat";
+    string filename = "heat_peak_data_"+to_string(dim)+"D_"+to_string(L)+".txt";
     filename_rename_if_exists(filename, folder);
     string path = folder+"\\"+filename;
     myfile.open(path);
     if (!myfile.is_open()) {
-        throw "Func: specific_heat_capacity_peak_data(). File not opened with path: "+path;
+        throw "Func: heat_capacity_peak_data(). File not opened with path: "+path;
     }
     cout << "Writing in file with path: " << path << endl;
     cout << "Starting computations" << endl;
@@ -995,9 +995,9 @@ int main(int argc, char** argv)
             break;
             case 7: energy_vs_temp_data();
             break;
-            case 8: specific_heat_capacity_data();
+            case 8: heat_capacity_data();
             break;
-            case 9: specific_heat_capacity_peak_data();
+            case 9: heat_capacity_peak_data();
             break;
         }
         cout << "\nOperation complete.";

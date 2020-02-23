@@ -5,7 +5,7 @@ import os
 import itertools
 from scipy.optimize import curve_fit
 
-folder = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\data\\specific_heat"
+folder = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\data\\heat"
 folder2 = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\pngs\\"
 texfolder = "C:\\Users\\savva\\OneDrive - University of Cambridge\\Part2\\Computational Projects\\ising_model\\Report\\texfigures\\"
 
@@ -19,14 +19,17 @@ def linear(x, nu, a):
     """
     return (1/nu) * x + np.log(a)
 
+def for_T_c_fun(L,T_c_inf,a,nu):
+    return T_c_inf + a * np.power(L,-1/nu)
+
 def plot_1():
     """
-    specific heat vs temperature with different L's
+    heat vs temperature with different L's
     """
     p_files = []
     dim = 2
     for file in sorted(os.listdir(folder)):
-        if file.endswith(".txt") and not file.endswith(").txt") and file.startswith("specific_heat_data"):
+        if file.endswith(".txt") and not file.endswith(").txt") and file.startswith("heat_data"):
             p_files.append(os.path.join(folder,file))
 
     L_list = []
@@ -34,7 +37,7 @@ def plot_1():
     ax.axvline(2.2692, label="$T_c$", linestyle="--",color="k")
     marker = itertools.cycle(('*', '+', '.', ',', 'o'))
     for p_file in p_files:
-        L = (os.path.splitext(os.path.basename(p_file))[0]).split('_',4)[4]
+        L = (os.path.splitext(os.path.basename(p_file))[0]).split('_',3)[3]
         avgC = []
         errC = []
         T = []
@@ -59,20 +62,22 @@ def plot_1():
 
 def plot_2():
     """
-    specific heat vs temperature with different L's
+    heat vs temperature with different L's
     and
     peak vs L
     """
     p_files = []
     dim = 2
     for file in sorted(os.listdir(folder)):
-        if file.endswith(".txt") and not file.endswith(").txt") and file.startswith("specific_heat_peak"):
+        if file.endswith(".txt") and not file.endswith(").txt") and file.startswith("heat_peak"):
             p_files.append(os.path.join(folder,file))
 
     L_list = []
     ln_L_list = []
     y_list = []
     y_err_list = []
+    T_c_N_list = []
+    T_c_N_err_list = []
     T_c_inf = 2/np.log(1+np.sqrt(2))
     fig, ax = plt.subplots(figsize=(12,8))
     ax.axvline(T_c_inf, label="$T_c$", linestyle="--",color="k")
@@ -118,6 +123,8 @@ def plot_2():
                     ln_L_list.append(np.log(int(L)))
                     y_list.append(np.log(popt[0] - T_c_inf))
                     y_err_list.append(np.sqrt(np.diag(pcov)[0])/(popt[0] - T_c_inf))
+                    T_c_N_list.append(popt[0])
+                    T_c_N_err_list.append(np.sqrt(np.diag(pcov)[0]))
                     print(L, ln_L_list[-1],y_list[-1],y_err_list[-1])
 
     ax.set_title("Specific heat vs Temperature around critical")
@@ -133,14 +140,24 @@ def plot_2():
     ax2.errorbar(ln_L_list, y_list, y_err_list,ls="",marker='+')
     popt2, pcov2 = curve_fit(linear, ln_L_list, y_list, sigma=y_err_list, absolute_sigma=True, maxfev=5000, p0=[-1, 1], bounds=((-np.inf,0.000001),(np.inf,np.inf)))
     x2 = np.linspace(ln_L_list[0],ln_L_list[-1],100)
-    ax2.plot(x2,linear(x2, *popt2), color="c",linewidth=1)
+    ax2.plot(x2,linear(x2, *popt2), color="k",linewidth=1)
+    #ax2.plot(x2,linear(x2, -1,1), color="c",ls="--")
     print(popt2,np.sqrt(np.diag(pcov2)))
     ax2.set_title(r"$\log(T_c(\infty)$ - $T_c(L)$) vs $\log(L)$")
     ax2.set_ylabel(r"$\log(\Delta T_c$ / $J / K_b$)")
     ax2.set_xlabel(r"$\log(L)$")
 
-    fig2.savefig(texfolder+"heat_cap_check_Onsager.pdf")
-    fig2.savefig(folder2+"heat_cap_check_Onsager.png")
+    # fig2.savefig(texfolder+"heat_cap_check_Onsager.pdf")
+    # fig2.savefig(folder2+"heat_cap_check_Onsager.png")
+
+    fig3, ax3 = plt.subplots(figsize=(12,8))
+    ax3.errorbar(L_list, T_c_N_list, T_c_N_err_list,ls="",marker='+')
+    popt3, pcov3 = curve_fit(for_T_c_fun, L_list, T_c_N_list, sigma=T_c_N_err_list, absolute_sigma=True, maxfev=5000, p0=[2.26,1,1], bounds=((0,-np.inf,0.000001),(np.inf,np.inf,np.inf)))
+    print("T_c calculated = ",popt3[0],"+-",np.sqrt(np.diag(pcov3)[0]))
+    print("T_c onsager = ",T_c_inf)
+    x3 = np.linspace(L_list[0],L_list[-1],100)
+    ax3.plot(x3,for_T_c_fun(x3, *popt3), color="k",linewidth=1)
+
 
 def main():
     #plot_1()
