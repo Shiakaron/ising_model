@@ -86,6 +86,7 @@ def plot_2():
         "8":[0,-1],
         "12":[0,-1],
         "16":[0,-1],
+        "20":[0,-1],
         "24":[3,-3],
         "28":[0,-1],
         "32":[4,16],
@@ -95,6 +96,7 @@ def plot_2():
         "48":[5,20],
         "52":[0,-1]
     }
+    print("plot 1")
     for key in limits:
         L = int(key)
         for p_file in p_files:
@@ -142,21 +144,30 @@ def plot_2():
     x2 = np.linspace(ln_L_list[0],ln_L_list[-1],100)
     ax2.plot(x2,linear(x2, *popt2), color="k",linewidth=1)
     #ax2.plot(x2,linear(x2, -1,1), color="c",ls="--")
-    print(popt2,np.sqrt(np.diag(pcov2)))
     ax2.set_title(r"$\log(T_c(\infty)$ - $T_c(L)$) vs $\log(L)$")
     ax2.set_ylabel(r"$\log(\Delta T_c$ / $J / K_b$)")
     ax2.set_xlabel(r"$\log(L)$")
+    print("plot 2")
+    print(popt2,np.sqrt(np.diag(pcov2)))
 
-    # fig2.savefig(texfolder+"heat_cap_check_Onsager.pdf")
-    # fig2.savefig(folder2+"heat_cap_check_Onsager.png")
+    fig2.savefig(texfolder+"heat_cap_check_a_nu.pdf")
+    fig2.savefig(folder2+"heat_cap_check_a_nu.png")
 
     fig3, ax3 = plt.subplots(figsize=(12,8))
     ax3.errorbar(L_list, T_c_N_list, T_c_N_err_list,ls="",marker='+')
     popt3, pcov3 = curve_fit(for_T_c_fun, L_list, T_c_N_list, sigma=T_c_N_err_list, absolute_sigma=True, maxfev=5000, p0=[2.26,1,1], bounds=((0,-np.inf,0.000001),(np.inf,np.inf,np.inf)))
-    print("T_c calculated = ",popt3[0],"+-",np.sqrt(np.diag(pcov3)[0]))
-    print("T_c onsager = ",T_c_inf)
     x3 = np.linspace(L_list[0],L_list[-1],100)
     ax3.plot(x3,for_T_c_fun(x3, *popt3), color="k",linewidth=1)
+    ax3.set_title(r"$T_c$(L) vs L")
+    ax3.set_ylabel(r"$T_c$(L) / J/$k_B$")
+    ax3.set_xlabel("L")
+    print("plot 3")
+    print(popt3,np.sqrt(np.diag(pcov3)))
+    print("T_c calculated = ",popt3[0],"+-",np.sqrt(np.diag(pcov3)[0]))
+    print("T_c onsager = ",T_c_inf)
+
+    fig3.savefig(texfolder+"heat_cap_check_Onsager.pdf")
+    fig3.savefig(folder2+"heat_cap_check_Onsager.png")
 
 
 def main():

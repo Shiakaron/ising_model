@@ -35,8 +35,14 @@ extern double E;
 void magnetisation_vs_time_data();
 void magnetisation_vs_time_data_bulk();
 void magnetisation_vs_temp_data();
-void autocorrelation_investigation();
-void autocorrelation_peaks_data();
+void autocorrelation_initial_investigation();
+void autocorrelation_peak_investigation();
+void energy_first_check();
+void energy_second_check();
+void energy_vs_time_data();
+void energy_vs_temp_data();
+void heat_capacity_data();
+void heat_capacity_peak_data();
 int initial_menu();
 
 

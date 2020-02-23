@@ -534,7 +534,8 @@ plot Energy vs Temperature. I expect to see the the average energy rising from i
 
 */
 
-void energy_first_check() {
+void energy_first_check()
+{
     cout << "Running for energy of evolving system, check one" << endl;
     dim = 2;
     n2n = 1;
@@ -563,7 +564,8 @@ void energy_first_check() {
     }
 }
 
-void energy_second_check() {
+void energy_second_check()
+{
     cout << "Running for energy of evolving system, check two" << endl;
     dim = 2;
     L = 6;
@@ -590,7 +592,8 @@ void energy_second_check() {
     }
 }
 
-void energy_vs_time_data() {
+void energy_vs_time_data()
+{
     cout << "Running for energy at different temperatures data" << endl;
     dim = 2;
     L = 80;
@@ -674,7 +677,8 @@ void energy_vs_time_data() {
    delete[] T;
 }
 
-void energy_vs_temp_data() {
+void energy_vs_temp_data()
+{
     cout << "Running for energy at different temperatures data" << endl;
     dim = 2;
     L = 128;
@@ -773,7 +777,8 @@ specific heat vs temperature. Expecting peak close to T_c and peak values increa
 Following that I will compute the heat capacity around the critical temperature. Fit a gaussian on the peak to get the mean
 */
 
-void heat_capacity_data() {
+void heat_capacity_data()
+{
     cout << "Running for peat capacity at different temperatures data" << endl;
     dim = 2;
     L = 48;
@@ -863,14 +868,15 @@ void heat_capacity_data() {
    }
 }
 
-void heat_capacity_peak_data() {
+void heat_capacity_peak_data()
+{
     cout << "Running for heat capacity around peak data" << endl;
     dim = 2;
-    L = 52;
+    L = 20;
     int thermalisationCycles = 1000;
     int spacingCycles = 50;
     int dataPoints = 5000;      //total data points
-    double iniT = 2.365; double finT = 2.37; int numT = 2;
+    double iniT = 2.31; double finT = 2.5; int numT = 20;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
