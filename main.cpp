@@ -155,12 +155,12 @@ void magnetisation_vs_time_data_bulk()
 void magnetisation_vs_temp_data()
 {
     cout << "Running for magnetisation at different temperatures data" << endl;
-    dim = 3;
-    L = 12;
+    dim = 4;
+    L = 8;
     int thermalisationCycles = 1000;
     int spacingCycles = 50;
     int dataPoints = 2000;      //total data points
-    double iniT = 3.0; double finT = 7.0; int numT = 41;
+    double iniT = 6.1; double finT = 8.0; int numT = 20;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";

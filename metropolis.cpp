@@ -9,16 +9,16 @@ void initialise_system_and_maps() {
 }
 
 void initialise_spins_auto(double Temp) {
-    if (dim == 2) {
-        if (Temp < 2) {
-            initialise_spins_cold();
-        }
-        else {
-            initialise_spins_hot();
-        }
+    /*
+    I want the fastest thermalisation. For temperatures below T_c I will start from a cold start. For temperatures T_c and above a hot start.
+    */
+    bool cold1 = (dim == 2) && (Temp<2);
+    bool cold2 = (dim == 3) && (Temp<4);
+    // TODO find T_c for 4D and add bool statement for cold start
+    if (cold1 || cold2){
+        initialise_spins_cold();
     }
     else {
-        // TODO : update for 3d and 4d as well for similar structure with 2D
         initialise_spins_hot();
     }
 }
