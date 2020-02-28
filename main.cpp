@@ -156,11 +156,11 @@ void magnetisation_vs_temp_data()
 {
     cout << "Running for magnetisation at different temperatures data" << endl;
     dim = 4;
-    L = 8;
+    L = 10;
     int thermalisationCycles = 1000;
     int spacingCycles = 50;
     int dataPoints = 2000;      //total data points
-    double iniT = 6.1; double finT = 8.0; int numT = 20;
+    double iniT = 4.3; double finT = 4.3; int numT = 1;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
@@ -772,9 +772,15 @@ SPECIFIC HEAT CAPACITY
 Create a function to compute the heat capacity. Initially set it to return c units of the boltzmann constant (hoping that is a good thing to do) to give us a dimensionless heat capacity.
 
 PLOT 1:
-specific heat vs temperature. Expecting peak close to T_c and peak values increasing with L.
+Heat capacity vs temperature. Expecting peak close to T_c and peak values increasing with L.
 
-Following that I will compute the heat capacity around the critical temperature. Fit a gaussian on the peak to get the mean
+Following that I will compute the heat capacity around the critical temperature. Fit a gaussian on the peak to get the position of the peak T_c(L). Repeat this for multiple L's.
+
+PLOT 2:
+T_c(L) vs L and fitted curve to check with Onsager's result.
+
+PLOT 3:
+Plot log(T_c(L)-T_c(inf)) vs log(L). Using Onsager's result get values for the constants in the equation with linear regression.
 */
 
 void heat_capacity_data()
@@ -959,6 +965,10 @@ void heat_capacity_peak_data()
    }
 }
 
+/*
+
+*/
+
 int initial_menu()
 {
     cout << "Please select an analysis by entering an integer:\n";
@@ -969,8 +979,8 @@ int initial_menu()
     cout << "5 for Tau_e vs Temperature close to critical temperature.\n";
     cout << "6 for Energy vs Time.\n";
     cout << "7 for Energy vs Temperature\n";
-    cout << "8 for Specific heat capacity vs Temperature\n";
-    cout << "9 for Specific heat capacity vs Temperature around critical point\n";
+    cout << "8 for Heat capacity vs Temperature\n";
+    cout << "9 for Heat capacity vs Temperature around critical point\n";
     cout << "0 to Exit the program.\n";
     int choice = user_integer_input(0,9);
     return choice;

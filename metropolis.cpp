@@ -12,10 +12,11 @@ void initialise_spins_auto(double Temp) {
     /*
     I want the fastest thermalisation. For temperatures below T_c I will start from a cold start. For temperatures T_c and above a hot start.
     */
-    bool cold1 = (dim == 2) && (Temp<2);
-    bool cold2 = (dim == 3) && (Temp<4);
+    bool cold2d = (dim == 2) && (Temp<2);
+    bool cold3d = (dim == 3) && (Temp<4);
+    bool cold4d = (dim == 4) && (Temp<6);
     // TODO find T_c for 4D and add bool statement for cold start
-    if (cold1 || cold2){
+    if (cold2d || cold3d || cold4d){
         initialise_spins_cold();
     }
     else {
