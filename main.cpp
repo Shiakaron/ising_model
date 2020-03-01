@@ -966,12 +966,130 @@ void heat_capacity_peak_data()
 }
 
 /*
+Investigate what happens when H ̸= 0: in particular, examine hysteresis effects when H is cycled at different temperatures.
 
+How to do this:
+1. Thermalise at H=-H_max. thermalise. record data points. compute average. ouput
+2. increment H. thermalise. record data points. compute average. output
+3. repeat step 2 until you reach +H_max
+4. decrement H. thermalise. record data points. compute average. ouput
+5. repeat step 4 until you reach -H_max
+stop
+
+This will be done at different Temperatures to investigate how the lattice interacts with the external field below and above T_c.
+
+PLOT 1:
+Average Magnetisation vs External Field at different temperatures
+
+PLOT 2:
+Avrage Energy vs External Field at different temperatures
 */
+
+void external_field_investigation()
+{
+    cout << "Running for external field investigation" << endl;
+    dim = 2;
+    L = 36;
+    double H_max = 2.15;
+    double H_step = 0.05;
+    int thermalisationCycles = 1000;
+    int spacingCycles = 50;
+    int dataPoints = 100;      //total data points
+    double Temp = 1.0;
+    print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, 0, Temp);
+    cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
+    int user_input = user_integer_input(0,1);
+    if (user_input == 0) {
+        cout << "Dimensions (2-3):\n";
+        dim = user_integer_input(2,3);
+        cout << "Lattice size (8-256):\n";
+        L = user_integer_input(8,256);
+        cout << "Thermalisation cycles (0-10000):\n";
+        thermalisationCycles = user_integer_input(0,10000);
+        cout << "Number of data points (100-10000):\n";
+        dataPoints = user_integer_input(100,10000);
+        cout << "Temperature (enter 15 for 1.5 Kelvin) (1-50):\n";
+        Temp = double(user_integer_input(1,50))/10;
+    }
+
+    // pointers and variables
+    bool increase_H = true;
+    bool compute = true;
+    clock_t tStartTemp;
+    double *M_values;
+    double *E_values;
+    double *arrayE;
+    double *arrayM;
+    arrayE = new double[dataPoints];
+    arrayM = new double[dataPoints];
+
+    //initialise spins array and neighbours maps
+    initialise_system_and_maps();
+
+    // open file
+    ofstream myfile;
+    string folder = ".\\data\\H_data";
+    string filename = "H_data_"+to_string(dim)+"D_"+to_string(L)+"_"+to_string(Temp)+".txt";
+    filename_rename_if_exists(filename, folder);
+    string path = folder+"\\"+filename;
+    myfile.open(path);
+    if (!myfile.is_open()) {
+        throw "Func: heat_capacity_peak_data(). File not opened with path: "+path;
+    }
+    cout << "Writing in file with path: " << path << endl;
+    cout << "Starting computations" << endl;
+    // begin
+    H = -H_max;
+    initialise_spins_hot();
+    compute_magnetisation();
+
+    while (compute) {
+        tStartTemp = clock();
+        metropolis_function(Temp,thermalisationCycles);
+        compute_energy();
+        arrayE[0] = E;
+        arrayM[0] = M;
+        for (int j=1; j<dataPoints; j++) {
+            metropolis_function(Temp,spacingCycles);
+            compute_energy();
+            arrayE[j] = E;
+            arrayM[j] = M;
+        }
+        // average and error
+        M_values = bootstrap_error(arrayM, dataPoints, 128, true);
+        E_values = bootstrap_error(arrayE, dataPoints, 128, true);
+        // write in file
+        myfile << H << " " << (M_values[0]) <<  " " << (M_values[1])<< " " <<(E_values[0])  << " " << (E_values[1])<< endl;
+        // output
+        cout << "H = " << H << ", M = " << M_values[0] <<  " +- " << M_values[1] << ", E = " << E_values[0]  << " +- " << E_values[1] << ", Time taken: " << (double)(clock()-tStartTemp)/CLOCKS_PER_SEC << " seconds" << endl;
+        // de/i-ncrement
+        if (increase_H) {
+            H += H_step;
+            if (H>H_max) {
+                increase_H = false;
+            }
+        } else {
+            H -= H_step;
+            if (H<-H_max) {
+                compute = false;
+            }
+        }
+    }
+
+    if (myfile.is_open()){
+        myfile.close();
+    }
+
+   // wrap up
+   delete[] T;
+   delete[] arrayM;
+   delete[] arrayE;
+   delete[] spins;
+}
 
 int initial_menu()
 {
-    cout << "Please select an analysis by entering an integer:\n";
+    cout << "\nPlease select an analysis by entering an integer:\n";
     cout << "1 for Magnetisation vs Time.\n";
     cout << "2 for Magnetisation vs Time (Bulk data, different lattice sizes and temperatures).\n";
     cout << "3 for Magnetisation vs Temperature.\n";
@@ -981,8 +1099,9 @@ int initial_menu()
     cout << "7 for Energy vs Temperature\n";
     cout << "8 for Heat capacity vs Temperature\n";
     cout << "9 for Heat capacity vs Temperature around critical point\n";
+    cout << "10 for Magnetisation vs External Field\n";
     cout << "0 to Exit the program.\n";
-    int choice = user_integer_input(0,9);
+    int choice = user_integer_input(0,10);
     return choice;
 }
 
@@ -991,7 +1110,7 @@ int main(int argc, char** argv)
     clock_t tStart = clock();
     srand(seed);
     cout << "Ising Model, made by Savvas Shiakas (ss2477)" << endl;
-    cout << "C++ was used to produce data files ('low' level -> faster computation) which are later analysed and plotted using Python.\n\n";
+    cout << "C++ was used to produce data files ('low' level -> faster computation) which are later analysed and plotted using Python.\n";
 
     // user friendly function to run the code
     int user_choice = initial_menu();
@@ -1015,8 +1134,10 @@ int main(int argc, char** argv)
             break;
             case 9: heat_capacity_peak_data();
             break;
+            case 10: external_field_investigation();
+            break;
         }
-        cout << "\nOperation complete.";
+        cout << "\nOperation complete.\n";
     }
     catch(string er) {
         cerr << "ERROR. EXITING PROGRAM." << endl;

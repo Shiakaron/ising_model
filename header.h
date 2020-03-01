@@ -43,6 +43,7 @@ void energy_vs_time_data();
 void energy_vs_temp_data();
 void heat_capacity_data();
 void heat_capacity_peak_data();
+void external_field_investigation();
 int initial_menu();
 
 

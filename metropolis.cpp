@@ -170,16 +170,14 @@ double compute_denergy(int index) {
         for (int j = 0; j<temp_vec.size(); j++) {
             de_next2nearest += spins[temp_vec[j]];
         }
-        de_next2nearest *= 2*n2n*spins[index];
+        de_next2nearest *= 2*n2n*((double)spins[index]);
     }
 
     //external field
-    if (H != 0) {
-        de_externalfield += H*spins[index];
-    }
+    de_externalfield = 2*H*((double)spins[index]);
 
     // return total change in energy
-    int de_total = de_nearest + de_next2nearest + de_externalfield;
+    double de_total = de_nearest + de_next2nearest + de_externalfield;
     return de_total;
 }
 
@@ -258,7 +256,7 @@ void compute_energy() {
 
     //external field, mu = 1
     if (H!=0) {
-        e_total += H*M;
+        e_total -= H*((double)M);
     }
     E = e_total;
 }
@@ -278,19 +276,9 @@ double* get_heat_capacity(double arr[], int siz, double Temp) {
     return heat capacity per boltzman constant
     heat capacity / k_B = beta^2*sigma_E^2
     sigma_E^2 = <E^2> - <E>^2
-    will use bootstrap to get average and error on deviation
+    will use bootstrap analysis to get average and error on deviation
     */
-    //beta
     double beta = 1/Temp;
-    //<E>
-    // double aveE = averageArray(arr,siz);
-    // //<E^2>
-    // double aveE_sq;
-    // double sum = 0.0;
-    // for (int i = 0; i<siz; i++) {
-    //     sum += arr[i]*arr[i];
-    // }
-    // aveE_sq=sum/siz;
     double *bootstrap_values;
     bootstrap_values = bootstrap_error(arr, siz, 128, true);
     double *return_value;
