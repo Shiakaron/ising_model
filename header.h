@@ -61,6 +61,7 @@ void compute_energy();
 double energy_per_link();
 double energy_per_site();
 double* get_heat_capacity(double arr[], int siz, double Temp);
+double* get_magnetic_susceptibility(double arr[], int siz, double Temp);
 
 //GENERAL
 double* linspace(double a, double b, int N);

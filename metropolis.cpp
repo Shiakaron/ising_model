@@ -274,11 +274,11 @@ double energy_per_site() {
 double* get_heat_capacity(double arr[], int siz, double Temp) {
     /*
     return heat capacity per boltzman constant
-    heat capacity / k_B = beta^2*sigma_E^2
+    heat capacity / k_B = beta^2 * sigma_E^2
     sigma_E^2 = <E^2> - <E>^2
     will use bootstrap analysis to get average and error on deviation
     */
-    double beta = 1/Temp;
+    double beta = 1/Temp; // beta in units J^-1
     double *bootstrap_values;
     bootstrap_values = bootstrap_error(arr, siz, 128, true);
     double *return_value;
@@ -287,5 +287,23 @@ double* get_heat_capacity(double arr[], int siz, double Temp) {
     return_value[1] = beta*beta*bootstrap_values[3];
 
     return return_value;
+}
 
+double* get_magnetic_susceptibility(double arr[], int siz, double Temp) {
+    /*
+    return magnetic susceptibility
+    chi = beta * N * sigma_m^2
+    sigma_m^2 = <m^2> - <m>^2 (average magnetisation)
+    will use bootstrap analysis to get average and error on deviation
+    see COMPUTATIONAL PHYSICS, A Practical Introduction to Computational Physics and Scientific Computing (using C++), KONSTANTINOS N. ANAGNOSTOPOULOS, pg. 517, eq. 13.30
+    */
+    double beta = 1/Temp; // beta in units J^-1
+    double *bootstrap_values;
+    bootstrap_values = bootstrap_error(arr, siz, 128, true);
+    double *return_value;
+    return_value = new double[2];
+    return_value[0] = beta*N*bootstrap_values[2];
+    return_value[1] = beta*N*bootstrap_values[3];
+
+    return return_value;
 }

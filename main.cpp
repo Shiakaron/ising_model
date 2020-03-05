@@ -768,7 +768,7 @@ void energy_vs_temp_data()
 }
 
 /*
-SPECIFIC HEAT CAPACITY
+HEAT CAPACITY
 Create a function to compute the heat capacity. Initially set it to return c units of the boltzmann constant (hoping that is a good thing to do) to give us a dimensionless heat capacity.
 
 PLOT 1:
@@ -966,6 +966,7 @@ void heat_capacity_peak_data()
 }
 
 /*
+EXTERNAL FIELD
 Investigate what happens when H ̸= 0: in particular, examine hysteresis effects when H is cycled at different temperatures.
 
 How to do this:
@@ -1087,6 +1088,101 @@ void external_field_investigation()
    delete[] spins;
 }
 
+/*
+MAGNETIC susceptibility
+Pretty much the same thing as heat capacity calculations. Will only calculate around peak. Will also create a separate analysis function to calculate both chi and C over the same iterations to save computation time.
+*/
+
+void magnetic_susceptibility_peak_data()
+{
+    cout << "Running for magnetic susceptibility around peak data" << endl;
+    dim = 2;
+    L = 40;
+    int thermalisationCycles = 1000;
+    int spacingCycles = 50;
+    int dataPoints = 10000;      //total data points
+    //double iniT = 2.20; double finT = 2.30; int numT = 11;
+    double iniT = 2.31; double finT = 2.40; int numT = 10;
+    T = linspace(iniT, finT, numT);
+    print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
+    cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
+    int user_input = user_integer_input(0,1);
+    if (user_input == 0) {
+        cout << "Dimensions (2-3):\n";
+        dim = user_integer_input(2,3);
+        cout << "Lattice size (8-256):\n";
+        L = user_integer_input(8,256);
+        cout << "Thermalisation cycles (0-10000):\n";
+        thermalisationCycles = user_integer_input(0,10000);
+        cout << "Number of data points (100-10000):\n";
+        dataPoints = user_integer_input(100,10000);
+        cout << "Initial Temperature (1-49) i.e enter 15 for 1.5 Kelvin:\n";
+        int iniT_int = user_integer_input(1,49);
+        iniT = double(iniT_int)/10;
+        cout << "Final Temperature (" << iniT_int <<"-50):\n";
+        int finT_int = user_integer_input(iniT_int,50);
+        finT = double(finT_int)/10;
+        if (iniT_int != finT_int) {
+            cout << "Number of Temperature points (2-41).\n";
+            numT = user_integer_input(2,41);
+        }
+        else {
+            numT = 1;
+        }
+        T = linspace(iniT, finT, numT);
+    }
+
+    // pointers and variables
+    double *chi;
+    double *arrayM;
+    double *bootstrap_values;
+    clock_t tStartTemp;
+    arrayM = new double[dataPoints];
+
+    //initialise spins array and neighbours maps
+    initialise_system_and_maps();
+
+    // open file
+    ofstream myfile;
+    string folder = ".\\data\\chi_data";
+    string filename = "chi_peak_data_"+to_string(dim)+"D_"+to_string(L)+".txt";
+    filename_rename_if_exists(filename, folder);
+    string path = folder+"\\"+filename;
+    myfile.open(path);
+    if (!myfile.is_open()) {
+        throw "Func: magnetic_susceptibility_peak_data(). File not opened with path: "+path;
+    }
+    cout << "Writing in file with path: " << path << endl;
+    cout << "Starting computations" << endl;
+    // compute data
+    for (int i = 0; i<numT; i++) {
+        tStartTemp = clock();
+        // begin
+        initialise_spins_auto(T[i]);
+        compute_magnetisation();
+        metropolis_function(T[i],thermalisationCycles);
+        arrayM[0] = fabs((double)M/N);
+        for (int j=1; j<dataPoints; j++) {
+            metropolis_function(T[i],spacingCycles);
+            arrayM[j] = fabs((double)M/N);
+        }
+        //compute heat capacity
+        chi = get_magnetic_susceptibility(arrayM,dataPoints,T[i]);
+
+        //write in file and cout things
+        myfile << T[i] << " " << chi[0] << " " << chi[1] << endl;
+        cout << "T = " << T[i] << ", chi = " << chi[0] << " +- " << chi[1] << ", Time taken: " << (double)(clock()-tStartTemp)/CLOCKS_PER_SEC << " seconds" << endl;
+    }
+
+   // wrap up
+   delete[] arrayM;
+   delete[] spins;
+   delete[] T;
+   if (myfile.is_open()){
+       myfile.close();
+   }
+}
+
 int initial_menu()
 {
     cout << "\nPlease select an analysis by entering an integer:\n";
@@ -1100,8 +1196,9 @@ int initial_menu()
     cout << "8 for Heat capacity vs Temperature\n";
     cout << "9 for Heat capacity vs Temperature around critical point\n";
     cout << "10 for Magnetisation vs External Field\n";
+    cout << "11 for Magnetic Susceptibility vs Temperature around critical point\n";
     cout << "0 to Exit the program.\n";
-    int choice = user_integer_input(0,10);
+    int choice = user_integer_input(0,11);
     return choice;
 }
 
@@ -1135,6 +1232,8 @@ int main(int argc, char** argv)
             case 9: heat_capacity_peak_data();
             break;
             case 10: external_field_investigation();
+            break;
+            case 11: magnetic_susceptibility_peak_data();
             break;
         }
         cout << "\nOperation complete.\n";
