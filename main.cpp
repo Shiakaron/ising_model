@@ -1097,12 +1097,14 @@ void magnetic_susceptibility_peak_data()
 {
     cout << "Running for magnetic susceptibility around peak data" << endl;
     dim = 2;
-    L = 40;
+    L = 52;
     int thermalisationCycles = 1000;
     int spacingCycles = 50;
     int dataPoints = 10000;      //total data points
     //double iniT = 2.20; double finT = 2.30; int numT = 11;
-    double iniT = 2.31; double finT = 2.40; int numT = 10;
+    //double iniT = 2.31; double finT = 2.40; int numT = 10;
+    //double iniT = 2.255; double finT = 2.305; int numT = 6;
+    double iniT = 2.315; double finT = 2.365; int numT = 6;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";

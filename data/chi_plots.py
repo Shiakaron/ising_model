@@ -46,21 +46,22 @@ def plot_1():
     T_c_N_list = []
     T_c_N_err_list = []
     T_c_inf = 2/np.log(1+np.sqrt(2))
-    fig, ax = plt.subplots(figsize=(12,8))
-    ax.axvline(T_c_inf, label="$T_c$", linestyle="--",color="k",alpha=0.5)
-    marker = itertools.cycle(('*', '+', '.', ',', 'o'))
     limits = {
         8:[0,-1],
         12:[0,-1],
         16:[0,-1],
-        20:[5,-5],
-        24:[7,-7],
-        28:[5,-8],
-        32:[5,-1],
-        36:[5,-1],
-        40:[5,-1],
-        44:[5,-4]
+        20:[8,-5],
+        24:[8,-7],
+        28:[8,-10],
+        32:[7,-2],
+        36:[7,-3],
+        40:[7,-4],
+        44:[7,-4],
+        48:[9,-7],
+        52:[9,-11],
+        56:[6,-5]
     }
+    L_plot = 56
     for key in limits:
         p_file = p_files_dict[key]
         avgChi = []
@@ -72,31 +73,26 @@ def plot_1():
                 T.append(float(row[0]))
                 avgChi.append(float(row[1]))
                 errChi.append(float(row[2]))
-        ax.errorbar(T, avgChi, errChi, ls='',marker = next(marker), label="L = "+str(key))
         left = limits[key][0]
         right = limits[key][1]
         T_fit = T[left:right]
         Chi_fit = avgChi[left:right]
         errChi_fit = errChi[left:right]
         popt, pcov = curve_fit(gauss, T_fit, Chi_fit, sigma=errChi_fit, absolute_sigma=True, maxfev=5000, p0=[2.3, 0.1, 1000], bounds=((2.25,-5,-np.inf),(2.6,5,np.inf)))
-        x = np.linspace(T[left],T[right],100)
-        ax.plot(x,gauss(x, *popt), color="c",linewidth=1)
+        if (key == L_plot):
+            fig, ax = plt.subplots(figsize=(12,8))
+            ax.axvline(T_c_inf, label="$T_c$", linestyle="--",color="k",alpha=0.5)
+            x = np.linspace(T[left],T[right],100)
+            ax.errorbar(T, avgChi, errChi, ls='',marker = "+", label="L = "+str(key))
+            ax.plot(x,gauss(x, *popt), color="c",linewidth=1)
+            ax.set_title("Specific heat vs Temperature around critical")
+            ax.set_ylabel(r"$\chi$")
+            ax.set_xlabel(r"T / $J/k_B$")
+            ax.legend()
         print(key,popt,np.sqrt(np.diag(pcov)))
-        # ln_L_list.append(np.log(int(L)))
-        # y_list.append(np.log(popt[0] - T_c_inf))
-        # y_err_list.append(np.sqrt(np.diag(pcov)[0])/(popt[0] - T_c_inf))
         T_c_N_list.append(popt[0])
         T_c_N_err_list.append(np.sqrt(np.diag(pcov)[0]))
-        # print(L, ln_L_list[-1],y_list[-1],y_err_list[-1])
 
-    ax.set_title("Specific heat vs Temperature around critical")
-    ax.set_ylabel(r"$\chi$")
-    ax.set_xlabel(r"T / $J/k_B$")
-    #ax.set_yscale("log")
-    ax.legend()
-    #fig.savefig(texfolder+"c_vs_temp_peak.pdf")
-    #fig.savefig(folder2+"c_vs_temp_peak.png")
-    #
     left2 = 0
     right2 = -1
     L_list_1 = L_list[left2:right2]
