@@ -58,10 +58,10 @@ def plot_1():
         40:[7,-4],
         44:[7,-4],
         48:[9,-7],
-        52:[9,-11],
+        52:[8,-11],
         56:[6,-5]
     }
-    L_plot = 56
+    L_plot = 52
     for key in limits:
         p_file = p_files_dict[key]
         avgChi = []
