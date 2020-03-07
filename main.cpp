@@ -1097,7 +1097,7 @@ void magnetic_susceptibility_peak_data()
 {
     cout << "Running for magnetic susceptibility around peak data" << endl;
     dim = 2;
-    L = 52;
+    L = 64;
     int thermalisationCycles = 1000;
     int spacingCycles = 50;
     int dataPoints = 10000;      //total data points

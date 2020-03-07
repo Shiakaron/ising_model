@@ -59,9 +59,9 @@ def plot_1():
         44:[7,-4],
         48:[9,-7],
         52:[8,-11],
-        56:[6,-5]
+        56:[6,-8]
     }
-    L_plot = 52
+    L_plot = 56
     for key in limits:
         p_file = p_files_dict[key]
         avgChi = []
@@ -95,7 +95,7 @@ def plot_1():
 
     left2 = 0
     right2 = -1
-    L_list_1 = L_list[left2:right2]
+    L_list_1 = L_list[left2:right2-1]
     T_c_N_list_1 = T_c_N_list[left2:right2]
     T_c_N_err_list_1 = T_c_N_err_list[left2:right2]
     fig3, ax3 = plt.subplots(figsize=(12,8))
