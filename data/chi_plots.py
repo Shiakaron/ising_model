@@ -39,7 +39,7 @@ def plot_1():
             if (D == dim) and (L not in L_list):
                 L_list.append(L)
                 p_files_dict[L] = os.path.join(folder,file)
-
+    L_list.sort()
     ln_L_list = []
     y_list = []
     y_err_list = []
@@ -58,10 +58,11 @@ def plot_1():
         40:[7,-4],
         44:[7,-4],
         48:[9,-7],
-        52:[8,-11],
-        56:[6,-8]
+        52:[8,-10],
+        56:[8,-10],
+        64:[0,-5]
     }
-    L_plot = 56
+    L_plot = 52
     for key in limits:
         p_file = p_files_dict[key]
         avgChi = []
@@ -93,15 +94,10 @@ def plot_1():
         T_c_N_list.append(popt[0])
         T_c_N_err_list.append(np.sqrt(np.diag(pcov)[0]))
 
-    left2 = 0
-    right2 = -1
-    L_list_1 = L_list[left2:right2-1]
-    T_c_N_list_1 = T_c_N_list[left2:right2]
-    T_c_N_err_list_1 = T_c_N_err_list[left2:right2]
     fig3, ax3 = plt.subplots(figsize=(12,8))
-    ax3.errorbar(L_list_1, T_c_N_list_1, T_c_N_err_list_1,ls="",marker='+')
-    popt3, pcov3 = curve_fit(for_T_c_fun, L_list_1, T_c_N_list_1, sigma=T_c_N_err_list_1, absolute_sigma=True, maxfev=5000, p0=[2.26,1,1], bounds=((0,-np.inf,0.000001),(np.inf,np.inf,np.inf)))
-    x3 = np.linspace(L_list_1[0],L_list_1[-1],100)
+    ax3.errorbar(L_list, T_c_N_list, T_c_N_err_list,ls="",marker='+')
+    popt3, pcov3 = curve_fit(for_T_c_fun, L_list, T_c_N_list, sigma=T_c_N_err_list, absolute_sigma=True, maxfev=5000, p0=[2.26,1,1], bounds=((0,-np.inf,0.000001),(np.inf,np.inf,np.inf)))
+    x3 = np.linspace(L_list[0],L_list[-1],100)
     ax3.plot(x3,for_T_c_fun(x3, *popt3), color="k",linewidth=1)
     ax3.set_title(r"$T_c$(L) vs L")
     ax3.set_ylabel(r"$T_c$(L) / J/$k_B$")
@@ -109,9 +105,10 @@ def plot_1():
     print(popt3,np.sqrt(np.diag(pcov3)))
     print("T_c calculated = ",popt3[0],"+-",np.sqrt(np.diag(pcov3)[0]))
     print("T_c onsager = ",T_c_inf)
-    #
-    # fig3.savefig(texfolder+"heat_cap_check_Onsager.pdf")
-    # fig3.savefig(folder2+"heat_cap_check_Onsager.png")
+    # for i in range(len(L_list)):
+    #     print(L_list[i],T_c_N_list[i])
+    fig3.savefig(texfolder+"chi_check_Onsager.pdf")
+    fig3.savefig(folder2+"chi_check_Onsager.png")
 
 
 def main():
