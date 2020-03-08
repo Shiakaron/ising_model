@@ -60,9 +60,9 @@ def plot_1():
         48:[9,-7],
         52:[8,-10],
         56:[8,-10],
-        64:[0,-5]
+        64:[3,-5]
     }
-    L_plot = 52
+    L_plot = 64
     for key in limits:
         p_file = p_files_dict[key]
         avgChi = []
@@ -90,7 +90,7 @@ def plot_1():
             ax.set_ylabel(r"$\chi$")
             ax.set_xlabel(r"T / $J/k_B$")
             ax.legend()
-        print(key,popt,np.sqrt(np.diag(pcov)))
+        print(key,popt[0],np.sqrt(np.diag(pcov)[0]))
         T_c_N_list.append(popt[0])
         T_c_N_err_list.append(np.sqrt(np.diag(pcov)[0]))
 
