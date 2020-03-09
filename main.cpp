@@ -1090,7 +1090,7 @@ void external_field_investigation()
 
 /*
 MAGNETIC susceptibility
-Pretty much the same thing as heat capacity calculations. Will only calculate around peak. Will also create a separate analysis function to calculate both chi and C over the same iterations to save computation time.
+Pretty much the same thing as heat capacity calculations. Will only calculate around peak. Would be a good idea to create a separate analysis function to calculate both chi and C over the same iterations to save computation time. However I already finished computing values for heat capacity therefore will not be necessary.
 */
 
 void magnetic_susceptibility_peak_data()
@@ -1101,12 +1101,7 @@ void magnetic_susceptibility_peak_data()
     int thermalisationCycles = 1000;
     int spacingCycles = 50;
     int dataPoints = 10000;      //total data points
-    //double iniT = 2.20; double finT = 2.30; int numT = 11;
-    //double iniT = 2.31; double finT = 2.40; int numT = 10;
-    //double iniT = 2.255; double finT = 2.305; int numT = 6;
-    //double iniT = 2.315; double finT = 2.365; int numT = 6;
-    //double iniT = 2.25; double finT = 2.29; int numT = 5;
-    double iniT = 2.30; double finT = 2.34; int numT = 5;
+    double iniT = 2.20; double finT = 2.40; int numT = 21;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
@@ -1187,6 +1182,87 @@ void magnetic_susceptibility_peak_data()
    }
 }
 
+/*
+ANIMATION
+Will attempt to create a GIF showing an evolving lattice.
+C++ will output configurations
+Python will create the checkerboard pattern of the lattice and will add many successive configurations to create GIFs
+*/
+
+void generate_configurations()
+{
+    cout << "Running to generate configurations for a GIF" << endl;
+    dim = 2;
+    L = 100;
+    int thermalisationCycles = 0;
+    int dataPoints = 500;
+    int spacingCycles = 1;
+    double Temp = 1.5;
+    print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, 0, Temp);
+    cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
+    int user_input = user_integer_input(0,1);
+    if (user_input == 0) {
+        cout << "Dimensions (2-3):\n";
+        dim = user_integer_input(2,3);
+        cout << "Lattice size (8-256):\n";
+        L = user_integer_input(8,256);
+        cout << "Thermalisation cycles (0-5000):\n";
+        thermalisationCycles = user_integer_input(0,5000);
+        cout << "Number of data points (100-10000):\n";
+        dataPoints = user_integer_input(100,10000);
+        cout << "Temperature (enter 15 for 1.5 Kelvin) (1-50):\n";
+        Temp = double(user_integer_input(1,50))/10;
+    }
+
+    //initialise spins array and neighbours maps
+    initialise_system_and_maps();
+
+    // open file
+    ofstream myfile;
+    string folder = ".\\data\\gif_configs";
+    string filename = "configs_"+to_string(dim)+"D_"+to_string(L)+"_"+to_string(Temp)+".txt";
+    filename_rename_if_exists(filename, folder);
+    string path = folder+"\\"+filename;
+    myfile.open(path);
+    if (!myfile.is_open()) {
+        throw "Func: generate_configurations(). File not opened with path: " + path + "\nPlease fix path";
+    }
+    cout << "Writing in file with path: " << path << endl;
+    cout << "Starting computations" << endl;
+
+    initialise_spins_hot();
+    // print spins in line
+    if (spins[0] == 1) {
+        myfile << 1;
+    } else {myfile << 0;}
+    for (int j=1; j<N; j++) {
+        if (spins[j] == 1) {
+            myfile << " " << 1;
+        } else {myfile << " " << 0;}
+    }
+    myfile << endl;
+    // repeat for dataPoints configurations
+    for (int i=1; i<dataPoints; i++) {
+        metropolis_function(Temp,spacingCycles);
+        // print spins in line
+        if (spins[0] == 1) {
+            myfile << 1;
+        } else {myfile << 0;}
+        for (int j=1; j<N; j++) {
+            if (spins[j] == 1) {
+                myfile << " " << 1;
+            } else {myfile << " " << 0;}
+        }
+        myfile << endl;
+    }
+
+    // wrap up
+    delete[] spins;
+    if (myfile.is_open()){
+       myfile.close();
+    }
+}
+
 int initial_menu()
 {
     cout << "\nPlease select an analysis by entering an integer:\n";
@@ -1201,8 +1277,9 @@ int initial_menu()
     cout << "9 for Heat capacity vs Temperature around critical point\n";
     cout << "10 for Magnetisation vs External Field\n";
     cout << "11 for Magnetic Susceptibility vs Temperature around critical point\n";
+    cout << "12 to generate configurations for a GIF\n";
     cout << "0 to Exit the program.\n";
-    int choice = user_integer_input(0,11);
+    int choice = user_integer_input(0,12);
     return choice;
 }
 
@@ -1238,6 +1315,8 @@ int main(int argc, char** argv)
             case 10: external_field_investigation();
             break;
             case 11: magnetic_susceptibility_peak_data();
+            break;
+            case 12: generate_configurations();
             break;
         }
         cout << "\nOperation complete.\n";

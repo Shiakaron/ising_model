@@ -51,7 +51,7 @@ def plot_1():
                     errC.append(float(row[2]))
             ax.errorbar(T, avgC, errC, ls='',marker = next(marker), label="L = "+str(L))
 
-    ax.set_title("Specific heat vs Temperature")
+    ax.set_title("Heat capacity vs Temperature")
     ax.set_ylabel(r"C / $k_B$")
     ax.set_xlabel(r"T / $J/k_B$")
     ax.set_yscale("log")
@@ -171,8 +171,8 @@ def plot_2():
 
 
 def main():
-    #plot_1()
-    plot_2()
+    plot_1()
+    #plot_2()
     plt.show()
 
 if (__name__ == '__main__'):
