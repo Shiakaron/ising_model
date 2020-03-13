@@ -137,6 +137,7 @@ void print_all_parameters(int thermalisationCycles, int dataPoints, int spacingC
     cout << "Program Seed: " << seed << endl;
     cout << "Dimensions: " << dim << endl;
     cout << "Lattice size: " << L << endl;
+    cout << "Next to nearest neigbour interaction: " << n2n << endl;
     cout << "Thermalisation cycles: " << thermalisationCycles << endl;
     cout << "Number of data points: " << dataPoints << endl;
     cout << "Cycles in between data points: " << spacingCycles << endl;

@@ -5,7 +5,7 @@ import os
 
 folder = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\data\\H_data"
 folder2 = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\pngs\\"
-texfolder = "C:\\Users\\savva\\OneDrive - University of Cambridge\\Part2\\Computational Projects\\ising_model\\Report\\texfigures\\"
+texfolder = "C:\\Users\\savva\\OneDrive - University of Cambridge\\Part2\\Computational Project\\report\\texfigures\\"
 
 def plot_1():
     """

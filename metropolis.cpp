@@ -262,12 +262,12 @@ void compute_energy() {
 }
 
 double energy_per_link() {
-    // compute_energy first before calling this function
+    compute_energy();
     return E/N_links;
 }
 
 double energy_per_site() {
-    // compute_energy() first!!
+    compute_energy();
     return E/N;
 }
 

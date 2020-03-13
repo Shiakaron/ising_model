@@ -44,6 +44,7 @@ void energy_vs_temp_data();
 void heat_capacity_data();
 void heat_capacity_peak_data();
 void external_field_investigation();
+void next_to_nearest_investigation();
 int initial_menu();
 
 

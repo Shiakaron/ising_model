@@ -46,16 +46,16 @@ void magnetisation_vs_time_data()
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
     int user_input = user_integer_input(0,1);
     if (user_input == 0) {
-        cout << "Dimensions (2-3):\n";
+        cout << "Dimensions [2,3]:\n";
         dim = user_integer_input(2,3);
-        cout << "Lattice size (8-256):\n";
+        cout << "Lattice size [8,256]:\n";
         L = user_integer_input(8,256);
-        cout << "Thermalisation cycles (0-5000):\n";
+        cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,5000);
-        cout << "Number of data points (100-10000):\n";
+        cout << "Number of data points [100,10000]:\n";
         dataPoints = user_integer_input(100,10000);
-        cout << "Temperature (enter 15 for 1.5 Kelvin) (1-50):\n";
-        Temp = double(user_integer_input(1,50))/10;
+        cout << "Temperature [1,300]/10:\n";
+        Temp = double(user_integer_input(1,300))/10;
     }
 
     //initialise spins array and neighbours maps
@@ -155,33 +155,33 @@ void magnetisation_vs_time_data_bulk()
 void magnetisation_vs_temp_data()
 {
     cout << "Running for magnetisation at different temperatures data" << endl;
-    dim = 4;
-    L = 10;
+    dim = 2;
+    L = 40;
     int thermalisationCycles = 1000;
     int spacingCycles = 50;
     int dataPoints = 2000;      //total data points
-    double iniT = 4.3; double finT = 4.3; int numT = 1;
+    double iniT = 1.0; double finT = 5.0; int numT = 41;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
     int user_input = user_integer_input(0,1);
     if (user_input == 0) {
-        cout << "Dimensions (2-3):\n";
-        dim = user_integer_input(2,3);
-        cout << "Lattice size (8-256):\n";
+        cout << "Dimensions [2,4]:\n";
+        dim = user_integer_input(2,4);
+        cout << "Lattice size [8,256]:\n";
         L = user_integer_input(8,256);
-        cout << "Thermalisation cycles (0-5000):\n";
+        cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,5000);
-        cout << "Number of data points (100-10000):\n";
+        cout << "Number of data points [100,10000]:\n";
         dataPoints = user_integer_input(100,10000);
-        cout << "Initial Temperature (1-99) i.e enter 15 for 1.5 Kelvin:\n";
+        cout << "Initial Temperature [1,99]/10:\n";
         int iniT_int = user_integer_input(1,99);
         iniT = double(iniT_int)/10;
-        cout << "Final Temperature (" << iniT_int <<"-100):\n";
+        cout << "Final Temperature [" << iniT_int <<",100]/10:\n";
         int finT_int = user_integer_input(iniT_int,100);
         finT = double(finT_int)/10;
         if (iniT_int != finT_int) {
-            cout << "Number of Temperature points (2-41).\n";
+            cout << "Number of Temperature points [2,41]:\n";
             numT = user_integer_input(2,41);
         }
         else {
@@ -190,12 +190,11 @@ void magnetisation_vs_temp_data()
         T = linspace(iniT, finT, numT);
     }
 
-    // initialise vectors, pointers and time variable
-    vector<double> magn;
-    vector<double> err_magn;
+    // initialise pointers and time variable
     double *arrayM;
     double *bootstrap_values;
     clock_t tStartTemp;
+    arrayM = new double[dataPoints];
 
     //initialise spins array and neighbours maps
     initialise_system_and_maps();
@@ -215,7 +214,6 @@ void magnetisation_vs_temp_data()
     // compute data
     for (int i = 0; i<numT; i++) {
         tStartTemp = clock();
-        arrayM = new double[dataPoints];
         // begin
         initialise_spins_auto(T[i]);
         compute_magnetisation();
@@ -227,19 +225,16 @@ void magnetisation_vs_temp_data()
         }
         // average and error
         bootstrap_values = bootstrap_error(arrayM, dataPoints, 128, true);
-        magn.push_back(bootstrap_values[0]);
-        err_magn.push_back(bootstrap_values[1]);
         // write data in myfile
-        myfile << T[i] << " " << magn[i] << " " << err_magn[i] << endl;
-        // wrap up
-        delete[] arrayM;
-        delete[] bootstrap_values;
-        cout << "T = " << T[i] << ", m = " << magn[i] << " +- " <<  err_magn[i] << ", Time taken: " << (double)(clock()-tStartTemp)/CLOCKS_PER_SEC << " seconds" << endl;
+        myfile << T[i] << " " << bootstrap_values[0] << " " << bootstrap_values[1] << endl;
+        cout << "T = " << T[i] << ", m = " << bootstrap_values[0] << " +- " <<  bootstrap_values[1] << ", Time taken: " << (double)(clock()-tStartTemp)/CLOCKS_PER_SEC << " seconds" << endl;
     }
 
    // wrap up
    delete[] spins;
    delete[] T;
+   delete[] arrayM;
+   delete[] bootstrap_values;
    if (myfile.is_open()){
        myfile.close();
    }
@@ -274,22 +269,22 @@ void autocorrelation_initial_investigation()
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
     int user_input = user_integer_input(0,1);
     if (user_input == 0) {
-        cout << "Dimensions (2-3):\n";
+        cout << "Dimensions [2,3]:\n";
         dim = user_integer_input(2,3);
-        cout << "Lattice size (8-256):\n";
+        cout << "Lattice size [8,256]:\n";
         L = user_integer_input(8,256);
-        cout << "Thermalisation cycles (0-5000):\n";
+        cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,5000);
-        cout << "Number of data points (100-10000):\n";
+        cout << "Number of data points [100,10000]:\n";
         dataPoints = user_integer_input(1000,20000);
-        cout << "Initial Temperature i.e enter 15 for 1.5 Kelvin (1-49):\n";
+        cout << "Initial Temperature [1,49]/10:\n";
         int iniT_int = user_integer_input(1,49);
         iniT = double(iniT_int)/10;
-        cout << "Final Temperature (" << iniT_int <<"-50):\n";
+        cout << "Final Temperature [" << iniT_int <<",50]/10:\n";
         int finT_int = user_integer_input(iniT_int,50);
         finT = double(finT_int)/10;
         if (iniT_int != finT_int) {
-            cout << "Number of Temperature points (2-41).\n";
+            cout << "Number of Temperature points [2,41]:\n";
             numT = user_integer_input(2,41);
         }
         else {
@@ -397,22 +392,22 @@ void autocorrelation_peak_investigation()
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
     int user_input = user_integer_input(0,1);
     if (user_input == 0) {
-        cout << "Dimensions (2-3):\n";
+        cout << "Dimensions [2,3]:\n";
         dim = user_integer_input(2,3);
-        cout << "Lattice size (8-256):\n";
+        cout << "Lattice size [8,256]:\n";
         L = user_integer_input(8,256);
-        cout << "Thermalisation cycles (0-15000):\n";
+        cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,15000);
-        cout << "Number of data points (100-20000):\n";
-        dataPoints = user_integer_input(1000,20000);
-        cout << "Initial Temperature i.e enter 150 for 1.50 Kelvin (150-440):\n";
+        cout << "Number of data points [100,20000]\n";
+        dataPoints = user_integer_input(100,20000);
+        cout << "Initial Temperature [150,440]/10:\n";
         int iniT_int = user_integer_input(150,440);
         iniT = double(iniT_int)/100;
-        cout << "Final Temperature (" << iniT_int <<"-450):\n";
+        cout << "Final Temperature [" << iniT_int <<",450]/10:\n";
         int finT_int = user_integer_input(iniT_int,450);
         finT = double(finT_int)/100;
         if (iniT_int != finT_int) {
-            cout << "Number of Temperature points (2-41).\n";
+            cout << "Number of Temperature points [2,41]:\n";
             numT = user_integer_input(2,41);
         }
         else {
@@ -606,22 +601,22 @@ void energy_vs_time_data()
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
     int user_input = user_integer_input(0,1);
     if (user_input == 0) {
-        cout << "Dimensions (2-3):\n";
+        cout << "Dimensions [2,3]:\n";
         dim = user_integer_input(2,3);
-        cout << "Lattice size (8-256):\n";
+        cout << "Lattice size [8,256]:\n";
         L = user_integer_input(8,256);
-        cout << "Thermalisation cycles (0-10000):\n";
+        cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,10000);
-        cout << "Number of data points (100-10000):\n";
+        cout << "Number of data points [100,10000]:\n";
         dataPoints = user_integer_input(100,10000);
-        cout << "Initial Temperature (1-49) i.e enter 15 for 1.5 Kelvin:\n";
+        cout << "Initial Temperature [1,49]/10:\n";
         int iniT_int = user_integer_input(1,49);
         iniT = double(iniT_int)/10;
-        cout << "Final Temperature (" << iniT_int <<"-50):\n";
+        cout << "Final Temperature [" << iniT_int <<",50]/10:\n";
         int finT_int = user_integer_input(iniT_int,50);
         finT = double(finT_int)/10;
         if (iniT_int != finT_int) {
-            cout << "Number of Temperature points (2-41).\n";
+            cout << "Number of Temperature points [2,41]:\n";
             numT = user_integer_input(2,41);
         }
         else {
@@ -691,22 +686,22 @@ void energy_vs_temp_data()
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
     int user_input = user_integer_input(0,1);
     if (user_input == 0) {
-        cout << "Dimensions (2-3):\n";
+        cout << "Dimensions [2,3]:\n";
         dim = user_integer_input(2,3);
-        cout << "Lattice size (8-256):\n";
+        cout << "Lattice size [8,256]:\n";
         L = user_integer_input(8,256);
-        cout << "Thermalisation cycles (0-10000):\n";
+        cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,10000);
-        cout << "Number of data points (100-10000):\n";
+        cout << "Number of data points [100,10000]:\n";
         dataPoints = user_integer_input(100,10000);
-        cout << "Initial Temperature (1-49) i.e enter 15 for 1.5 Kelvin:\n";
+        cout << "Initial Temperature [1,49]/10:\n";
         int iniT_int = user_integer_input(1,49);
         iniT = double(iniT_int)/10;
-        cout << "Final Temperature (" << iniT_int <<"-50):\n";
+        cout << "Final Temperature [" << iniT_int <<",50]/10:\n";
         int finT_int = user_integer_input(iniT_int,50);
         finT = double(finT_int)/10;
         if (iniT_int != finT_int) {
-            cout << "Number of Temperature points (2-41).\n";
+            cout << "Number of Temperature points [2,41]:\n";
             numT = user_integer_input(2,41);
         }
         else {
@@ -797,22 +792,22 @@ void heat_capacity_data()
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
     int user_input = user_integer_input(0,1);
     if (user_input == 0) {
-        cout << "Dimensions (2-3):\n";
+        cout << "Dimensions [2,3]:\n";
         dim = user_integer_input(2,3);
-        cout << "Lattice size (8-256):\n";
+        cout << "Lattice size [8,256]:\n";
         L = user_integer_input(8,256);
-        cout << "Thermalisation cycles (0-10000):\n";
+        cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,10000);
-        cout << "Number of data points (100-10000):\n";
+        cout << "Number of data points [100,10000]:\n";
         dataPoints = user_integer_input(100,10000);
-        cout << "Initial Temperature (1-49) i.e enter 15 for 1.5 Kelvin:\n";
+        cout << "Initial Temperature [1,49]/10:\n";
         int iniT_int = user_integer_input(1,49);
         iniT = double(iniT_int)/10;
-        cout << "Final Temperature (" << iniT_int <<"-50):\n";
+        cout << "Final Temperature [" << iniT_int <<",50]/10:\n";
         int finT_int = user_integer_input(iniT_int,50);
         finT = double(finT_int)/10;
         if (iniT_int != finT_int) {
-            cout << "Number of Temperature points (2-41).\n";
+            cout << "Number of Temperature points [2,41]:\n";
             numT = user_integer_input(2,41);
         }
         else {
@@ -888,22 +883,22 @@ void heat_capacity_peak_data()
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
     int user_input = user_integer_input(0,1);
     if (user_input == 0) {
-        cout << "Dimensions (2-3):\n";
+        cout << "Dimensions [2,3]:\n";
         dim = user_integer_input(2,3);
-        cout << "Lattice size (8-256):\n";
+        cout << "Lattice size [8,256]:\n";
         L = user_integer_input(8,256);
-        cout << "Thermalisation cycles (0-10000):\n";
+        cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,10000);
-        cout << "Number of data points (100-10000):\n";
+        cout << "Number of data points [100,10000]:\n";
         dataPoints = user_integer_input(100,10000);
-        cout << "Initial Temperature (1-49) i.e enter 15 for 1.5 Kelvin:\n";
+        cout << "Initial Temperature [1,49]/10:\n";
         int iniT_int = user_integer_input(1,49);
         iniT = double(iniT_int)/10;
-        cout << "Final Temperature (" << iniT_int <<"-50):\n";
+        cout << "Final Temperature [" << iniT_int <<",50]/10:\n";
         int finT_int = user_integer_input(iniT_int,50);
         finT = double(finT_int)/10;
         if (iniT_int != finT_int) {
-            cout << "Number of Temperature points (2-41).\n";
+            cout << "Number of Temperature points [2,41]:\n";
             numT = user_integer_input(2,41);
         }
         else {
@@ -1001,15 +996,15 @@ void external_field_investigation()
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
     int user_input = user_integer_input(0,1);
     if (user_input == 0) {
-        cout << "Dimensions (2-3):\n";
+        cout << "Dimensions [2,3]:\n";
         dim = user_integer_input(2,3);
-        cout << "Lattice size (8-256):\n";
+        cout << "Lattice size [8,256]:\n";
         L = user_integer_input(8,256);
-        cout << "Thermalisation cycles (0-10000):\n";
+        cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,10000);
-        cout << "Number of data points (100-10000):\n";
+        cout << "Number of data points [100,10000]:\n";
         dataPoints = user_integer_input(100,10000);
-        cout << "Temperature (enter 15 for 1.5 Kelvin) (1-50):\n";
+        cout << "Temperature [1,50]/10\n";
         Temp = double(user_integer_input(1,50))/10;
     }
 
@@ -1089,7 +1084,7 @@ void external_field_investigation()
 }
 
 /*
-MAGNETIC susceptibility
+MAGNETIC SUSCEPTIBILITY
 Pretty much the same thing as heat capacity calculations. Will only calculate around peak. Would be a good idea to create a separate analysis function to calculate both chi and C over the same iterations to save computation time. However I already finished computing values for heat capacity therefore will not be necessary.
 */
 
@@ -1107,22 +1102,22 @@ void magnetic_susceptibility_peak_data()
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
     int user_input = user_integer_input(0,1);
     if (user_input == 0) {
-        cout << "Dimensions (2-3):\n";
+        cout << "Dimensions [2,3]:\n";
         dim = user_integer_input(2,3);
-        cout << "Lattice size (8-256):\n";
+        cout << "Lattice size [8,256]:\n";
         L = user_integer_input(8,256);
-        cout << "Thermalisation cycles (0-10000):\n";
+        cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,10000);
-        cout << "Number of data points (100-10000):\n";
+        cout << "Number of data points [100,10000]:\n";
         dataPoints = user_integer_input(100,10000);
-        cout << "Initial Temperature (1-49) i.e enter 15 for 1.5 Kelvin:\n";
+        cout << "Initial Temperature [1,49]/10:\n";
         int iniT_int = user_integer_input(1,49);
         iniT = double(iniT_int)/10;
-        cout << "Final Temperature (" << iniT_int <<"-50):\n";
+        cout << "Final Temperature [" << iniT_int <<",50]/10:\n";
         int finT_int = user_integer_input(iniT_int,50);
         finT = double(finT_int)/10;
         if (iniT_int != finT_int) {
-            cout << "Number of Temperature points (2-41).\n";
+            cout << "Number of Temperature points [2,41]:\n";
             numT = user_integer_input(2,41);
         }
         else {
@@ -1183,9 +1178,9 @@ void magnetic_susceptibility_peak_data()
 }
 
 /*
-ANIMATION
+ANIMATION / GIF
 Will attempt to create a GIF showing an evolving lattice.
-C++ will output configurations
+C++ will output the configurations
 Python will create the checkerboard pattern of the lattice and will add many successive configurations to create GIFs
 */
 
@@ -1202,16 +1197,16 @@ void generate_configurations()
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
     int user_input = user_integer_input(0,1);
     if (user_input == 0) {
-        cout << "Dimensions (2-3):\n";
+        cout << "Dimensions [2,3]:\n";
         dim = user_integer_input(2,3);
-        cout << "Lattice size (8-256):\n";
+        cout << "Lattice size [8,256]:\n";
         L = user_integer_input(8,256);
-        cout << "Thermalisation cycles (0-5000):\n";
+        cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,5000);
-        cout << "Number of data points (100-10000):\n";
+        cout << "Number of data points [100,10000]:\n";
         dataPoints = user_integer_input(100,10000);
-        cout << "Temperature (enter 15 for 1.5 Kelvin) (1-50):\n";
-        Temp = double(user_integer_input(1,50))/10;
+        cout << "Temperature [1,100]/10\n";
+        Temp = double(user_integer_input(1,100))/10;
     }
 
     //initialise spins array and neighbours maps
@@ -1263,7 +1258,118 @@ void generate_configurations()
     }
 }
 
+/*
+NEXT TO NEAREST NEAREST NEIGHBOURS 2D
+Will investigate the effect of introducing next to nearest neigbours interactions. This will be conducted at fixed Lattice size but varying degree of interaction n2n. Since nearest neigbour interaction is set to 1 then the ratio of the interactions is basically the value of n2n.
+
+PLOT 1:
+Magnetisation vs Temperature for different n2n
+
+PLOT 2:
+Energy per site vs Temperature for different n2n
+*/
+
+void next_to_nearest_investigation()
+{
+    cout << "Running for magnetisation at different temperatures data" << endl;
+    dim = 2;
+    L = 40;
+    n2n = 0.0;
+    int thermalisationCycles = 1000;
+    int spacingCycles = 50;
+    int dataPoints = 2000;      //total data points
+    double iniT = 1.0; double finT = 5.0; int numT = 41;
+    T = linspace(iniT, finT, numT);
+    print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
+    cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
+    int user_input = user_integer_input(0,1);
+    if (user_input == 0) {
+        cout << "Dimensions [2,4]:\n";
+        dim = user_integer_input(2,4);
+        cout << "Lattice size [8,256]:\n";
+        L = user_integer_input(8,256);
+        cout << "Next to nearest interaction [0,200]/100:\n";
+        n2n = user_integer_input(0,200);
+        cout << "Thermalisation cycles [0,10000]:\n";
+        thermalisationCycles = user_integer_input(0,5000);
+        cout << "Number of data points [100,10000]:\n";
+        dataPoints = user_integer_input(100,10000);
+        cout << "Initial Temperature [1,99]/10:\n";
+        int iniT_int = user_integer_input(1,99);
+        iniT = double(iniT_int)/10;
+        cout << "Final Temperature [" << iniT_int <<",100]/10:\n";
+        int finT_int = user_integer_input(iniT_int,100);
+        finT = double(finT_int)/10;
+        if (iniT_int != finT_int) {
+            cout << "Number of Temperature points [2,41]:\n";
+            numT = user_integer_input(2,41);
+        }
+        else {
+            numT = 1;
+        }
+        T = linspace(iniT, finT, numT);
+    }
+
+    // initialise pointers and time variable
+    double *arrayE;
+    double *arrayM;
+    double *bootstrap_values_M;
+    double *bootstrap_values_E;
+    clock_t tStartTemp;
+    arrayM = new double[dataPoints];
+    arrayE = new double[dataPoints];
+
+    //initialise spins array and neighbours maps
+    initialise_system_and_maps();
+
+    // open file
+    ofstream myfile;
+    string folder = ".\\data\\n2n_data";
+    string filename = "n2n_data_"+to_string(dim)+"D_"+to_string(L)+"_"+to_string(n2n)+".txt";
+    filename_rename_if_exists(filename, folder);
+    string path = folder+"\\"+filename;
+    myfile.open(path);
+    if (!myfile.is_open()) {
+        throw "Func: next_to_nearest_investigation(). File not opened with path: "+path;
+    }
+    cout << "Writing in file with path: " << path << endl;
+    cout << "Starting computations" << endl;
+    // compute data
+    for (int i = 0; i<numT; i++) {
+        tStartTemp = clock();
+        // begin
+        initialise_spins_auto(T[i]);
+        compute_magnetisation();
+        metropolis_function(T[i],thermalisationCycles);
+        arrayM[0] = fabs((double)M/N);
+        arrayE[0] = energy_per_site();
+        for (int j=1; j<dataPoints; j++) {
+            metropolis_function(T[i],spacingCycles);
+            arrayM[j] = fabs((double)M/N);
+            arrayE[j] = energy_per_site();
+        }
+        // average and error
+        bootstrap_values_M = bootstrap_error(arrayM, dataPoints, 128, true);
+        bootstrap_values_E = bootstrap_error(arrayE, dataPoints, 128, true);
+        // write data in myfile
+        myfile << T[i] << " " << bootstrap_values_M[0] << " " << bootstrap_values_M[1] << " " << bootstrap_values_E[0] << " " << bootstrap_values_E[1] << endl;
+        cout << "T = " << T[i] << ", m = " << bootstrap_values_M[0] << " +- " <<  bootstrap_values_M[1] << ", e = " << bootstrap_values_E[0] << " +- " <<  bootstrap_values_E[1] << ", Time taken: " << (double)(clock()-tStartTemp)/CLOCKS_PER_SEC << " seconds" << endl;
+    }
+
+   // wrap up
+   delete[] spins;
+   delete[] T;
+   delete[] arrayM;
+   delete[] bootstrap_values_M;
+   delete[] arrayE;
+   delete[] bootstrap_values_E;
+   if (myfile.is_open()){
+       myfile.close();
+   }
+}
+
 int initial_menu()
+// User friendly function to choose analysis line
 {
     cout << "\nPlease select an analysis by entering an integer:\n";
     cout << "1 for Magnetisation vs Time.\n";
@@ -1278,8 +1384,9 @@ int initial_menu()
     cout << "10 for Magnetisation vs External Field\n";
     cout << "11 for Magnetic Susceptibility vs Temperature around critical point\n";
     cout << "12 to generate configurations for a GIF\n";
+    cout << "13 for Magnetisation and Energy vs Temperature with Next to Nearest interactions\n";
     cout << "0 to Exit the program.\n";
-    int choice = user_integer_input(0,12);
+    int choice = user_integer_input(0,13);
     return choice;
 }
 
@@ -1317,6 +1424,8 @@ int main(int argc, char** argv)
             case 11: magnetic_susceptibility_peak_data();
             break;
             case 12: generate_configurations();
+            break;
+            case 13: next_to_nearest_investigation();
             break;
         }
         cout << "\nOperation complete.\n";

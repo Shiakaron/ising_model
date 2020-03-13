@@ -7,8 +7,7 @@ from scipy.optimize import curve_fit
 
 folder = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\data\\chi_data"
 folder2 = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\pngs\\"
-texfolder = "C:\\Users\\savva\\OneDrive - University of Cambridge\\Part2\\Computational Projects\\ising_model\\Report\\texfigures\\"
-
+texfolder = "C:\\Users\\savva\\OneDrive - University of Cambridge\\Part2\\Computational Project\\report\\texfigures\\"
 def gauss(x, mean, sigma, scale):
     return (scale*np.exp(-((x-mean)/sigma)**2))
 
