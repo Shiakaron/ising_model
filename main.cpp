@@ -1278,7 +1278,7 @@ void next_to_nearest_investigation()
     int thermalisationCycles = 1000;
     int spacingCycles = 50;
     int dataPoints = 2000;      //total data points
-    double iniT = 1.0; double finT = 5.0; int numT = 41;
+    double iniT = 5.1; double finT = 8.0; int numT = 30;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
@@ -1338,7 +1338,7 @@ void next_to_nearest_investigation()
     for (int i = 0; i<numT; i++) {
         tStartTemp = clock();
         // begin
-        initialise_spins_auto(T[i]);
+        initialise_spins_auto(T[i]/(1.0+n2n)); // qualitative. basically increasing n2n increases T_c therefore it would be more efficient to cold start at higher temperatures
         compute_magnetisation();
         metropolis_function(T[i],thermalisationCycles);
         arrayM[0] = fabs((double)M/N);
