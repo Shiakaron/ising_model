@@ -5,7 +5,7 @@ import csv
 import os
 from matplotlib.animation import FuncAnimation
 
-folder = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\data\\gif_configs"
+folder = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\data\\configs\\gif"
 folder2 = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\pngs\\"
 
 L_ = 100

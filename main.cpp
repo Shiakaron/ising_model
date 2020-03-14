@@ -1182,9 +1182,11 @@ ANIMATION / GIF
 Will attempt to create a GIF showing an evolving lattice.
 C++ will output the configurations
 Python will create the checkerboard pattern of the lattice and will add many successive configurations to create GIFs
+
+Also will create a function that generates a single configuration for a figure
 */
 
-void generate_configurations()
+void generate_configurations_for_gif()
 {
     cout << "Running to generate configurations for a GIF" << endl;
     dim = 2;
@@ -1192,7 +1194,7 @@ void generate_configurations()
     int thermalisationCycles = 0;
     int dataPoints = 500;
     int spacingCycles = 1;
-    double Temp = 1.5;
+    double Temp = 1.0;
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, 0, Temp);
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
     int user_input = user_integer_input(0,1);
@@ -1214,18 +1216,19 @@ void generate_configurations()
 
     // open file
     ofstream myfile;
-    string folder = ".\\data\\gif_configs";
+    string folder = ".\\data\\configs\\fig";
     string filename = "configs_"+to_string(dim)+"D_"+to_string(L)+"_"+to_string(Temp)+".txt";
     filename_rename_if_exists(filename, folder);
     string path = folder+"\\"+filename;
     myfile.open(path);
     if (!myfile.is_open()) {
-        throw "Func: generate_configurations(). File not opened with path: " + path + "\nPlease fix path";
+        throw "Func: generate_configurations_for_gif(). File not opened with path: " + path + "\nPlease fix path";
     }
     cout << "Writing in file with path: " << path << endl;
     cout << "Starting computations" << endl;
 
     initialise_spins_hot();
+    metropolis_function(Temp,thermalisationCycles);
     // print spins in line
     if (spins[0] == 1) {
         myfile << 1;
@@ -1253,6 +1256,65 @@ void generate_configurations()
 
     // wrap up
     delete[] spins;
+    delete[] T;
+    if (myfile.is_open()){
+       myfile.close();
+    }
+}
+
+void generate_configuration_for_figure()
+{
+    cout << "Running to generate a configuration for a figure" << endl;
+    dim = 2;
+    L = 200;
+    int thermalisationCycles = 10000;
+    int dataPoints = 1;
+    int spacingCycles = 0;
+    double Temp = 1.0;
+    print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, 0, Temp);
+    cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
+    int user_input = user_integer_input(0,1);
+    if (user_input == 0) {
+        cout << "Lattice size [8,256]:\n";
+        L = user_integer_input(8,256);
+        cout << "Thermalisation cycles [0,10000]:\n";
+        thermalisationCycles = user_integer_input(0,5000);
+        cout << "Temperature [1,100]/10\n";
+        Temp = double(user_integer_input(1,100))/10;
+    }
+
+    //initialise spins array and neighbours maps
+    initialise_system_and_maps();
+
+    // open file
+    ofstream myfile;
+    string folder = ".\\data\\configs\\figure";
+    string filename = "configs_"+to_string(dim)+"D_"+to_string(L)+"_"+to_string(Temp)+".txt";
+    filename_rename_if_exists(filename, folder);
+    string path = folder+"\\"+filename;
+    myfile.open(path);
+    if (!myfile.is_open()) {
+        throw "Func: generate_configuration_for_figure(). File not opened with path: " + path + "\nPlease fix path";
+    }
+    cout << "Writing in file with path: " << path << endl;
+    cout << "Starting computations" << endl;
+
+    initialise_spins_auto(Temp);
+    metropolis_function(Temp,thermalisationCycles);
+    // print spins in line
+    if (spins[0] == 1) {
+        myfile << 1;
+    } else {myfile << 0;}
+    for (int j=1; j<N; j++) {
+        if (spins[j] == 1) {
+            myfile << " " << 1;
+        } else {myfile << " " << 0;}
+    }
+    myfile << endl;
+
+    // wrap up
+    delete[] spins;
+    delete[] T;
     if (myfile.is_open()){
        myfile.close();
     }
@@ -1384,9 +1446,10 @@ int initial_menu()
     cout << "10 for Magnetisation vs External Field\n";
     cout << "11 for Magnetic Susceptibility vs Temperature around critical point\n";
     cout << "12 to generate configurations for a GIF\n";
-    cout << "13 for Magnetisation and Energy vs Temperature with Next to Nearest interactions\n";
+    cout << "13 to generate configuration for a Figure\n";
+    cout << "14 for Magnetisation and Energy vs Temperature with Next to Nearest interactions\n";
     cout << "0 to Exit the program.\n";
-    int choice = user_integer_input(0,13);
+    int choice = user_integer_input(0,14);
     return choice;
 }
 
@@ -1423,9 +1486,11 @@ int main(int argc, char** argv)
             break;
             case 11: magnetic_susceptibility_peak_data();
             break;
-            case 12: generate_configurations();
+            case 12: generate_configurations_for_gif();
             break;
-            case 13: next_to_nearest_investigation();
+            case 13: generate_configuration_for_figure();
+            break;
+            case 14: next_to_nearest_investigation();
             break;
         }
         cout << "\nOperation complete.\n";
