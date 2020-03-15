@@ -48,8 +48,8 @@ void magnetisation_vs_time_data()
     if (user_input == 0) {
         cout << "Dimensions [2,3]:\n";
         dim = user_integer_input(2,3);
-        cout << "Lattice size [8,256]:\n";
-        L = user_integer_input(8,256);
+        cout << "Lattice size [8,181]:\n";
+        L = user_integer_input(8,181);
         cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,5000);
         cout << "Number of data points [100,10000]:\n";
@@ -168,8 +168,8 @@ void magnetisation_vs_temp_data()
     if (user_input == 0) {
         cout << "Dimensions [2,4]:\n";
         dim = user_integer_input(2,4);
-        cout << "Lattice size [8,256]:\n";
-        L = user_integer_input(8,256);
+        cout << "Lattice size [8,181]:\n";
+        L = user_integer_input(8,181);
         cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,5000);
         cout << "Number of data points [100,10000]:\n";
@@ -271,8 +271,8 @@ void autocorrelation_initial_investigation()
     if (user_input == 0) {
         cout << "Dimensions [2,3]:\n";
         dim = user_integer_input(2,3);
-        cout << "Lattice size [8,256]:\n";
-        L = user_integer_input(8,256);
+        cout << "Lattice size [8,181]:\n";
+        L = user_integer_input(8,181);
         cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,5000);
         cout << "Number of data points [100,10000]:\n";
@@ -394,8 +394,8 @@ void autocorrelation_peak_investigation()
     if (user_input == 0) {
         cout << "Dimensions [2,3]:\n";
         dim = user_integer_input(2,3);
-        cout << "Lattice size [8,256]:\n";
-        L = user_integer_input(8,256);
+        cout << "Lattice size [8,181]:\n";
+        L = user_integer_input(8,181);
         cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,15000);
         cout << "Number of data points [100,20000]\n";
@@ -603,8 +603,8 @@ void energy_vs_time_data()
     if (user_input == 0) {
         cout << "Dimensions [2,3]:\n";
         dim = user_integer_input(2,3);
-        cout << "Lattice size [8,256]:\n";
-        L = user_integer_input(8,256);
+        cout << "Lattice size [8,181]:\n";
+        L = user_integer_input(8,181);
         cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,10000);
         cout << "Number of data points [100,10000]:\n";
@@ -688,8 +688,8 @@ void energy_vs_temp_data()
     if (user_input == 0) {
         cout << "Dimensions [2,3]:\n";
         dim = user_integer_input(2,3);
-        cout << "Lattice size [8,256]:\n";
-        L = user_integer_input(8,256);
+        cout << "Lattice size [8,181]:\n";
+        L = user_integer_input(8,181);
         cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,10000);
         cout << "Number of data points [100,10000]:\n";
@@ -794,8 +794,8 @@ void heat_capacity_data()
     if (user_input == 0) {
         cout << "Dimensions [2,3]:\n";
         dim = user_integer_input(2,3);
-        cout << "Lattice size [8,256]:\n";
-        L = user_integer_input(8,256);
+        cout << "Lattice size [8,181]:\n";
+        L = user_integer_input(8,181);
         cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,10000);
         cout << "Number of data points [100,10000]:\n";
@@ -885,8 +885,8 @@ void heat_capacity_peak_data()
     if (user_input == 0) {
         cout << "Dimensions [2,3]:\n";
         dim = user_integer_input(2,3);
-        cout << "Lattice size [8,256]:\n";
-        L = user_integer_input(8,256);
+        cout << "Lattice size [8,181]:\n";
+        L = user_integer_input(8,181);
         cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,10000);
         cout << "Number of data points [100,10000]:\n";
@@ -998,8 +998,8 @@ void external_field_investigation()
     if (user_input == 0) {
         cout << "Dimensions [2,3]:\n";
         dim = user_integer_input(2,3);
-        cout << "Lattice size [8,256]:\n";
-        L = user_integer_input(8,256);
+        cout << "Lattice size [8,181]:\n";
+        L = user_integer_input(8,181);
         cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,10000);
         cout << "Number of data points [100,10000]:\n";
@@ -1104,8 +1104,8 @@ void magnetic_susceptibility_peak_data()
     if (user_input == 0) {
         cout << "Dimensions [2,3]:\n";
         dim = user_integer_input(2,3);
-        cout << "Lattice size [8,256]:\n";
-        L = user_integer_input(8,256);
+        cout << "Lattice size [8,181]:\n";
+        L = user_integer_input(8,181);
         cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,10000);
         cout << "Number of data points [100,10000]:\n";
@@ -1201,8 +1201,8 @@ void generate_configurations_for_gif()
     if (user_input == 0) {
         cout << "Dimensions [2,3]:\n";
         dim = user_integer_input(2,3);
-        cout << "Lattice size [8,256]:\n";
-        L = user_integer_input(8,256);
+        cout << "Lattice size [8,181]:\n";
+        L = user_integer_input(8,181);
         cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,5000);
         cout << "Number of data points [100,10000]:\n";
@@ -1266,17 +1266,17 @@ void generate_configuration_for_figure()
 {
     cout << "Running to generate a configuration for a figure" << endl;
     dim = 2;
-    L = 200;
-    int thermalisationCycles = 10000;
+    L = 150;
+    int thermalisationCycles = 3000;
     int dataPoints = 1;
     int spacingCycles = 0;
-    double Temp = 1.0;
+    double Temp = 1.5;
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, 0, Temp);
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
     int user_input = user_integer_input(0,1);
     if (user_input == 0) {
-        cout << "Lattice size [8,256]:\n";
-        L = user_integer_input(8,256);
+        cout << "Lattice size [8,181]:\n";
+        L = user_integer_input(8,181);
         cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,5000);
         cout << "Temperature [1,100]/10\n";
@@ -1289,7 +1289,7 @@ void generate_configuration_for_figure()
     // open file
     ofstream myfile;
     string folder = ".\\data\\configs\\figure";
-    string filename = "configs_"+to_string(dim)+"D_"+to_string(L)+"_"+to_string(Temp)+".txt";
+    string filename = "config_"+to_string(dim)+"D_"+to_string(L)+"_"+to_string(Temp)+".txt";
     filename_rename_if_exists(filename, folder);
     string path = folder+"\\"+filename;
     myfile.open(path);
@@ -1348,8 +1348,8 @@ void next_to_nearest_investigation()
     if (user_input == 0) {
         cout << "Dimensions [2,4]:\n";
         dim = user_integer_input(2,4);
-        cout << "Lattice size [8,256]:\n";
-        L = user_integer_input(8,256);
+        cout << "Lattice size [8,181]:\n";
+        L = user_integer_input(8,181);
         cout << "Next to nearest interaction [0,200]/100:\n";
         n2n = user_integer_input(0,200);
         cout << "Thermalisation cycles [0,10000]:\n";
