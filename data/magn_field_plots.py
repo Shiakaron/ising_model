@@ -26,7 +26,7 @@ def plot_1():
             if T not in p_files_dict:
                 p_files_dict[T] = os.path.join(folder,file)
     #print(p_files_dict)
-    fig, axs = plt.subplots(1,2,figsize=(16,8),sharey=True,gridspec_kw={'hspace': 0, 'wspace': 0.03})
+    fig, axs = plt.subplots(1,2,figsize=(12,6),sharey=True,gridspec_kw={'hspace': 0, 'wspace': 0.03})
     for T in p_files_dict:
         p_file = p_files_dict[T]
         H = []
@@ -43,7 +43,7 @@ def plot_1():
         else:
             axs[1].errorbar(H,M,errM,label="T = "+T[0:4],ls="",marker="+",alpha=0.5)
         #ax.scatter(H,M,alpha=0.5)
-    fig.suptitle(r"Magnetisation vs External Filed, L=36")
+    #fig.suptitle(r"Magnetisation vs External Filed, L=36")
     axs[0].annotate("metastable states",
             xy=(0.5,-1300), xycoords='data',
             xytext=(1,-1100), textcoords='data',
@@ -77,11 +77,11 @@ def plot_1():
         ax.spines['right'].set_color('none')
         ax.spines['top'].set_color('none')
         ax.set_ylabel("M",rotation=0)
-        ax.set_xlabel(r"H / $J/k_B$")
+        ax.set_xlabel(r"H ($J/k_B$)")
         ax.xaxis.set_label_coords(0.975, 0.475)
-        ax.yaxis.set_label_coords(0.475, 1.0)
+        ax.yaxis.set_label_coords(0.475, 0.96)
         ax.legend()
-
+    plt.subplots_adjust(left=0,right=1,top=1)
     fig.savefig(folder2+"magn_vs_field.png")
     fig.savefig(texfolder+"magn_vs_field.pdf")
 
@@ -103,7 +103,7 @@ def plot_2():
             if T not in p_files_dict:
                 p_files_dict[T] = os.path.join(folder,file)
     #print(p_files_dict)
-    fig, axs = plt.subplots(1,2,figsize=(16,8),sharey=True,gridspec_kw={'hspace': 0, 'wspace': 0.03})
+    fig, axs = plt.subplots(1,2,figsize=(12,6),sharey=True,gridspec_kw={'hspace': 0, 'wspace': 0.03})
     for T in p_files_dict:
         p_file = p_files_dict[T]
         H = []
@@ -120,7 +120,7 @@ def plot_2():
         else:
             axs[1].errorbar(H,E,errE,label="T = "+T[0:4],ls="",marker="+",alpha=0.5)
         #ax.scatter(H,E,alpha=0.5)
-    fig.suptitle(r"Energy vs External Filed, L=36")
+    #fig.suptitle(r"Energy vs External Filed, L=36")
     axs[0].annotate("metastable\n states",
             xy=(0.4,-2000), xycoords='data',
             xytext=(-1.5,-1000), textcoords='data',
@@ -148,10 +148,11 @@ def plot_2():
         ax.spines['right'].set_color('none')
         ax.spines['top'].set_color('none')
         ax.set_ylabel("E",rotation=0)
-        ax.set_xlabel(r"H / $J/k_B$")
+        ax.set_xlabel(r"H ($J/k_B$)")
         #ax.xaxis.set_label_coords(0.975, 0.475)
-        ax.yaxis.set_label_coords(0.475, 1.0)
+        ax.yaxis.set_label_coords(0.475, 0.96)
         ax.legend()
+    plt.subplots_adjust(left=0,right=1,top=1)
     fig.savefig(folder2+"energy_vs_field.png")
     fig.savefig(texfolder+"energy_vs_field.pdf")
 

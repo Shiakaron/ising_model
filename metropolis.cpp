@@ -193,7 +193,7 @@ void metropolis_function(double Temp, int cycles) {
     for(int r=0; r<cycles; r++){
         for(int k = 0; k<N; k++){
             //randomly select a site
-            index = rand()%N; // RAND_MAX = 32767 which limits the code to L = 181.
+            index = rand()%N; // RAND_MAX = 32767 which limits the code to L = 181 for 2D
             //measure energy difference before flip
             de = compute_denergy(index);
             //flip if the right condition is met

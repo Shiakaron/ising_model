@@ -26,30 +26,32 @@ def plot_1():
     """
     heat vs temperature with different L's
     """
-    p_files = []
+    p_files_dict = {}
     dim = 2
+    L_list = []
     for file in sorted(os.listdir(folder)):
         if file.endswith(".txt") and not file.endswith(").txt") and file.startswith("heat_data"):
-            p_files.append(os.path.join(folder,file))
-
-    L_list = []
+            L = int((os.path.splitext(os.path.basename(file))[0]).split('_',3)[3])
+            p_files_dict[L] = os.path.join(folder,file)
+            L_list.append(L)
+    #print(p_files_dict)
+    L_list.sort()
     fig, ax = plt.subplots()
     ax.axvline(2.2692, label="$T_c$", linestyle="--",color="k",alpha=0.7)
     marker = itertools.cycle(('*', '+', '.', ',', 'o'))
-    for p_file in p_files:
-        L = (os.path.splitext(os.path.basename(p_file))[0]).split('_',3)[3]
+    for L in L_list:
+        p_file = p_files_dict[L]
+        print(L,p_file)
         avgC = []
         errC = []
         T = []
-        if (L not in L_list):
-            L_list.append(L)
-            with open(p_file) as csvfile:
-                lines = csv.reader(csvfile, delimiter=' ')
-                for row in lines:
-                    T.append(float(row[0]))
-                    avgC.append(float(row[1]))
-                    errC.append(float(row[2]))
-            ax.errorbar(T, avgC, errC, ls='',marker = next(marker), label="L = "+str(L))
+        with open(p_file) as csvfile:
+            lines = csv.reader(csvfile, delimiter=' ')
+            for row in lines:
+                T.append(float(row[0]))
+                avgC.append(float(row[1]))
+                errC.append(float(row[2]))
+        ax.errorbar(T, avgC, errC, ls='',marker = next(marker), label="L = "+str(L))
 
     #ax.set_title("Heat capacity vs Temperature")
     ax.spines['right'].set_color('none')
@@ -184,8 +186,8 @@ def plot_2():
 
 
 def main():
-    #plot_1()
-    plot_2()
+    plot_1()
+    #plot_2()
     plt.show()
 
 if (__name__ == '__main__'):

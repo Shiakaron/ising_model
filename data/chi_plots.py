@@ -61,7 +61,7 @@ def plot_1():
         56:[8,-10],
         64:[3,-5]
     }
-    L_plot = 64
+    L_plot = 0
     for key in limits:
         p_file = p_files_dict[key]
         avgChi = []
@@ -94,6 +94,7 @@ def plot_1():
         T_c_N_err_list.append(np.sqrt(np.diag(pcov)[0]))
 
     fig3, ax3 = plt.subplots()
+    plt.subplots_adjust(right=1,top=1)
     ax3.errorbar(L_list, T_c_N_list, T_c_N_err_list,ls="",marker='+')
     popt3, pcov3 = curve_fit(for_T_c_fun, L_list, T_c_N_list, sigma=T_c_N_err_list, absolute_sigma=True, maxfev=5000, p0=[2.26,1,1], bounds=((0,-np.inf,0.000001),(np.inf,np.inf,np.inf)))
     x3 = np.linspace(L_list[0],L_list[-1],100)
@@ -101,6 +102,8 @@ def plot_1():
     #ax3.set_title(r"$T_c$(L) vs L")
     ax3.set_ylabel(r"$T_c$(L) (J/$k_B$)")
     ax3.set_xlabel("L")
+    ax3.spines['right'].set_color('none')
+    ax3.spines['top'].set_color('none')
     print(popt3,np.sqrt(np.diag(pcov3)))
     print("T_c calculated = ",popt3[0],"+-",np.sqrt(np.diag(pcov3)[0]))
     print("T_c onsager = ",T_c_inf)

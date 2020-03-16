@@ -26,8 +26,9 @@ def plot_1():
                 p_files_dict[R] = os.path.join(folder,file)
     R_list.sort()
     #print(R_list)
-    fig, ax = plt.subplots(figsize=(12,8))
-    fig1, ax1 = plt.subplots(figsize=(12,8))
+    fig, ax = plt.subplots()
+    #fig1, ax1 = plt.subplots(figsize=(12,8))
+    ax.axvline(2.2692, label="$T_c$", linestyle="--",color="k",alpha=0.7)
     for key in R_list:
         p_file = p_files_dict[key]
         M = []
@@ -44,9 +45,15 @@ def plot_1():
                 E.append(float(row[3]))
                 errE.append(float(row[4]))
         ax.errorbar(T,M,errM,label="R = "+str(key),ls=" ",marker="+")
-        ax1.errorbar(T,E,errE,label="R = "+str(key),ls=" ",marker="+")
+        #ax1.errorbar(T,E,errE,label="R = "+str(key),ls=" ",marker="+")
+    ax.set_ylabel("m")
+    ax.set_xlabel(r"T ($J/k_B$)")
+    ax.spines['right'].set_color('none')
+    ax.spines['top'].set_color('none')
+    plt.subplots_adjust(right=1,top=1)
     ax.legend()
-    ax1.legend()
+    fig.savefig(folder2+"n2n_magn_vs_temp.png")
+    fig.savefig(texfolder+"n2n_magn_vs_temp.pdf")
 
 
 def main():
