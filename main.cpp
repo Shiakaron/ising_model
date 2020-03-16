@@ -618,11 +618,11 @@ void energy_vs_temp_data()
 {
     cout << "Running for energy at different temperatures data" << endl;
     dim = 2;
-    L = 128;
+    L = 40;
     int thermalisationCycles = 5000;
     int spacingCycles = 50;
-    int dataPoints = 1000;      //total data points
-    double iniT = 1.4; double finT = 1.5; int numT = 2;
+    int dataPoints = 2000;      //total data points
+    double iniT = 1.0; double finT = 5.0; int numT = 41;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";

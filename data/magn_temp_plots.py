@@ -26,8 +26,8 @@ def plot_1():
                 #p_files.append(os.path.join(folder,file))
                 p_files_dict[L] = os.path.join(folder,file)
     L_list.sort()
-    fig, ax = plt.subplots(figsize=(12,8))
-    ax.axvline(2.2692, label="$T_c$", linestyle="--",color="k")
+    fig, ax = plt.subplots()
+    ax.axvline(2.2692, label="$T_c$", linestyle="--",color="k",alpha=0.7)
     for L in L_list:
         p_file = p_files_dict[L]
         avgM = []
@@ -41,9 +41,12 @@ def plot_1():
                 errM.append(float(row[2]))
         ax.errorbar(T, avgM, errM, ls='',marker='+', label="L = "+str(L))
 
-    ax.set_title("<|Magnetisation|> vs Temperature, 2D")
+    #ax.set_title("<|Magnetisation|> vs Temperature, 2D")
     ax.set_ylabel("m")
-    ax.set_xlabel(r"T / $J/k_B$")
+    ax.set_xlabel(r"T ($J/k_B$)")
+    ax.spines['right'].set_color('none')
+    ax.spines['top'].set_color('none')
+    plt.subplots_adjust(right=1,top=1)
     ax.legend()
     fig.savefig(folder2+"magn_vs_temp.png")
     fig.savefig(texfolder+"magn_vs_temp.pdf")
@@ -70,7 +73,7 @@ def plot_2():
     L_list.sort()
 
 
-    fig, ax = plt.subplots(figsize=(12,8))
+    fig, ax = plt.subplots()
     #ax.axvline(2.2692, label="$T_c$", linestyle="--",color="k")
     for L in L_list:
         p_file = p_files_dict[L]
@@ -86,10 +89,13 @@ def plot_2():
         ax.errorbar(T, avgM, errM, ls='',marker='+', label="L = "+str(L))
 
 
-    ax.set_title("<|Magnetisation|> vs Temperature, 3D")
+    #ax.set_title("<|Magnetisation|> vs Temperature, 3D")
     ax.set_ylabel("m")
-    ax.set_xlabel(r"T / $J/k_B$")
+    ax.set_xlabel(r"T ($J/k_B$)")
     ax.legend()
+    ax.spines['right'].set_color('none')
+    ax.spines['top'].set_color('none')
+    plt.subplots_adjust(right=1,top=1)
     fig.savefig(folder2+"magn_vs_temp_3D.png")
     fig.savefig(texfolder+"magn_vs_temp_3D.pdf")
 
@@ -114,7 +120,7 @@ def plot_3():
     L_list.sort()
 
 
-    fig, ax = plt.subplots(figsize=(12,8))
+    fig, ax = plt.subplots()
     #ax.axvline(2.2692, label="$T_c$", linestyle="--",color="k")
     for L in L_list:
         p_file = p_files_dict[L]
@@ -130,18 +136,21 @@ def plot_3():
         ax.errorbar(T, avgM, errM, ls='',marker='+', label="L = "+str(L))
 
 
-    ax.set_title("<|Magnetisation|> vs Temperature, 4D")
+    #ax.set_title("<|Magnetisation|> vs Temperature, 4D")
     ax.set_ylabel("m")
-    ax.set_xlabel(r"T / $J/k_B$")
+    ax.set_xlabel(r"T ($J/k_B$)")
     ax.legend()
+    ax.spines['right'].set_color('none')
+    ax.spines['top'].set_color('none')
+    plt.subplots_adjust(right=1,top=1)
     fig.savefig(folder2+"magn_vs_temp_4D.png")
     fig.savefig(texfolder+"magn_vs_temp_4D.pdf")
 
 
 
 def main():
-    #plot_1()
-    #plot_2()
+    plot_1()
+    plot_2()
     plot_3()
     plt.show()
 

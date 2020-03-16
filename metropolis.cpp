@@ -12,9 +12,9 @@ void initialise_spins_auto(double Temp) {
     /*
     I want the fastest thermalisation. For temperatures below T_c I will start from a cold start. For temperatures T_c and above a hot start.
     */
-    bool cold2d = (dim == 2) && (Temp<2);
-    bool cold3d = (dim == 3) && (Temp<4);
-    bool cold4d = (dim == 4) && (Temp<6);
+    bool cold2d = (dim == 2) && (Temp<2.269);
+    bool cold3d = (dim == 3) && (Temp<4.5);
+    bool cold4d = (dim == 4) && (Temp<6.5);
     // TODO find T_c for 4D and add bool statement for cold start
     if (cold2d || cold3d || cold4d){
         initialise_spins_cold();
@@ -193,7 +193,7 @@ void metropolis_function(double Temp, int cycles) {
     for(int r=0; r<cycles; r++){
         for(int k = 0; k<N; k++){
             //randomly select a site
-            index = rand()%N; // RAND_MAX = 32767 which limits the code to L = 181. 
+            index = rand()%N; // RAND_MAX = 32767 which limits the code to L = 181.
             //measure energy difference before flip
             de = compute_denergy(index);
             //flip if the right condition is met

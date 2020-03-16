@@ -33,8 +33,8 @@ def plot_1():
             p_files.append(os.path.join(folder,file))
 
     L_list = []
-    fig, ax = plt.subplots(figsize=(12,8))
-    ax.axvline(2.2692, label="$T_c$", linestyle="--",color="k")
+    fig, ax = plt.subplots()
+    ax.axvline(2.2692, label="$T_c$", linestyle="--",color="k",alpha=0.7)
     marker = itertools.cycle(('*', '+', '.', ',', 'o'))
     for p_file in p_files:
         L = (os.path.splitext(os.path.basename(p_file))[0]).split('_',3)[3]
@@ -51,9 +51,12 @@ def plot_1():
                     errC.append(float(row[2]))
             ax.errorbar(T, avgC, errC, ls='',marker = next(marker), label="L = "+str(L))
 
-    ax.set_title("Heat capacity vs Temperature")
-    ax.set_ylabel(r"C / $k_B$")
-    ax.set_xlabel(r"T / $J/k_B$")
+    #ax.set_title("Heat capacity vs Temperature")
+    ax.spines['right'].set_color('none')
+    ax.spines['top'].set_color('none')
+    plt.subplots_adjust(right=1,top=1)
+    ax.set_ylabel(r"C/$k_B$")
+    ax.set_xlabel(r"T ($J/k_B$)")
     ax.set_yscale("log")
     ax.legend()
 
@@ -129,10 +132,13 @@ def plot_2():
                     T_c_N_err_list.append(np.sqrt(np.diag(pcov)[0]))
                     print(L, ln_L_list[-1],y_list[-1],y_err_list[-1])
 
-    ax.set_title("Specific heat vs Temperature around critical")
+    #ax.set_title("Specific heat vs Temperature around critical")
     ax.set_ylabel(r"C / $k_B$")
     ax.set_xlabel(r"T / $J/k_B$")
     ax.set_yscale("log")
+    ax.spines['right'].set_color('none')
+    ax.spines['top'].set_color('none')
+    plt.subplots_adjust(right=1,top=1)
     ax.legend()
 
     #fig.savefig(texfolder+"c_vs_temp_peak.pdf")
@@ -150,29 +156,36 @@ def plot_2():
     print("plot 2")
     print(popt2,np.sqrt(np.diag(pcov2)))
 
-    fig2.savefig(texfolder+"heat_cap_check_a_nu.pdf")
-    fig2.savefig(folder2+"heat_cap_check_a_nu.png")
+    #fig2.savefig(texfolder+"heat_cap_check_a_nu.pdf")
+    #fig2.savefig(folder2+"heat_cap_check_a_nu.png")
 
-    fig3, ax3 = plt.subplots(figsize=(12,8))
+    fig3, ax3 = plt.subplots()
     ax3.errorbar(L_list, T_c_N_list, T_c_N_err_list,ls="",marker='+')
     popt3, pcov3 = curve_fit(for_T_c_fun, L_list, T_c_N_list, sigma=T_c_N_err_list, absolute_sigma=True, maxfev=5000, p0=[2.26,1,1], bounds=((0,-np.inf,0.000001),(np.inf,np.inf,np.inf)))
     x3 = np.linspace(L_list[0],L_list[-1],100)
     ax3.plot(x3,for_T_c_fun(x3, *popt3), color="k",linewidth=1)
-    ax3.set_title(r"$T_c$(L) vs L")
-    ax3.set_ylabel(r"$T_c$(L) / J/$k_B$")
+    #ax3.set_title(r"$T_c$(L) vs L")
+    ax3.set_ylabel(r"$T_c$(L) (J/$k_B$)")
     ax3.set_xlabel("L")
+    ax3.spines['right'].set_color('none')
+    ax3.spines['top'].set_color('none')
+    plt.subplots_adjust(right=1,top=1)
     print("plot 3")
     print(popt3,np.sqrt(np.diag(pcov3)))
     print("T_c calculated = ",popt3[0],"+-",np.sqrt(np.diag(pcov3)[0]))
     print("T_c onsager = ",T_c_inf)
+    s1 = r"$T_c$ = "+str('{:.3f}'.format(popt3[0]))+r"$\pm$"+str('{:.3f}'.format(np.sqrt(np.diag(pcov3)[0])))
+    s2 = r"$\nu$ = "+str('{:.2f}'.format(popt3[2]))+r"$\pm$"+str('{:.2f}'.format(np.sqrt(np.diag(pcov3)[2])))
+    s = s1+"\n"+s2
+    ax3.text(20,2.34,s)
 
     fig3.savefig(texfolder+"heat_cap_check_Onsager.pdf")
     fig3.savefig(folder2+"heat_cap_check_Onsager.png")
 
 
 def main():
-    plot_1()
-    #plot_2()
+    #plot_1()
+    plot_2()
     plt.show()
 
 if (__name__ == '__main__'):
