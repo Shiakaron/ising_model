@@ -37,9 +37,9 @@ def thermalisation_1():
                     sweep += 1
             # first data in txt file is the temperature
             ax.plot(t[1:2000], M[1:2000])
-    ax.set_title("|Magnetisation| vs time, L = "+str(L)+", T = "+str(T))
+    # ax.set_title("|Magnetisation| vs time, L = "+str(L)+", T = "+str(T))
     ax.set_ylabel("|M|")
-    ax.set_xlabel("t / sweeps")
+    ax.set_xlabel("t (MCS)")
 
     fig.savefig(folder2+"thermalisation_1.png")
     fig.savefig(texfolder+"thermalisation_1.pdf")
@@ -73,9 +73,9 @@ def thermalisation_2():
             T = M[0]
         ax.plot(t[1:600], M[1:600])
 
-    ax.set_title("|Magnetisation| vs time, L ="+str(L)+", T = "+str(T))
+    # ax.set_title("|Magnetisation| vs time, L ="+str(L)+", T = "+str(T))
     ax.set_ylabel("|M|")
-    ax.set_xlabel("t / sweeps")
+    ax.set_xlabel("t (MCS)"))
     # ax.legend()
     fig.savefig(folder2+"thermalisation_2.png")
     fig.savefig(texfolder+"thermalisation_2.pdf")
@@ -107,7 +107,7 @@ def thermalisation_3():
         # first data in txt file is the temperature
         ax.plot(t[1:500], M[1:500], label="L = "+str(L))
 
-    ax.set_title("<|Magnetisation|> vs time, T = "+str(T))
+    # ax.set_title("<|Magnetisation|> vs time, T = "+str(T))
     ax.set_ylabel("m")
     ax.set_xlabel("t / sweeps")
     ax.legend()

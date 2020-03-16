@@ -41,7 +41,7 @@ void magnetisation_vs_time_data()
     int thermalisationCycles = 0;
     int dataPoints = 10000;
     int spacingCycles = 1;
-    double Temp = 2.23;
+    double Temp = 1.5;
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, 0, Temp);
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
     int user_input = user_integer_input(0,1);
@@ -57,6 +57,8 @@ void magnetisation_vs_time_data()
         cout << "Temperature [1,300]/10:\n";
         Temp = double(user_integer_input(1,300))/10;
     }
+    cout << "How to initialise the system? Enter 1 for Hot Start, 0 for Cold Start\n";
+    int start = user_integer_input(0,1);
 
     //initialise spins array and neighbours maps
     initialise_system_and_maps();
@@ -74,14 +76,16 @@ void magnetisation_vs_time_data()
     cout << "Writing in file with path: " << path << endl;
     cout << "Starting computations" << endl;
     myfile << Temp << endl;
-    initialise_spins_hot();
-    //initialise_spins_cold();
+    // hot or cold
+    if (start == 1) {initialise_spins_hot();}
+    else {initialise_spins_cold();}
+    // begin
     compute_magnetisation();
     metropolis_function(Temp,thermalisationCycles);
-    myfile << (fabs(M)) << endl;
+    myfile << fabs((double)M/N) << endl;
     for (int i=1; i<dataPoints; i++) {
         metropolis_function(Temp,spacingCycles);
-        myfile << (fabs(M)) << endl;
+        myfile << fabs((double)M/N) << endl;
     }
 
     // wrap up

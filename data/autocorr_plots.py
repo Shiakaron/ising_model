@@ -7,14 +7,11 @@ from scipy.optimize import curve_fit
 folder2 = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\pngs\\"
 texfolder = "C:\\Users\\savva\\OneDrive - University of Cambridge\\Part2\\Computational Project\\report\\texfigures\\"
 
-def gauss(x, mean, sigma, scale, offset):
-    return (scale*np.exp(-((x-mean)/sigma)**2)+offset)
-
 def gauss2(x, mean, sigma, scale):
     return (scale*np.exp(-((x-mean)/sigma)**2))
 
-def power_fit(x,pow,scale,offset):
-    return (scale*np.power(x,pow)+offset)
+def power_fit2(x,pow,scale):
+    return (scale*np.power(x,pow))
 
 def plot_1():
     """
@@ -27,7 +24,7 @@ def plot_1():
             p_files.append(os.path.join(folder,file))
 
     fig, ax = plt.subplots()
-    ax.axvline(2.2692, label="$T_c$", linestyle="--",color="k")
+    ax.axvline(2.2692, label="$T_c$", linestyle="--",color="k",alpha=0.5)
     for p_file in p_files:
         L = (os.path.splitext(os.path.basename(p_file))[0]).split('_',4)[2]
         T_list = []
@@ -37,11 +34,13 @@ def plot_1():
             for row in lines:
                 T_list.append(float(row[0]))
                 tau_list.append(float(row[1]))
-        ax.plot(T_list,tau_list,marker='+',label="L = "+str(L))
-    ax.set_title("Time lag vs Temperature")
-    ax.set_ylabel(r"$\tau_e$ / sweeps")
-    ax.set_xlabel(r"T / $J/k_B$")
+        ax.plot(T_list,tau_list,marker='+',label="L = "+str(L),alpha=0.8)
+    #ax.set_title("Time lag vs Temperature")
+    ax.set_ylabel(r"$\tau_e$ (50 MCS)")
+    ax.set_xlabel(r"T ($J/k_B$)")
     ax.set_yscale("log")
+    ax.spines['right'].set_color('none')
+    ax.spines['top'].set_color('none')
     ax.legend()
 
     fig.savefig(folder2+"tau_e_vs_temp.png")
@@ -89,33 +88,42 @@ def plot_2():
             # print(L_list[-1],value_list[-1],error_list[-1])
 
     ax1.legend()
-    ax1.set_title(r"Gaussian Fit on Time lag vs Temperature")
-    ax1.set_ylabel(r"$\tau_e$ / sweeps")
+    #ax1.set_title(r"Gaussian Fit on Time lag vs Temperature")
+    ax1.set_ylabel(r"$\tau_e$ (50 MCS)")
     ax1.set_xlabel(r"T / $J/k_B$")
 
-    ax2.set_title(r"Power fit on peak Time lag vs Lattice size")
-    ax2.set_ylabel(r"Peak $\tau_e$ / sweeps")
+    #ax2.set_title(r"Power fit on peak Time lag vs Lattice size")
+    ax2.set_ylabel(r"Peak $\tau_e$ (50 MCS)")
     ax2.set_xlabel("L")
-    ax2.errorbar(L_list,value_list,error_list,marker='+',linestyle=" ")
-    popt2, pcov2 = curve_fit(power_fit, L_list, value_list, sigma=error_list, absolute_sigma=True, maxfev=2000, p0=[1,1,0])
+    ax2.spines['right'].set_color('none')
+    ax2.spines['top'].set_color('none')
+    ax2.errorbar(L_list,value_list,error_list,marker='+',linestyle=" ",color="k")
+    # popt2, pcov2 = curve_fit(power_fit, L_list, value_list, sigma=error_list, absolute_sigma=True, maxfev=2000, p0=[1,1,0])
+    # x2 = np.linspace(L_list[0],L_list[-1],100)
+    # ax2.plot(x2,power_fit(x2,*popt2), label = "z = " + '{:.2f}'.format(popt2[0]) + r"$ \pm $" + '{:.2f}'.format(abs(np.sqrt(abs((np.diag(pcov2)))[0]))))
+    # print("power = ",popt2[0],abs(np.sqrt(abs((np.diag(pcov2)))[0])))
+    popt2, pcov2 = curve_fit(power_fit2, L_list, value_list, sigma=error_list, absolute_sigma=True, maxfev=2000, p0=[2,1])
     x2 = np.linspace(L_list[0],L_list[-1],100)
-    ax2.plot(x2,power_fit(x2,*popt2), label = "pow = " + '{:.2f}'.format(popt2[0]) + r"$ \pm $" + '{:.2f}'.format(abs(np.sqrt(abs((np.diag(pcov2)))[0]))))
-    print("power = ",popt2[0],abs(np.sqrt(abs((np.diag(pcov2)))[0])))
+    ax2.plot(x2,power_fit2(x2,*popt2),color="orange", label = "z = " + '{:.2f}'.format(popt2[0]) + r"$ \pm $" + '{:.2f}'.format(abs(np.sqrt(abs((np.diag(pcov2)))[0]))))
+    #print("power = ",popt2[0],abs(np.sqrt(abs((np.diag(pcov2)))[0])))
 
 
-    # popt_plus = popt2 + np.sqrt((np.diag(pcov2)))
+    popt_plus = popt2 + np.sqrt((np.diag(pcov2)))
+    y_plus = power_fit2(x2,*popt_plus)
     # print(popt2,"+",np.sqrt((np.diag(pcov2))),"=",popt_plus)
-    # ax2.plot(x2,power_fit(x2,*popt_plus), label = "pow = " + '{:.2f}'.format(popt_plus[0]),linestyle="--",color="k")
+    # ax2.plot(x2,power_fit2(x2,*popt_plus), label = "pow = " + '{:.2f}'.format(popt_plus[0]),linestyle="--",color="k")
     #
-    # popt_minus = popt2 - np.sqrt((np.diag(pcov2)))
+    popt_minus = popt2 - np.sqrt((np.diag(pcov2)))
+    y_minus = power_fit2(x2,*popt_minus)
     # print(popt2,"+",np.sqrt((np.diag(pcov2))),"=",popt_minus)
-    # ax2.plot(x2,power_fit(x2,*popt_minus), label = "pow = " + '{:.2f}'.format(popt_minus[0]),linestyle="--",color="k")
+    # ax2.plot(x2,power_fit2(x2,*popt_minus), label = "pow = " + '{:.2f}'.format(popt_minus[0]),linestyle="--",color="k")
+    ax2.fill_between(x2,y_minus,y_plus,alpha=0.7)
+    ax2.legend(loc='lower right')
 
-    ax2.legend()
-    fig1.savefig(folder2+"tau_e_peak_vs_temp.png")
+    #fig1.savefig(folder2+"tau_e_peak_vs_temp.png")
     fig2.savefig(folder2+"tau_e_peak_vs_L.png")
-    fig1.savefig(texfolder+"\\tau_e_peak_vs_temp.pdf")
-    fig2.savefig(texfolder+"\\tau_e_peak_vs_L.pdf")
+    #fig1.savefig(texfolder+"\\tau_e_peak_vs_temp.pdf")
+    fig2.savefig(texfolder+"tau_e_peak_vs_L.pdf")
 
 
 def main():
