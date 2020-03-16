@@ -24,6 +24,7 @@ def plot_1():
             p_files.append(os.path.join(folder,file))
 
     fig, ax = plt.subplots()
+    plt.subplots_adjust(right=1,top=1)
     ax.axvline(2.2692, label="$T_c$", linestyle="--",color="k",alpha=0.5)
     for p_file in p_files:
         L = (os.path.splitext(os.path.basename(p_file))[0]).split('_',4)[2]
@@ -61,9 +62,10 @@ def plot_2():
             p_files.append(os.path.join(folder,file))
 
     fig1, ax1 = plt.subplots()
+    plt.subplots_adjust(right=1,top=1)
     fig2, ax2 = plt.subplots()
+    plt.subplots_adjust(right=1,top=1)
     # fig.suptitle("Time lag vs Temperature")
-
     for p_file in p_files:
         L = (os.path.splitext(os.path.basename(p_file))[0]).split('_',4)[2]
         T = []
@@ -124,7 +126,6 @@ def plot_2():
     fig2.savefig(folder2+"tau_e_peak_vs_L.png")
     #fig1.savefig(texfolder+"\\tau_e_peak_vs_temp.pdf")
     fig2.savefig(texfolder+"tau_e_peak_vs_L.pdf")
-
 
 def main():
     plot_1()

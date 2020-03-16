@@ -21,7 +21,7 @@ TESTING THE PROGRAM'S CORE FUNCTIONS
 To start with analysing the evolution of the average magnetisation of the system. I will do this with different Lattice sizes and a range of temperatures. Following that I will test how the average magnetisation of an evolved system changes with temperature. I will do this for different lattice sizes to show finite size effects.
 
 PLOT 1:
-For a fixed lattice size plot the evolution of the system at different temperatures, both below and above Tc.
+For a fixed lattice size plot the evolution of the system at different temperatures, below, at and above Tc.
 
 PLOT 2:
 I will choose a specific lattice size and temperature (below Tc) to demonstrate the randomness of the simulation and difference between hot and cold start
@@ -30,16 +30,16 @@ PLOT 3:
 For a fixed temperature (below Tc) plot the evolution of the system at different lattice sizes. Use average magnetisation for clarity in plots.
 
 PLOT 4:
-<|magnetisaiton|> vs temperature for different lattice sizes. Shows finite size effects and how greater lattice size are closer to the real solution.
+<|magnetisaiton|> vs temperature for different lattice sizes. Shows finite size effects and how greater lattice sizes are closer to the real solution.
 */
 
 void magnetisation_vs_time_data()
 {
     cout << "Running for magnetisation of evolving system" << endl;
     dim = 2;
-    L = 80;
+    L = 20;
     int thermalisationCycles = 0;
-    int dataPoints = 10000;
+    int dataPoints = 5000;
     int spacingCycles = 1;
     double Temp = 1.5;
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, 0, Temp);
@@ -57,11 +57,14 @@ void magnetisation_vs_time_data()
         cout << "Temperature [1,300]/10:\n";
         Temp = double(user_integer_input(1,300))/10;
     }
-    cout << "How to initialise the system? Enter 1 for Hot Start, 0 for Cold Start\n";
+    cout << "How to initialise the system: Enter 1 for Hot Start, 0 for Cold Start\n";
     int start = user_integer_input(0,1);
 
     //initialise spins array and neighbours maps
     initialise_system_and_maps();
+    // hot or cold
+    if (start == 1) {initialise_spins_hot();}
+    else {initialise_spins_cold();}
 
     // open file
     ofstream myfile;
@@ -75,11 +78,7 @@ void magnetisation_vs_time_data()
     }
     cout << "Writing in file with path: " << path << endl;
     cout << "Starting computations" << endl;
-    myfile << Temp << endl;
-    // hot or cold
-    if (start == 1) {initialise_spins_hot();}
-    else {initialise_spins_cold();}
-    // begin
+    // begin computing
     compute_magnetisation();
     metropolis_function(Temp,thermalisationCycles);
     myfile << fabs((double)M/N) << endl;
@@ -92,67 +91,6 @@ void magnetisation_vs_time_data()
     delete[] spins;
     if (myfile.is_open()){
        myfile.close();
-    }
-}
-
-void magnetisation_vs_time_data_bulk()
-{
-    cout << "Running for magnetisation of evolving systems" << endl;
-    dim = 2;
-    int L_list[5] = {5,10,20,40,80};
-    int thermalisationCycles = 0;
-    int dataPoints = 5000;
-    int spacingCycles = 1;
-    double iniT = 1.0; double finT = 5.0; int numT = 9;
-    T = linspace(iniT, finT, numT);
-
-    ofstream myfile;
-    string folder = ".\\data\\magn_vs_time";
-
-    for (int i=0; i<numT; i++) {
-        for (int j=0; j<5; j++) {
-            //set L
-            L = L_list[j];
-            //initialise vector
-            vector<double> magn;
-
-            //initialise spins array and neighbours maps
-            initialise_system_and_maps();
-            print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, 0, T[i]);
-
-            //open file
-            string filename = "magn_vs_time_"+to_string(dim)+"D_"+to_string(L)+"_"+to_string(T[i])+".txt";
-            filename_rename_if_exists(filename, folder);
-            string path = folder+"\\"+filename;
-            myfile.open(path);
-            if (!myfile.is_open()) {
-                throw "Func: magnetisation_vs_time_data_bulk(). File not opened with path: " + path + "\nPlease fix path";
-            }
-            cout << "Writing in file with path: " << path << endl;
-            // begin
-            cout << "Starting computations" << endl;
-            // compute magnetisation
-            initialise_spins_hot();
-            compute_magnetisation();
-            metropolis_function(T[i],thermalisationCycles);
-            magn.push_back(fabs(M));
-            for (int k=1; k<dataPoints; k++) {
-                metropolis_function(T[i],spacingCycles);
-                magn.push_back(fabs(M));
-            }
-
-            // write data on opened file
-            myfile << T[i] << endl;
-            for(int k=0; k<dataPoints; k++) {
-              myfile << magn[k] << endl;
-            }
-
-            // wrap up
-            delete[] spins;
-            if (myfile.is_open()){
-               myfile.close();
-            }
-        }
     }
 }
 
@@ -1439,21 +1377,20 @@ int initial_menu()
 {
     cout << "\nPlease select an analysis by entering an integer:\n";
     cout << "1 for Magnetisation vs Time.\n";
-    cout << "2 for Magnetisation vs Time (Bulk data, different lattice sizes and temperatures).\n";
-    cout << "3 for Magnetisation vs Temperature.\n";
-    cout << "4 for Tau_e vs Temperature initial investigation.\n";
-    cout << "5 for Tau_e vs Temperature close to critical temperature.\n";
-    cout << "6 for Energy vs Time.\n";
-    cout << "7 for Energy vs Temperature\n";
-    cout << "8 for Heat capacity vs Temperature\n";
-    cout << "9 for Heat capacity vs Temperature around critical point\n";
-    cout << "10 for Magnetisation vs External Field\n";
-    cout << "11 for Magnetic Susceptibility vs Temperature around critical point\n";
-    cout << "12 to generate configurations for a GIF\n";
-    cout << "13 to generate configuration for a Figure\n";
-    cout << "14 for Magnetisation and Energy vs Temperature with Next to Nearest interactions\n";
+    cout << "2 for Magnetisation vs Temperature.\n";
+    cout << "3 for Tau_e vs Temperature initial investigation.\n";
+    cout << "4 for Tau_e vs Temperature close to critical temperature.\n";
+    cout << "5 for Energy vs Time.\n";
+    cout << "6 for Energy vs Temperature\n";
+    cout << "7 for Heat capacity vs Temperature\n";
+    cout << "8 for Heat capacity vs Temperature around critical point\n";
+    cout << "9 for Magnetisation vs External Field\n";
+    cout << "10 for Magnetic Susceptibility vs Temperature around critical point\n";
+    cout << "11 to generate configurations for a GIF\n";
+    cout << "12 to generate configuration for a Figure\n";
+    cout << "13 for Magnetisation and Energy vs Temperature with Next to Nearest interactions\n";
     cout << "0 to Exit the program.\n";
-    int choice = user_integer_input(0,14);
+    int choice = user_integer_input(0,13);
     return choice;
 }
 
@@ -1470,31 +1407,29 @@ int main(int argc, char** argv)
         switch(user_choice) {
             case 1: magnetisation_vs_time_data();
             break;
-            case 2: magnetisation_vs_time_data_bulk();
+            case 2: magnetisation_vs_temp_data();
             break;
-            case 3: magnetisation_vs_temp_data();
+            case 3: autocorrelation_initial_investigation();
             break;
-            case 4: autocorrelation_initial_investigation();
+            case 4: autocorrelation_peak_investigation();
             break;
-            case 5: autocorrelation_peak_investigation();
+            case 5: energy_vs_time_data();
             break;
-            case 6: energy_vs_time_data();
+            case 6: energy_vs_temp_data();
             break;
-            case 7: energy_vs_temp_data();
+            case 7: heat_capacity_data();
             break;
-            case 8: heat_capacity_data();
+            case 8: heat_capacity_peak_data();
             break;
-            case 9: heat_capacity_peak_data();
+            case 9: external_field_investigation();
             break;
-            case 10: external_field_investigation();
+            case 10: magnetic_susceptibility_peak_data();
             break;
-            case 11: magnetic_susceptibility_peak_data();
+            case 11: generate_configurations_for_gif();
             break;
-            case 12: generate_configurations_for_gif();
+            case 12: generate_configuration_for_figure();
             break;
-            case 13: generate_configuration_for_figure();
-            break;
-            case 14: next_to_nearest_investigation();
+            case 13: next_to_nearest_investigation();
             break;
         }
         cout << "\nOperation complete.\n";
