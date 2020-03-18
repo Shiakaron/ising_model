@@ -11,6 +11,11 @@
 
 using namespace std;
 
+struct observable{
+    double value;
+    double error;
+};
+
 extern int dim;
 extern int L;
 extern int N;
@@ -39,6 +44,7 @@ void energy_vs_temp_data();
 void heat_capacity_data();
 void heat_capacity_peak_data();
 void external_field_investigation();
+void magnetic_susceptibility_peak_data();
 void generate_configurations_for_gif();
 void generate_configuration_for_figure();
 void next_to_nearest_investigation();
@@ -65,6 +71,9 @@ double* get_magnetic_susceptibility(double arr[], int siz, double Temp);
 double* linspace(double a, double b, int N);
 bool file_exists(const string& p_file);
 void filename_rename_if_exists(string& filename, string& folder);
+double sumArray(double arr[], int siz);
+double averageArray(double arr[], int siz);
+observable compute_average_and_sigma(double arr[], int siz);
 void print_T(int siz);
 void print_mapOfNearest(int max);
 void print_mapOfNext2Nearest(int max);
