@@ -11,11 +11,6 @@
 
 using namespace std;
 
-struct observable{
-    double value;
-    double error;
-};
-
 extern int dim;
 extern int L;
 extern int N;
@@ -68,9 +63,6 @@ double* get_magnetic_susceptibility(double arr[], int siz, double Temp);
 
 //GENERAL
 double* linspace(double a, double b, int N);
-double sumArray(double arr[], int siz);
-double averageArray(double arr[], int siz);
-observable compute_average_and_sigma(double arr[], int siz);
 bool file_exists(const string& p_file);
 void filename_rename_if_exists(string& filename, string& folder);
 void print_T(int siz);

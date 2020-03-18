@@ -188,7 +188,7 @@ Firstly, autocorrelation_initial_investigation() will investigate the autcorrela
 
 Secondly I will focus my attention around the peak, T_c ~ 2.27 K, where I will attempt to get an estimate of the time lag tau_e by computing the value multiple times.
 
-In the paper M. P. Nightingale and H. W. J. Blöte, Phys. Rev. Lett. 76 (1996) they found: "from a finite-size scaling analysis of these autocorrelation times, the dynamic critical exponent z is determined as z = 2.1665 (12)" where "tau_e ∼ L^z at the incipient critical point."
+In the paper M. P. Nightingale and H. W. J. Blöte, Phys. Rev. Lett. 76 (1996) they found: "from a finite-size scaling analysis of these autocorrelation times, the dynamic critical exponent z is determined as z = 2.1665 (12)" where "tau_e is similar to L^z at the incipient critical point."
 
 PLOT 1:
 Tau_e vs temperature for range 1-5 Kelvin. I will collect data for a range of Lattice sizes. This will give rough idea of what to expect
@@ -904,7 +904,7 @@ void heat_capacity_peak_data()
 
 /*
 EXTERNAL FIELD
-Investigate what happens when H ̸= 0: in particular, examine hysteresis effects when H is cycled at different temperatures.
+Investigate what happens with external field: in particular, examine hysteresis effects when H is cycled at different temperatures.
 
 How to do this:
 1. Thermalise at H=-H_max. thermalise. record data points. compute average. ouput

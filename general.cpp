@@ -56,35 +56,6 @@ void filename_rename_if_exists(string& filename, string& folder) {
     }
 }
 
-double sumArray(double arr[], int siz) {
-    // returns the sum of the elements of the array of size siz.
-    double sum = 0.0;
-    for (int i=0; i<siz; i++) {
-        sum += arr[i];
-    }
-    return sum;
-}
-
-double averageArray(double arr[], int siz) {
-    // returns the average of the elements of the array of size siz.
-    double sum = sumArray(arr, siz);
-    double average = sum/siz;
-    return average;
-}
-
-observable compute_average_and_sigma(double arr[], int siz) {
-    observable O;
-    //average first
-    O.value = averageArray(arr,siz);
-    //sigma
-    double sum = 0.0;
-    for(int i=0; i<siz; i++){
-        sum += (arr[i] - O.value)*(arr[i] - O.value);
-    }
-    O.error = sqrt(sum)/(siz);
-    return O;
-}
-
 void print_T(int siz) {
     cout << "Temperatures to compute are:" << endl;
     cout << "[ ";
