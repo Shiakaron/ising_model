@@ -8,15 +8,9 @@ from scipy.optimize import curve_fit
 folder = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\data\\chi_data"
 folder2 = "C:\\Users\\savva\\Documents\\GitHub\\ising_model_2.0\\pngs\\"
 texfolder = "C:\\Users\\savva\\OneDrive - University of Cambridge\\Part2\\Computational Project\\report\\texfigures\\"
+
 def gauss(x, mean, sigma, scale):
     return (scale*np.exp(-((x-mean)/sigma)**2))
-
-def linear(x, nu, a):
-    """
-    ln(T_c(N) - T_c(inf)) = (1/nu) * ln(L) + ln(a)
-    y = (1/nu) * x + ln(a)
-    """
-    return (1/nu) * x + np.log(a)
 
 def for_T_c_fun(L,T_c_inf,a,nu):
     return T_c_inf + a * np.power(L,-1/nu)
@@ -30,6 +24,7 @@ def plot_1():
     p_files_dict = {}
     L_list = []
     dim = 2
+    # reading the files in the folder
     # please change file path when running on different devices
     for file in sorted(os.listdir(folder)):
         if file.endswith(".txt") and not file.endswith(").txt"):
@@ -39,12 +34,10 @@ def plot_1():
                 L_list.append(L)
                 p_files_dict[L] = os.path.join(folder,file)
     L_list.sort()
-    ln_L_list = []
-    y_list = []
-    y_err_list = []
     T_c_N_list = []
     T_c_N_err_list = []
     T_c_inf = 2/np.log(1+np.sqrt(2))
+    # adjust fitting limits so that the peak is captured as best as possible from the available data
     limits = {
         8:[0,-1],
         12:[0,-1],
@@ -61,7 +54,6 @@ def plot_1():
         56:[8,-10],
         64:[3,-5]
     }
-    L_plot = 0
     for key in limits:
         p_file = p_files_dict[key]
         avgChi = []
@@ -73,12 +65,17 @@ def plot_1():
                 T.append(float(row[0]))
                 avgChi.append(float(row[1]))
                 errChi.append(float(row[2]))
+        # fit each peak with Gaussian to get value for T_c ("mean" parameter in Gaussian) and it's error
         left = limits[key][0]
         right = limits[key][1]
         T_fit = T[left:right]
         Chi_fit = avgChi[left:right]
         errChi_fit = errChi[left:right]
         popt, pcov = curve_fit(gauss, T_fit, Chi_fit, sigma=errChi_fit, absolute_sigma=True, maxfev=5000, p0=[2.3, 0.1, 1000], bounds=((2.25,-5,-np.inf),(2.6,5,np.inf)))
+        T_c_N_list.append(popt[0])
+        T_c_N_err_list.append(np.sqrt(np.diag(pcov)[0]))
+        # check each fit individually
+        L_plot = 40
         if (key == L_plot):
             fig, ax = plt.subplots(figsize=(12,8))
             ax.axvline(T_c_inf, label="$T_c$", linestyle="--",color="k",alpha=0.5)
@@ -89,10 +86,6 @@ def plot_1():
             ax.set_ylabel(r"$\chi$")
             ax.set_xlabel(r"T / $J/k_B$")
             ax.legend()
-        print(key,popt[0],np.sqrt(np.diag(pcov)[0]))
-        T_c_N_list.append(popt[0])
-        T_c_N_err_list.append(np.sqrt(np.diag(pcov)[0]))
-
     fig3, ax3 = plt.subplots()
     plt.subplots_adjust(right=1,top=1)
     ax3.errorbar(L_list, T_c_N_list, T_c_N_err_list,ls="",marker='+')
@@ -104,15 +97,11 @@ def plot_1():
     ax3.set_xlabel("L")
     ax3.spines['right'].set_color('none')
     ax3.spines['top'].set_color('none')
-    print(popt3,np.sqrt(np.diag(pcov3)))
-    print("T_c calculated = ",popt3[0],"+-",np.sqrt(np.diag(pcov3)[0]))
-    print("T_c onsager = ",T_c_inf)
     s1 = r"$T_c$ = "+str('{:.3f}'.format(popt3[0]))+r"$\pm$"+str('{:.3f}'.format(np.sqrt(np.diag(pcov3)[0])))
     s2 = r"$\nu$ = "+str('{:.2f}'.format(popt3[2]))+r"$\pm$"+str('{:.2f}'.format(np.sqrt(np.diag(pcov3)[2])))
     s = s1+"\n"+s2
     ax3.text(35,2.4,s)
-    # for i in range(len(L_list)):
-    #     print(L_list[i],T_c_N_list[i])
+    # save figure in folder2 and texfolder
     fig3.savefig(texfolder+"chi_check_Onsager.pdf")
     fig3.savefig(folder2+"chi_check_Onsager.png")
 

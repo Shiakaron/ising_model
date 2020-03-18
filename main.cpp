@@ -16,6 +16,77 @@ double H = 0;
 unsigned int seed = (unsigned)time(0); // (unsigned)time(0);
 double *T;
 
+int main(int argc, char** argv)
+{
+    clock_t tStart = clock();
+    srand(seed);
+    cout << "Ising Model, made by Savvas Shiakas (ss2477)" << endl;
+    cout << "C++ was used to produce data files ('low' level -> faster computation) which are later analysed and plotted using Python.\n";
+
+    // user friendly function to run the code
+    int user_choice = initial_menu();
+    try {
+        switch(user_choice) {
+            case 1: magnetisation_vs_time_data();
+            break;
+            case 2: magnetisation_vs_temp_data();
+            break;
+            case 3: autocorrelation_initial_investigation();
+            break;
+            case 4: autocorrelation_peak_investigation();
+            break;
+            case 5: energy_vs_time_data();
+            break;
+            case 6: energy_vs_temp_data();
+            break;
+            case 7: heat_capacity_data();
+            break;
+            case 8: heat_capacity_peak_data();
+            break;
+            case 9: external_field_investigation();
+            break;
+            case 10: magnetic_susceptibility_peak_data();
+            break;
+            case 11: generate_configurations_for_gif();
+            break;
+            case 12: generate_configuration_for_figure();
+            break;
+            case 13: next_to_nearest_investigation();
+            break;
+        }
+        cout << "\nOperation complete.\n";
+    }
+    catch(string er) {
+        cerr << "\nERROR. EXITING PROGRAM." << endl;
+        cout << er << endl;
+        return 1;
+    }
+    cout << "\nProgram ended in " << (double)(clock()-tStart)/CLOCKS_PER_SEC << " seconds" << endl;
+    return 0;
+}
+
+int initial_menu()
+// User friendly function to choose analysis line
+{
+    cout << "\nPlease select an analysis by entering an integer:\n";
+    cout << "1 for Magnetisation vs Time.\n";
+    cout << "2 for Magnetisation vs Temperature.\n";
+    cout << "3 for Tau_e vs Temperature initial investigation.\n";
+    cout << "4 for Tau_e vs Temperature close to critical temperature.\n";
+    cout << "5 for Energy vs Time.\n";
+    cout << "6 for Energy vs Temperature\n";
+    cout << "7 for Heat capacity vs Temperature\n";
+    cout << "8 for Heat capacity vs Temperature around critical point\n";
+    cout << "9 for Magnetisation vs External Field\n";
+    cout << "10 for Magnetic Susceptibility vs Temperature around critical point\n";
+    cout << "11 to generate configurations for a GIF\n";
+    cout << "12 to generate configuration for a Figure\n";
+    cout << "13 for Magnetisation and Energy vs Temperature with Next to Nearest interactions\n";
+    cout << "0 to Exit the program.\n";
+    int choice = user_integer_input(0,13);
+    return choice;
+}
+
 /*
 TESTING THE PROGRAM'S CORE FUNCTIONS
 To start with analysing the evolution of the average magnetisation of the system. I will do this with different Lattice sizes and a range of temperatures. Following that I will test how the average magnetisation of an evolved system changes with temperature. I will do this for different lattice sizes to show finite size effects.
@@ -37,7 +108,7 @@ void magnetisation_vs_time_data()
 {
     cout << "Running for magnetisation of evolving system" << endl;
     dim = 2;
-    L = 20;
+    L = 40;
     int thermalisationCycles = 0;
     int dataPoints = 5000;
     int spacingCycles = 1;
@@ -46,8 +117,8 @@ void magnetisation_vs_time_data()
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
     int user_input = user_integer_input(0,1);
     if (user_input == 0) {
-        cout << "Dimensions [2,3]:\n";
-        dim = user_integer_input(2,3);
+        cout << "Dimensions [2,4]:\n";
+        dim = user_integer_input(2,4);
         cout << "Lattice size [8,181]:\n";
         L = user_integer_input(8,181);
         cout << "Thermalisation cycles [0,10000]:\n";
@@ -123,8 +194,8 @@ void magnetisation_vs_temp_data()
         int finT_int = user_integer_input(iniT_int,100);
         finT = double(finT_int)/10;
         if (iniT_int != finT_int) {
-            cout << "Number of Temperature points [2,41]:\n";
-            numT = user_integer_input(2,41);
+            cout << "Number of Temperature points [2,100]:\n";
+            numT = user_integer_input(2,100);
         }
         else {
             numT = 1;
@@ -188,7 +259,7 @@ Firstly, autocorrelation_initial_investigation() will investigate the autcorrela
 
 Secondly I will focus my attention around the peak, T_c ~ 2.27 K, where I will attempt to get an estimate of the time lag tau_e by computing the value multiple times.
 
-In the paper M. P. Nightingale and H. W. J. Blöte, Phys. Rev. Lett. 76 (1996) they found: "from a finite-size scaling analysis of these autocorrelation times, the dynamic critical exponent z is determined as z = 2.1665 (12)" where "tau_e is similar to L^z at the incipient critical point."
+In the paper M. P. Nightingale and H. W. J. Blote, Phys. Rev. Lett. 76 (1996) they found: "from a finite-size scaling analysis of these autocorrelation times, the dynamic critical exponent z is determined as z = 2.1665 (12)" where "tau_e is similar to L^z at the incipient critical point."
 
 PLOT 1:
 Tau_e vs temperature for range 1-5 Kelvin. I will collect data for a range of Lattice sizes. This will give rough idea of what to expect
@@ -226,8 +297,8 @@ void autocorrelation_initial_investigation()
         int finT_int = user_integer_input(iniT_int,50);
         finT = double(finT_int)/10;
         if (iniT_int != finT_int) {
-            cout << "Number of Temperature points [2,41]:\n";
-            numT = user_integer_input(2,41);
+            cout << "Number of Temperature points [2,100]:\n";
+            numT = user_integer_input(2,100);
         }
         else {
             numT = 1;
@@ -342,15 +413,15 @@ void autocorrelation_peak_investigation()
         thermalisationCycles = user_integer_input(0,15000);
         cout << "Number of data points [100,20000]\n";
         dataPoints = user_integer_input(100,20000);
-        cout << "Initial Temperature [150,440]/10:\n";
-        int iniT_int = user_integer_input(150,440);
+        cout << "Initial Temperature [150,400]/100:\n";
+        int iniT_int = user_integer_input(150,400);
         iniT = double(iniT_int)/100;
-        cout << "Final Temperature [" << iniT_int <<",450]/10:\n";
+        cout << "Final Temperature [" << iniT_int <<",500]/100:\n";
         int finT_int = user_integer_input(iniT_int,450);
         finT = double(finT_int)/100;
         if (iniT_int != finT_int) {
-            cout << "Number of Temperature points [2,41]:\n";
-            numT = user_integer_input(2,41);
+            cout << "Number of Temperature points [2,100]:\n";
+            numT = user_integer_input(2,100);
         }
         else {
             numT = 1;
@@ -359,7 +430,7 @@ void autocorrelation_peak_investigation()
     }
     // number of tau_e's to compute and get average
     int numTau;
-    cout << "Enter number of tau_e's to compute and average over. Beware of high computation time! (1-1000):\n";
+    cout << "Enter number of tau_e's to compute and average over. Beware of high computation time! [1,1000]:\n";
     numTau = user_integer_input(1,1000);
 
     //initialise vectors, pointers and time variable
@@ -531,7 +602,7 @@ void energy_second_check()
 
 void energy_vs_time_data()
 {
-    cout << "Running for energy at different temperatures data" << endl;
+    cout << "Running for energy vs time (at different temperatures) data" << endl;
     dim = 2;
     L = 80;
     int thermalisationCycles = 0;
@@ -543,23 +614,23 @@ void energy_vs_time_data()
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
     int user_input = user_integer_input(0,1);
     if (user_input == 0) {
-        cout << "Dimensions [2,3]:\n";
-        dim = user_integer_input(2,3);
+        cout << "Dimensions [2,4]:\n";
+        dim = user_integer_input(2,4);
         cout << "Lattice size [8,181]:\n";
         L = user_integer_input(8,181);
         cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,10000);
         cout << "Number of data points [100,10000]:\n";
         dataPoints = user_integer_input(100,10000);
-        cout << "Initial Temperature [1,49]/10:\n";
-        int iniT_int = user_integer_input(1,49);
+        cout << "Initial Temperature [1,99]/10:\n";
+        int iniT_int = user_integer_input(1,99);
         iniT = double(iniT_int)/10;
-        cout << "Final Temperature [" << iniT_int <<",50]/10:\n";
-        int finT_int = user_integer_input(iniT_int,50);
+        cout << "Final Temperature [" << iniT_int <<",100]/10:\n";
+        int finT_int = user_integer_input(iniT_int,100);
         finT = double(finT_int)/10;
         if (iniT_int != finT_int) {
-            cout << "Number of Temperature points [2,41]:\n";
-            numT = user_integer_input(2,41);
+            cout << "Number of Temperature points [2,100]:\n";
+            numT = user_integer_input(2,100);
         }
         else {
             numT = 1;
@@ -628,23 +699,23 @@ void energy_vs_temp_data()
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
     int user_input = user_integer_input(0,1);
     if (user_input == 0) {
-        cout << "Dimensions [2,3]:\n";
-        dim = user_integer_input(2,3);
+        cout << "Dimensions [2,4]:\n";
+        dim = user_integer_input(2,4);
         cout << "Lattice size [8,181]:\n";
         L = user_integer_input(8,181);
         cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,10000);
         cout << "Number of data points [100,10000]:\n";
         dataPoints = user_integer_input(100,10000);
-        cout << "Initial Temperature [1,49]/10:\n";
-        int iniT_int = user_integer_input(1,49);
+        cout << "Initial Temperature [1,99]/10:\n";
+        int iniT_int = user_integer_input(1,99);
         iniT = double(iniT_int)/10;
-        cout << "Final Temperature [" << iniT_int <<",50]/10:\n";
-        int finT_int = user_integer_input(iniT_int,50);
+        cout << "Final Temperature [" << iniT_int <<",100]/10:\n";
+        int finT_int = user_integer_input(iniT_int,100);
         finT = double(finT_int)/10;
         if (iniT_int != finT_int) {
-            cout << "Number of Temperature points [2,41]:\n";
-            numT = user_integer_input(2,41);
+            cout << "Number of Temperature points [2,100]:\n";
+            numT = user_integer_input(2,100);
         }
         else {
             numT = 1;
@@ -722,7 +793,7 @@ Plot log(T_c(L)-T_c(inf)) vs log(L). Using Onsager's result get values for the c
 
 void heat_capacity_data()
 {
-    cout << "Running for peat capacity at different temperatures data" << endl;
+    cout << "Running for heat capacity at different temperatures data" << endl;
     dim = 2;
     L = 48;
     int thermalisationCycles = 1000;
@@ -742,15 +813,15 @@ void heat_capacity_data()
         thermalisationCycles = user_integer_input(0,10000);
         cout << "Number of data points [100,10000]:\n";
         dataPoints = user_integer_input(100,10000);
-        cout << "Initial Temperature [1,49]/10:\n";
-        int iniT_int = user_integer_input(1,49);
+        cout << "Initial Temperature [1,99]/10:\n";
+        int iniT_int = user_integer_input(1,99);
         iniT = double(iniT_int)/10;
-        cout << "Final Temperature [" << iniT_int <<",50]/10:\n";
-        int finT_int = user_integer_input(iniT_int,50);
+        cout << "Final Temperature [" << iniT_int <<",100]/10:\n";
+        int finT_int = user_integer_input(iniT_int,100);
         finT = double(finT_int)/10;
         if (iniT_int != finT_int) {
-            cout << "Number of Temperature points [2,41]:\n";
-            numT = user_integer_input(2,41);
+            cout << "Number of Temperature points [2,100]:\n";
+            numT = user_integer_input(2,100);
         }
         else {
             numT = 1;
@@ -833,15 +904,15 @@ void heat_capacity_peak_data()
         thermalisationCycles = user_integer_input(0,10000);
         cout << "Number of data points [100,10000]:\n";
         dataPoints = user_integer_input(100,10000);
-        cout << "Initial Temperature [1,49]/10:\n";
-        int iniT_int = user_integer_input(1,49);
+        cout << "Initial Temperature [1,99]/10:\n";
+        int iniT_int = user_integer_input(1,99);
         iniT = double(iniT_int)/10;
-        cout << "Final Temperature [" << iniT_int <<",50]/10:\n";
-        int finT_int = user_integer_input(iniT_int,50);
+        cout << "Final Temperature [" << iniT_int <<",100]/10:\n";
+        int finT_int = user_integer_input(iniT_int,100);
         finT = double(finT_int)/10;
         if (iniT_int != finT_int) {
-            cout << "Number of Temperature points [2,41]:\n";
-            numT = user_integer_input(2,41);
+            cout << "Number of Temperature points [2,100]:\n";
+            numT = user_integer_input(2,100);
         }
         else {
             numT = 1;
@@ -946,8 +1017,8 @@ void external_field_investigation()
         thermalisationCycles = user_integer_input(0,10000);
         cout << "Number of data points [100,10000]:\n";
         dataPoints = user_integer_input(100,10000);
-        cout << "Temperature [1,50]/10\n";
-        Temp = double(user_integer_input(1,50))/10;
+        cout << "Temperature [1,100]/10\n";
+        Temp = double(user_integer_input(1,100))/10;
     }
 
     // pointers and variables
@@ -1052,15 +1123,15 @@ void magnetic_susceptibility_peak_data()
         thermalisationCycles = user_integer_input(0,10000);
         cout << "Number of data points [100,10000]:\n";
         dataPoints = user_integer_input(100,10000);
-        cout << "Initial Temperature [1,49]/10:\n";
-        int iniT_int = user_integer_input(1,49);
+        cout << "Initial Temperature [1,99]/10:\n";
+        int iniT_int = user_integer_input(1,99);
         iniT = double(iniT_int)/10;
-        cout << "Final Temperature [" << iniT_int <<",50]/10:\n";
-        int finT_int = user_integer_input(iniT_int,50);
+        cout << "Final Temperature [" << iniT_int <<",100]/10:\n";
+        int finT_int = user_integer_input(iniT_int,100);
         finT = double(finT_int)/10;
         if (iniT_int != finT_int) {
-            cout << "Number of Temperature points [2,41]:\n";
-            numT = user_integer_input(2,41);
+            cout << "Number of Temperature points [2,100]:\n";
+            numT = user_integer_input(2,100);
         }
         else {
             numT = 1;
@@ -1141,16 +1212,14 @@ void generate_configurations_for_gif()
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
     int user_input = user_integer_input(0,1);
     if (user_input == 0) {
-        cout << "Dimensions [2,3]:\n";
-        dim = user_integer_input(2,3);
         cout << "Lattice size [8,181]:\n";
         L = user_integer_input(8,181);
         cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,5000);
         cout << "Number of data points [100,10000]:\n";
         dataPoints = user_integer_input(100,10000);
-        cout << "Temperature [1,100]/10\n";
-        Temp = double(user_integer_input(1,100))/10;
+        cout << "Temperature [1,300]/10\n";
+        Temp = double(user_integer_input(1,300))/10;
     }
 
     //initialise spins array and neighbours maps
@@ -1221,8 +1290,8 @@ void generate_configuration_for_figure()
         L = user_integer_input(8,181);
         cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,5000);
-        cout << "Temperature [1,100]/10\n";
-        Temp = double(user_integer_input(1,100))/10;
+        cout << "Temperature [1,300]/10\n";
+        Temp = double(user_integer_input(1,300))/10;
     }
 
     //initialise spins array and neighbours maps
@@ -1278,11 +1347,11 @@ void next_to_nearest_investigation()
     cout << "Running for magnetisation at different temperatures data" << endl;
     dim = 2;
     L = 40;
-    n2n = 0.0;
+    n2n = 1.0;
     int thermalisationCycles = 1000;
     int spacingCycles = 50;
     int dataPoints = 2000;      //total data points
-    double iniT = 5.1; double finT = 8.0; int numT = 30;
+    double iniT = 1.0; double finT = 8.0; int numT = 71;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
@@ -1306,7 +1375,7 @@ void next_to_nearest_investigation()
         finT = double(finT_int)/10;
         if (iniT_int != finT_int) {
             cout << "Number of Temperature points [2,41]:\n";
-            numT = user_integer_input(2,41);
+            numT = user_integer_input(2,100);
         }
         else {
             numT = 1;
@@ -1370,77 +1439,4 @@ void next_to_nearest_investigation()
    if (myfile.is_open()){
        myfile.close();
    }
-}
-
-int initial_menu()
-// User friendly function to choose analysis line
-{
-    cout << "\nPlease select an analysis by entering an integer:\n";
-    cout << "1 for Magnetisation vs Time.\n";
-    cout << "2 for Magnetisation vs Temperature.\n";
-    cout << "3 for Tau_e vs Temperature initial investigation.\n";
-    cout << "4 for Tau_e vs Temperature close to critical temperature.\n";
-    cout << "5 for Energy vs Time.\n";
-    cout << "6 for Energy vs Temperature\n";
-    cout << "7 for Heat capacity vs Temperature\n";
-    cout << "8 for Heat capacity vs Temperature around critical point\n";
-    cout << "9 for Magnetisation vs External Field\n";
-    cout << "10 for Magnetic Susceptibility vs Temperature around critical point\n";
-    cout << "11 to generate configurations for a GIF\n";
-    cout << "12 to generate configuration for a Figure\n";
-    cout << "13 for Magnetisation and Energy vs Temperature with Next to Nearest interactions\n";
-    cout << "0 to Exit the program.\n";
-    int choice = user_integer_input(0,13);
-    return choice;
-}
-
-int main(int argc, char** argv)
-{
-    clock_t tStart = clock();
-    srand(seed);
-    cout << "Ising Model, made by Savvas Shiakas (ss2477)" << endl;
-    cout << "C++ was used to produce data files ('low' level -> faster computation) which are later analysed and plotted using Python.\n";
-
-    // user friendly function to run the code
-    int user_choice = initial_menu();
-    try {
-        switch(user_choice) {
-            case 1: magnetisation_vs_time_data();
-            break;
-            case 2: magnetisation_vs_temp_data();
-            break;
-            case 3: autocorrelation_initial_investigation();
-            break;
-            case 4: autocorrelation_peak_investigation();
-            break;
-            case 5: energy_vs_time_data();
-            break;
-            case 6: energy_vs_temp_data();
-            break;
-            case 7: heat_capacity_data();
-            break;
-            case 8: heat_capacity_peak_data();
-            break;
-            case 9: external_field_investigation();
-            break;
-            case 10: magnetic_susceptibility_peak_data();
-            break;
-            case 11: generate_configurations_for_gif();
-            break;
-            case 12: generate_configuration_for_figure();
-            break;
-            case 13: next_to_nearest_investigation();
-            break;
-        }
-        cout << "\nOperation complete.\n";
-    }
-    catch(string er) {
-        cerr << "ERROR. EXITING PROGRAM." << endl;
-        cout << er << endl;
-        return 1;
-    }
-
-
-    cout << "\nProgram ended in " << (double)(clock()-tStart)/CLOCKS_PER_SEC << " seconds" << endl;
-    return 0;
 }
