@@ -15,15 +15,15 @@ double* wolff_function(double Temp, int cycles) {
     */
 
     // the function will return an average and error on the cluster size
-    int *cluster_sizes;
-    cluster_sizes = new int[cycles];
+    double *cluster_sizes;
+    cluster_sizes = new double[cycles];
 
     // useful initialisations
     vector<int> temp_vec; // temporary vector for the nearest neighbours
     double prob = 1 - exp(-2.0/Temp); // probability of adding to cluster
     int cseed; // cluster seed
     double x; // probability variable
-    vector<int> new_members; // stack to keep a queue of the new members of the array
+    list<int> new_members; // list to keep a queue of the new members of the array
     int member; // member index
     int neighbour; // neighbour index
 
@@ -40,24 +40,24 @@ double* wolff_function(double Temp, int cycles) {
         // create the cluster
         while(new_members.size()>0) {
             // implementing breadth first search so that the cluster grows around the seed
-            member = new_members.begin(); // retrieves the first element in the vector
-            new_members.erase(members.begin()); // remove first element from new_members
+            member = new_members.front(); // retrieves the first element in the vector
+            new_members.pop_front(); // remove first element from new_members
             temp_vec = mapOfNearest[member];
             for (int j=0; j<temp_vec.size(); j++) {
                 neighbour = temp_vec[j];
                 x = ((double)rand()/RAND_MAX);
-                if  (x < prob) && (spins[neighbour] == spins[cseed]) && (flags[neighbour] != 1) {
+                if  ((x < prob) && (spins[neighbour] == spins[cseed]) && (flags[neighbour] != 1)) {
                     new_members.push_back(neighbour); // add to new_members
                     flags[neighbour] = 1; // flag up
                 }
             }
         }
         // flip the spins of the cluster and compute cluster size
-        cluster_sizes[i] = flip_cluster(flags,spins[cseed]);
+        cluster_sizes[i] = (double)flip_cluster(flags,spins[cseed]);
     }
 
     // shouldn't compute error with only 1 data point
-    double *return value;
+    double *return_value;
     if (cycles>1) {
         // compute average and error
         observable O = compute_average_and_sigma(cluster_sizes, cycles);
@@ -65,8 +65,12 @@ double* wolff_function(double Temp, int cycles) {
         return_value[0] = O.value;
         return_value[1] = O.error;
     } else {
-        return_value = (double)cluster_sizes[0];
+        double to_point = cluster_sizes[0];
+        return_value = &to_point;
     }
+
+    delete[] flags;
+    delete[] cluster_sizes;
 
     return return_value;
 }

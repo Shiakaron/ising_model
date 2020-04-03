@@ -53,7 +53,9 @@ int main(int argc, char** argv)
             break;
             case 13: next_to_nearest_investigation();
             break;
-            case 14: wolff_cluster_size();
+            case 14: wolff_cluster_size_vs_temp_data();
+            break;
+            case 15: wolff_autocorrelation_investigation();
             break;
         }
         cout << "\nOperation complete.\n";
@@ -76,17 +78,18 @@ int initial_menu()
     cout << "3 for Tau_e vs Temperature initial investigation.\n";
     cout << "4 for Tau_e vs Temperature close to critical temperature.\n";
     cout << "5 for Energy vs Time.\n";
-    cout << "6 for Energy vs Temperature\n";
-    cout << "7 for Heat capacity vs Temperature\n";
-    cout << "8 for Heat capacity vs Temperature around critical point\n";
-    cout << "9 for Magnetisation vs External Field\n";
-    cout << "10 for Magnetic Susceptibility vs Temperature around critical point\n";
-    cout << "11 to generate configurations for a GIF\n";
-    cout << "12 to generate configuration for a Figure\n";
-    cout << "13 for Magnetisation and Energy vs Temperature with Next to Nearest interactions\n";
-    cout << "14 for Cluster size vs Temperaure using Wolff's algorithm\n";
+    cout << "6 for Energy vs Temperature.\n";
+    cout << "7 for Heat capacity vs Temperature.\n";
+    cout << "8 for Heat capacity vs Temperature around critical point.\n";
+    cout << "9 for Magnetisation vs External Field.\n";
+    cout << "10 for Magnetic Susceptibility vs Temperature around critical point.\n";
+    cout << "11 to generate configurations for a GIF.\n";
+    cout << "12 to generate configuration for a Figure.\n";
+    cout << "13 for Magnetisation and Energy vs Temperature with Next to Nearest interactions.\n";
+    cout << "14 for Cluster size vs Temperaure using Wolff's algorithm.\n";
+    cout << "15 for Wolff's algorithm autocorrelation investigation.\n";
     cout << "0 to Exit the program.\n";
-    int choice = user_integer_input(0,14);
+    int choice = user_integer_input(0,15);
     return choice;
 }
 
@@ -1449,10 +1452,15 @@ To overcome critical slowing down we will implement the Wolff algorithm. The maj
 
 The main difference is noticeable at T_c where large clusters of like spin tend to form. The Metropolis reforms these clusters by slowly adjusting their boundaries, leading to high autocorrelations and therefore the critical slowing down effect. It is virtually impossible for a cluster of opposite spin to be formed inside these clusters. The Wolff has the ability to reform these clusters fast and thus does not suffer from critical slowing down. At high T the Wolff clusters are close to 1 site and the systems evolution resembles closely that of Metropolis
 
-Firsly, we will examine the typical cluster size of the algorithm over a range of temperatures
+Firsly, we will examine the typical cluster size of the algorithm over a range of temperatures and at different lattice sizes.
+
+Secondly I will examine the autocorrelation of the Wolff in a range around the critical temperature to qualitatevly compare with Metropolis. I expect tau_e to be of order unity throughout
 
 PLOT 1:
 Cluster size vs Temperature
+
+PLOT 2:
+Tau_e vs Temperature around the critical point
 
 */
 
@@ -1460,11 +1468,11 @@ void wolff_cluster_size_vs_temp_data()
 {
     cout << "Running for cluster size at different temperatures data" << endl;
     dim = 2;
-    L = 40;
+    L = 100;
     int thermalisationCycles = 100;
     int spacingCycles = 1;
-    int dataPoints = 200;      //total data points
-    double iniT = 1.0; double finT = 5.0; int numT = 41;
+    int dataPoints = 1000;      //total data points
+    double iniT = 2.6; double finT = 3.5; int numT = 9;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
@@ -1497,9 +1505,9 @@ void wolff_cluster_size_vs_temp_data()
     }
 
     // initialise pointers and time variable
-    double *CS; // cluster size average (and error)
-    double *arrayCS;
-    arrayCS = new double[dataPoints];
+    double *n; // cluster size average (no error)
+    double *array_n;
+    array_n = new double[dataPoints];
     clock_t tStartTemp;
     //initialise spins array and neighbours maps
     initialise_system_and_maps();
@@ -1507,7 +1515,7 @@ void wolff_cluster_size_vs_temp_data()
     // open file
     ofstream myfile;
     string folder = ".\\data\\wolff_data\\cluster_size";
-    string filename = "CS_data_"+to_string(dim)+"D_"+to_string(L)+".txt";
+    string filename = "clustersize_data_"+to_string(dim)+"D_"+to_string(L)+".txt";
     filename_rename_if_exists(filename, folder);
     string path = folder+"\\"+filename;
     myfile.open(path);
@@ -1522,18 +1530,139 @@ void wolff_cluster_size_vs_temp_data()
         // begin
         initialise_spins_auto(T[i]);
         compute_magnetisation();
-        CS = wolff_function(T[i],thermalisationCycles);
-        for (int j=1; j<dataPoints; j++) {
-            CS = function(T[i],spacingCycles);
-
+        n = wolff_function(T[i],thermalisationCycles);
+        for (int j=0; j<dataPoints; j++) {
+            n = wolff_function(T[i],spacingCycles);
+            array_n[j] = (*n)/N;
         }
         // average and error
-        bootstrap_values_M = bootstrap_error(arrayM, dataPoints, 128, true);
-        bootstrap_values_E = bootstrap_error(arrayE, dataPoints, 128, true);
+        observable n_values = compute_average_and_sigma(array_n, dataPoints);
         // write data in myfile
-        myfile << T[i] << " " << bootstrap_values_M[0] << " " << bootstrap_values_M[1] << " " << bootstrap_values_E[0] << " " << bootstrap_values_E[1] << endl;
-        cout << "T = " << T[i] << ", m = " << bootstrap_values_M[0] << " +- " <<  bootstrap_values_M[1] << ", e = " << bootstrap_values_E[0] << " +- " <<  bootstrap_values_E[1] << ", Time taken: " << (double)(clock()-tStartTemp)/CLOCKS_PER_SEC << " seconds" << endl;
+        myfile << T[i] << " " << n_values.value << " " << n_values.error << endl;
+        cout << "T = " << T[i] << ", <n> = " << n_values.value << " +- " <<  n_values.error << ", Time taken: " << (double)(clock()-tStartTemp)/CLOCKS_PER_SEC << " seconds" << endl;
     }
 
+    // wrap up
+    delete[] spins;
+    delete[] T;
+    delete[] array_n;
+    if (myfile.is_open()){
+        myfile.close();
+    }
+}
 
+void wolff_autocorrelation_investigation()
+{
+    cout << "Running autocorrelation around critical temperature. High computation time! Proceed with caution!" << endl;
+    L = 20;
+    dim = 2;
+    int thermalisationCycles = 1000; // enough time to ensure thermalisation
+    int dataPoints = 5000; //"long time"
+    int spacingCycles = 1;
+    double iniT = 2.0; double finT = 2.5; int numT = 21;
+    T = linspace(iniT, finT, numT);
+    print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
+    cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
+    int user_input = user_integer_input(0,1);
+    if (user_input == 0) {
+        cout << "Dimensions [2,3]:\n";
+        dim = user_integer_input(2,3);
+        cout << "Lattice size [8,181]:\n";
+        L = user_integer_input(8,181);
+        cout << "Thermalisation cycles [0,10000]:\n";
+        thermalisationCycles = user_integer_input(0,15000);
+        cout << "Number of data points [100,20000]\n";
+        dataPoints = user_integer_input(100,20000);
+        cout << "Initial Temperature [150,400]/100:\n";
+        int iniT_int = user_integer_input(150,400);
+        iniT = double(iniT_int)/100;
+        cout << "Final Temperature [" << iniT_int <<",500]/100:\n";
+        int finT_int = user_integer_input(iniT_int,450);
+        finT = double(finT_int)/100;
+        if (iniT_int != finT_int) {
+            cout << "Number of Temperature points [2,100]:\n";
+            numT = user_integer_input(2,100);
+        }
+        else {
+            numT = 1;
+        }
+        T = linspace(iniT, finT, numT);
+    }
+    // number of tau_e's to compute and get average
+    int numTau;
+    cout << "Enter number of tau_e's to compute and average over. Beware of high computation time! [1,1000]:\n";
+    numTau = user_integer_input(1,1000);
+
+    //initialise vectors, pointers and time variable
+    double *wolff;
+    double *arrayM;
+    double *bootstrap_values;
+    double *autocorr;
+    double *arrayTau;
+    int tau_e;
+    observable O_tau;
+    clock_t tStartTemp;
+    arrayTau = new double[numTau];
+    arrayM = new double[dataPoints];
+
+    //initialise spins array and neighbours maps
+    initialise_system_and_maps();
+
+    string folder = ".\\data\\wolff_data\\autocorrelation";
+    // open myfile -> average and std
+    ofstream myfile;
+    string filename = "wolff_autocorr_"+to_string(L)+"_L.txt";
+    filename_rename_if_exists(filename, folder);
+    string path = folder+"\\"+filename;
+    myfile.open(path);
+    if (!myfile.is_open()) {
+        throw "Func: wolff_autocorrelation_investigation(). File not opened with path: " + path + "\nPlease fix path";
+    }
+    cout << "Writing in file with path: " << path << endl;
+
+    // begin
+    cout << "Starting computations" << endl;
+    for (int i = 0; i<numT; i++) {
+        tStartTemp = clock();
+        for (int k=0; k<numTau; k++) {
+            // compute magnetisation
+            initialise_spins_auto(T[i]);
+            compute_magnetisation();
+            wolff = wolff_function(T[i],thermalisationCycles);
+            arrayM[0] = fabs((double)M/N);
+            for (int j=1; j<dataPoints; j++) {
+                wolff = wolff_function(T[i],spacingCycles);
+                arrayM[j] = fabs((double)M/N);
+            }
+
+            // identify tau_e
+            autocorr = autocorrelation(arrayM,dataPoints);
+            tau_e = dataPoints;
+            for (int j = 0; j < dataPoints; j++) {
+               if (autocorr[j] <= exp(-1)) {
+                   tau_e = j;
+                   break;
+               }
+            }
+
+            // print out, put in array
+            cout << "(" << k+1 << "/" << numTau << ") T = " << T[i] <<  ", tau = " << tau_e << endl;
+            arrayTau[k] = double(tau_e);
+        }
+        //compute average and sigma of arrayTau
+        O_tau = compute_average_and_sigma(arrayTau, numTau);
+
+        // write in myfile
+        myfile << T[i] << " " << O_tau.value << " " << O_tau.error << endl;
+        cout << "\rL = " << L << ", T = " << T[i] << ", tau = " << O_tau.value << " +- " << O_tau.error << ", Time: " << (double)(clock()-tStartTemp)/CLOCKS_PER_SEC << " seconds" << endl;
+    }
+
+    // wrap up
+    delete[] arrayM;
+    delete[] arrayTau;
+    delete[] bootstrap_values;
+    delete[] autocorr;
+    if (myfile.is_open()){
+        myfile.close();
+    }
 }

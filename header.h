@@ -8,6 +8,7 @@
 #include <map>
 #include <vector>
 #include <limits>
+#include <list>
 
 using namespace std;
 
@@ -50,6 +51,7 @@ void generate_configurations_for_gif();
 void generate_configuration_for_figure();
 void next_to_nearest_investigation();
 void wolff_cluster_size_vs_temp_data();
+void wolff_autocorrelation_investigation();
 
 //METROPOLIS
 void initialise_system_and_maps();
