@@ -32,6 +32,7 @@ extern int dataPoints;
 extern double E;
 
 //MAIN
+int initial_menu();
 void magnetisation_vs_time_data();
 void magnetisation_vs_time_data_bulk();
 void magnetisation_vs_temp_data();
@@ -48,8 +49,7 @@ void magnetic_susceptibility_peak_data();
 void generate_configurations_for_gif();
 void generate_configuration_for_figure();
 void next_to_nearest_investigation();
-int initial_menu();
-
+void wolff_cluster_size_vs_temp_data();
 
 //METROPOLIS
 void initialise_system_and_maps();
@@ -66,6 +66,10 @@ double energy_per_link();
 double energy_per_site();
 double* get_heat_capacity(double arr[], int siz, double Temp);
 double* get_magnetic_susceptibility(double arr[], int siz, double Temp);
+
+//WOLFF
+double* wolff_function(double Temp, int cycles);
+int flip_cluster(int flags[], int seed_spin);
 
 //GENERAL
 double* linspace(double a, double b, int N);

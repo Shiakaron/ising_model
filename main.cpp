@@ -53,6 +53,8 @@ int main(int argc, char** argv)
             break;
             case 13: next_to_nearest_investigation();
             break;
+            case 14: wolff_cluster_size();
+            break;
         }
         cout << "\nOperation complete.\n";
     }
@@ -82,8 +84,9 @@ int initial_menu()
     cout << "11 to generate configurations for a GIF\n";
     cout << "12 to generate configuration for a Figure\n";
     cout << "13 for Magnetisation and Energy vs Temperature with Next to Nearest interactions\n";
+    cout << "14 for Cluster size vs Temperaure using Wolff's algorithm\n";
     cout << "0 to Exit the program.\n";
-    int choice = user_integer_input(0,13);
+    int choice = user_integer_input(0,14);
     return choice;
 }
 
@@ -1439,4 +1442,98 @@ void next_to_nearest_investigation()
    if (myfile.is_open()){
        myfile.close();
    }
+}
+
+/*
+To overcome critical slowing down we will implement the Wolff algorithm. The major difference with this algorithm is that it constructs clusters of sites to collectively flip their spin.
+
+The main difference is noticeable at T_c where large clusters of like spin tend to form. The Metropolis reforms these clusters by slowly adjusting their boundaries, leading to high autocorrelations and therefore the critical slowing down effect. It is virtually impossible for a cluster of opposite spin to be formed inside these clusters. The Wolff has the ability to reform these clusters fast and thus does not suffer from critical slowing down. At high T the Wolff clusters are close to 1 site and the systems evolution resembles closely that of Metropolis
+
+Firsly, we will examine the typical cluster size of the algorithm over a range of temperatures
+
+PLOT 1:
+Cluster size vs Temperature
+
+*/
+
+void wolff_cluster_size_vs_temp_data()
+{
+    cout << "Running for cluster size at different temperatures data" << endl;
+    dim = 2;
+    L = 40;
+    int thermalisationCycles = 100;
+    int spacingCycles = 1;
+    int dataPoints = 200;      //total data points
+    double iniT = 1.0; double finT = 5.0; int numT = 41;
+    T = linspace(iniT, finT, numT);
+    print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
+    cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
+    int user_input = user_integer_input(0,1);
+    if (user_input == 0) {
+        cout << "Dimensions [2,4]:\n";
+        dim = user_integer_input(2,4);
+        cout << "Lattice size [8,181]:\n";
+        L = user_integer_input(8,181);
+        cout << "Next to nearest interaction [0,200]/100:\n";
+        n2n = user_integer_input(0,200);
+        cout << "Thermalisation cycles [0,10000]:\n";
+        thermalisationCycles = user_integer_input(0,5000);
+        cout << "Number of data points [100,10000]:\n";
+        dataPoints = user_integer_input(100,10000);
+        cout << "Initial Temperature [1,99]/10:\n";
+        int iniT_int = user_integer_input(1,99);
+        iniT = double(iniT_int)/10;
+        cout << "Final Temperature [" << iniT_int <<",100]/10:\n";
+        int finT_int = user_integer_input(iniT_int,100);
+        finT = double(finT_int)/10;
+        if (iniT_int != finT_int) {
+            cout << "Number of Temperature points [2,41]:\n";
+            numT = user_integer_input(2,100);
+        }
+        else {
+            numT = 1;
+        }
+        T = linspace(iniT, finT, numT);
+    }
+
+    // initialise pointers and time variable
+    double *CS; // cluster size average (and error)
+    double *arrayCS;
+    arrayCS = new double[dataPoints];
+    clock_t tStartTemp;
+    //initialise spins array and neighbours maps
+    initialise_system_and_maps();
+
+    // open file
+    ofstream myfile;
+    string folder = ".\\data\\wolff_data\\cluster_size";
+    string filename = "CS_data_"+to_string(dim)+"D_"+to_string(L)+".txt";
+    filename_rename_if_exists(filename, folder);
+    string path = folder+"\\"+filename;
+    myfile.open(path);
+    if (!myfile.is_open()) {
+        throw "Func: wolff_cluster_size_vs_temp_data(). File not opened with path: "+path;
+    }
+    cout << "Writing in file with path: " << path << endl;
+    cout << "Starting computations" << endl;
+
+    for (int i = 0; i<numT; i++) {
+        tStartTemp = clock();
+        // begin
+        initialise_spins_auto(T[i]);
+        compute_magnetisation();
+        CS = wolff_function(T[i],thermalisationCycles);
+        for (int j=1; j<dataPoints; j++) {
+            CS = function(T[i],spacingCycles);
+
+        }
+        // average and error
+        bootstrap_values_M = bootstrap_error(arrayM, dataPoints, 128, true);
+        bootstrap_values_E = bootstrap_error(arrayE, dataPoints, 128, true);
+        // write data in myfile
+        myfile << T[i] << " " << bootstrap_values_M[0] << " " << bootstrap_values_M[1] << " " << bootstrap_values_E[0] << " " << bootstrap_values_E[1] << endl;
+        cout << "T = " << T[i] << ", m = " << bootstrap_values_M[0] << " +- " <<  bootstrap_values_M[1] << ", e = " << bootstrap_values_E[0] << " +- " <<  bootstrap_values_E[1] << ", Time taken: " << (double)(clock()-tStartTemp)/CLOCKS_PER_SEC << " seconds" << endl;
+    }
+
+
 }

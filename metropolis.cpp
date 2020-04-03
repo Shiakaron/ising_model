@@ -10,12 +10,11 @@ void initialise_system_and_maps() {
 
 void initialise_spins_auto(double Temp) {
     /*
-    I want the fastest thermalisation. For temperatures below T_c I will start from a cold start. For temperatures T_c and above a hot start.
+    I want the fastest thermalisation. For temperatures below T_c I will start from a cold start. For temperatures T_c and above a hot start. When adding extra parameters like n2n neighbours interaction consider inputing a fake temperature.
     */
     bool cold2d = (dim == 2) && (Temp<2.269);
     bool cold3d = (dim == 3) && (Temp<4.5);
     bool cold4d = (dim == 4) && (Temp<6.5);
-    // TODO find T_c for 4D and add bool statement for cold start
     if (cold2d || cold3d || cold4d){
         initialise_spins_cold();
     }
