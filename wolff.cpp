@@ -69,9 +69,11 @@ double* wolff_function(double Temp, int cycles) {
         return_value = &to_point;
     }
 
+    // wrap up
     delete[] flags;
     delete[] cluster_sizes;
 
+    // return
     return return_value;
 }
 
@@ -82,10 +84,10 @@ int flip_cluster(int flags[], int seed_spin) {
     int cluster_size = 0;
     for (int i = 0; i<N; i++) {
         if (flags[i]) {
-            spins[i] = -seed_spin;
-            cluster_size++;
+            spins[i] = -seed_spin; // reverse spin
+            cluster_size++; // increment cluster size
         }
     }
-    M -= 2*seed_spin*cluster_size;
+    M -= 2*seed_spin*cluster_size; // update system magnetisation
     return cluster_size;
 }

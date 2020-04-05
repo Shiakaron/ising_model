@@ -1554,12 +1554,12 @@ void wolff_cluster_size_vs_temp_data()
 void wolff_autocorrelation_investigation()
 {
     cout << "Running autocorrelation around critical temperature. High computation time! Proceed with caution!" << endl;
-    L = 20;
+    L = 30;
     dim = 2;
     int thermalisationCycles = 1000; // enough time to ensure thermalisation
     int dataPoints = 5000; //"long time"
     int spacingCycles = 1;
-    double iniT = 2.0; double finT = 2.5; int numT = 21;
+    double iniT = 2.6; double finT = 3.5; int numT = 9;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
