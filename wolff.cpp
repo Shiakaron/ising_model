@@ -14,7 +14,7 @@ double* wolff_function(double Temp, int cycles) {
     4. Flip all spin sites of the cluster.
     */
 
-    // the function will return an average and error on the cluster size
+    // the function will return an average (and error) on the cluster size
     double *cluster_sizes;
     cluster_sizes = new double[cycles];
 

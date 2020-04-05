@@ -98,8 +98,8 @@ def plot_2():
     fig.savefig(texfolder+"wolff_autocorr_vs_temp.pdf")
 
 def main():
-    #plot_1()
-    plot_2()
+    plot_1()
+    #plot_2()
     plt.show()
 
 if (__name__ == '__main__'):

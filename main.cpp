@@ -1483,11 +1483,11 @@ void wolff_cluster_size_vs_temp_data()
 {
     cout << "Running for cluster size at different temperatures data" << endl;
     dim = 2;
-    L = 100;
+    L = 30;
     int thermalisationCycles = 100;
     int spacingCycles = 1;
     int dataPoints = 1000;      //total data points
-    double iniT = 2.6; double finT = 3.5; int numT = 9;
+    double iniT = 2.425; double finT = 2.425; int numT = 1;
     T = linspace(iniT, finT, numT);
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, numT, 0);
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
