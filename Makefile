@@ -22,4 +22,4 @@ general.o: general.cpp header.h
 	$(CC) -c general.cpp
 
 clean:
-	del *.o output
+	del *.o output.exe
