@@ -2,7 +2,6 @@
 
 double* bootstrap_error(double data[], int array_size, int bin_number, bool correlated){
     /*
-
     The Bootstap Error Analysis:
     1. create bin_number bins of size array_size
     2. randmoly assign - without replacement - data points in the bins from the data[]
@@ -59,16 +58,19 @@ double* bootstrap_error(double data[], int array_size, int bin_number, bool corr
 
     //extra feature to get even better estimate on error when the data are correlated
     if (correlated==true) {
+        // compute the autocorrealtion
         double *autocorr;
         autocorr = autocorrelation(data, array_size);
-        int tau_2e = 0;
+        // compute an estimate for the time lag: tau_e
+        int tau_e = array_size;
         for (int i = 0; i < array_size; i++){
-           if (autocorr[i] <= exp(-2)){
-               tau_2e = i;
+           if (autocorr[i] <= exp(-1)){
+               tau_e = i;
                break;
            }
         }
-        double term = sqrt(1+tau_2e);
+        // the error is multiplied by the factor = sqrt(1+2*tau_e). For reference see Eqn. (13.47) in K.N.Anagnostopoulos book
+        double term = sqrt(1+2*tau_e);
         err_O *= term; err_dev *= term;
     }
 
@@ -80,6 +82,7 @@ double* bootstrap_error(double data[], int array_size, int bin_number, bool corr
     return_value[2] = av_dev;
     return_value[3] = err_dev;
 
+    // wrap up
     delete[] O;
     delete[] O2;
     delete[] dev;

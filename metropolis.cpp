@@ -1,6 +1,13 @@
 #include "header.h"
 
 void initialise_system_and_maps() {
+    /*
+    Intitialise the system:
+    1. set number of sites according to N = L^dim
+    2. initilise spins array
+    3. get maps of nearest and next-to-nearest neighbours
+    4. compute number of links N_links
+    */
     N = (int)(pow(L,dim)+0.5);
     spins = new int[N];
     initialise_nearest_periodic();
@@ -10,7 +17,8 @@ void initialise_system_and_maps() {
 
 void initialise_spins_auto(double Temp) {
     /*
-    I want the fastest thermalisation. For temperatures below T_c I will start from a cold start. For temperatures T_c and above a hot start. When adding extra parameters like n2n neighbours interaction consider inputing a fake temperature.
+    We want the fastest possible thermalisation. For temperatures below T_c I will start from a cold start. For temperatures T_c and above a hot start. The boolean arguments for cold starts where based for simple systems with only nearest neighbour interaction.
+    N.B. When adding extra parameters like n2n neighbour interaction consider inputing a fake temperature argument to utilise this function.
     */
     bool cold2d = (dim == 2) && (Temp<2.269);
     bool cold3d = (dim == 3) && (Temp<4.5);
@@ -24,7 +32,7 @@ void initialise_spins_auto(double Temp) {
 }
 
 void initialise_spins_cold() {
-    int s = 2*(rand()%2)-1; //return -1 or 1 randomly (50/50)
+    int s = 2*(rand()%2)-1; // return -1 or 1 randomly (50/50)
     for (int i = 0; i<N; i++) {
         spins[i] = s; // initialise all to the value of s
     }
@@ -32,12 +40,29 @@ void initialise_spins_cold() {
 
 void initialise_spins_hot() {
     for (int i = 0; i<N; i++) {
-        spins[i] = 2*(rand()%2)-1;    //return -1 or 1 randomly (50/50)
+        spins[i] = 2*(rand()%2)-1; // return -1 or 1 randomly (50/50)
     }
 }
 
 void initialise_nearest_periodic() {
-    // vector = [left, right, back, forw, down,up,.....]
+    /*
+    The function is used to identify the nearest neighbours for periodic boundary conditions and is generalised to an arbitrary number of dimensions. It can be easily explained using "levels" for the first few dimensions. Consider the following system of L=3 and dim=2:
+
+     9  10  11 -> 3
+     ---------
+     6   7   8 -> 2
+     3   4   5 -> 1
+     0   1   2 -> 0
+     ---------
+    -3  -2  -1 -> -1
+
+    When checking neighbours in the 1st dimension (i.e. left and right) the index is decremented or incremented by 1. In the case of index=1  the neigbour on the left is 0 and on the right is 2; The sites 0,1,2 are on the same level = 0. However when checking the neighbour on the right of 2 we get 3, which is not on the same level as 2 and is also not the correct neighbour, level(3,1st dimension) = 1. Therefore in this case we invoke the condition that the boundary of the system has been reached and we can correctly identify the neighbour to be 0 with (3-L).
+
+    In the 2nd dimension (i.e. backwards and forwards) the index is decremented or incremented by L. In this scenario all sites in the system return level = 0 whereas when stepping to negative indexes the level = -1,  or to indexes >= L^2 the level = 1. Therefore the appropriate measures can be identified to eg. identify the neighbour of 7 with 7+3=10 => level changed 10-9=1 => 1 is the correct neighbour.
+
+    From this example we can see that the correction is L to the appropriate power and we can generalise the idea to cover all dimensions.
+    */
+    // vector<int> = [left, right, backwards, forwards, down, up,.....]
     // initialise useful variables
     int temp;
     int addterm;
@@ -66,8 +91,11 @@ void initialise_nearest_periodic() {
 }
 
 void initialise_next2nearest_periodic(){
-    //vector = []
-    // identify next-to-nearest neighbours
+    /*
+    A natural extension of initialise_nearest_periodic() to identify next-to-nearest neighbours for each site. A system dimension=1 needs to be treated differently to higher dimensions. The core difference lies in the fact that we need to apply the algorithm of the nearest neighbour twice, meaning we need to check the "level" twice and update to the correct element accordingly.
+
+    The visualisation can be easily done again with a toy example but I will leave this to the doubtful reader. The code was check thoroughly and found to return the correct next-to-nearest neighbours up to the 3D case and I am 100% confident it is correct for higher dimensions as well.
+    */
     int temp;
     //dim=1 is a special case
     if (dim == 1) {

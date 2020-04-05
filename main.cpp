@@ -1,20 +1,20 @@
 #include "header.h"
 
-int dim;
-int L;
-int N;
-double N_links;
-int *spins;
-map<int,vector<int>> mapOfNearest;
-map<int,vector<int>> mapOfNext2Nearest;
-int M;
-double E;
+int dim; // Dimensions
+int L; // Lattize size
+int N; // Total number of sites
+double N_links; // Number of edges
+int *spins; // poitner to spin array
+map<int,vector<int>> mapOfNearest; // map storing all nearest neighbours for each site
+map<int,vector<int>> mapOfNext2Nearest; // map storing all next-to-nearest neigbours for each site
+int M; // magnetisation of the system
+double E; // energy of the system
 
-double n2n = 0;
-double H = 0;
+double n2n = 0; // next-to-neareset neighbour interaction
+double H = 0; // external field strength
 
-unsigned int seed = (unsigned)time(0); // (unsigned)time(0);
-double *T;
+unsigned int seed = (unsigned)time(0); // (unsigned)time(0); Randomized seed according to time on operating system.
+double *T; // pointer to array of temperatures over which our analysis will iterate
 
 int main(int argc, char** argv)
 {
@@ -23,7 +23,7 @@ int main(int argc, char** argv)
     cout << "Ising Model, made by Savvas Shiakas (ss2477)" << endl;
     cout << "C++ was used to produce data files ('low' level -> faster computation) which were later analysed and plotted using Python.\n";
 
-    // user friendly function to run the code
+    // user friendly function to run the code. The user will input an integer to choose the desired analysis line. This is enclosed in a try-catch block in case there is a run-time error.
     int user_choice = initial_menu();
     try {
         switch(user_choice) {
@@ -113,13 +113,16 @@ PLOT 4:
 void magnetisation_vs_time_data()
 {
     cout << "Running for magnetisation of evolving system" << endl;
+    // set parameters
     dim = 2;
     L = 40;
-    int thermalisationCycles = 0;
+    int thermalisationCycles = 0; // Monte Carlo Sweeps (MCS) to thermalise the system
+    int spacingCycles = 1; // MCS between data points
     int dataPoints = 5000;
-    int spacingCycles = 1;
     double Temp = 1.5;
+    // print out all parameters to the user to check
     print_all_parameters(thermalisationCycles, dataPoints, spacingCycles, 0, Temp);
+    // check if the parameters are "OK". give option to change them
     cout << "Proceed with default parameters? Enter 1 for YES, 0 for NO\n";
     int user_input = user_integer_input(0,1);
     if (user_input == 0) {
@@ -127,6 +130,10 @@ void magnetisation_vs_time_data()
         dim = user_integer_input(2,4);
         cout << "Lattice size [8,181]:\n";
         L = user_integer_input(8,181);
+        cout << "Next to nearest interaction [0,200]/100:\n";
+        n2n = user_integer_input(0,200);
+        cout << "External field [0,200]/100:\n";
+        H = user_integer_input(0,200);
         cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,5000);
         cout << "Number of data points [100,10000]:\n";
@@ -134,33 +141,37 @@ void magnetisation_vs_time_data()
         cout << "Temperature [1,300]/10:\n";
         Temp = double(user_integer_input(1,300))/10;
     }
+    // choose how to initialise the system
     cout << "How to initialise the system: Enter 1 for Hot Start, 0 for Cold Start\n";
     int start = user_integer_input(0,1);
 
     //initialise spins array and neighbours maps
     initialise_system_and_maps();
-    // hot or cold
+
+    // initialise: hot or cold
     if (start == 1) {initialise_spins_hot();}
     else {initialise_spins_cold();}
 
-    // open file
+    // open file to write data
     ofstream myfile;
-    string folder = ".\\data\\magn_vs_time";
-    string filename = "magn_vs_time_"+to_string(dim)+"D_"+to_string(L)+"_"+to_string(Temp)+".txt";
-    filename_rename_if_exists(filename, folder);
-    string path = folder+"\\"+filename;
+    string folder = ".\\data\\magn_vs_time"; // folder path
+    string filename = "magn_vs_time_"+to_string(dim)+"D_"+to_string(L)+"_"+to_string(Temp)+".txt"; // file name
+    filename_rename_if_exists(filename, folder); // function to check if a file with the same name already exists. if it does add (number) to end of file name
+    string path = folder+"\\"+filename; // full path for file
     myfile.open(path);
     if (!myfile.is_open()) {
+        // if the file is not opened throw an error for the user to check the specified path
         throw "Func: magnetisation_vs_time_data(). File not opened with path: " + path + "\nPlease fix path";
     }
     cout << "Writing in file with path: " << path << endl;
-    cout << "Starting computations" << endl;
+
     // begin computing
-    compute_magnetisation();
-    metropolis_function(Temp,thermalisationCycles);
-    myfile << fabs((double)M/N) << endl;
+    cout << "Starting computations" << endl;
+    compute_magnetisation(); // start by copmuting M. this will be updated automatically as the system evolves
+    metropolis_function(Temp,thermalisationCycles); // call the metropolis function to evolve the system at temperature Temp and to thermalise the system.
+    myfile << fabs((double)M/N) << endl; // output the <|magnetisation|>
     for (int i=1; i<dataPoints; i++) {
-        metropolis_function(Temp,spacingCycles);
+        metropolis_function(Temp,spacingCycles); // record data every spacingCycles
         myfile << fabs((double)M/N) << endl;
     }
 
@@ -189,6 +200,10 @@ void magnetisation_vs_temp_data()
         dim = user_integer_input(2,4);
         cout << "Lattice size [8,181]:\n";
         L = user_integer_input(8,181);
+        cout << "Next to nearest interaction [0,200]/100:\n";
+        n2n = user_integer_input(0,200);
+        cout << "External field [0,200]/100:\n";
+        H = user_integer_input(0,200);
         cout << "Thermalisation cycles [0,10000]:\n";
         thermalisationCycles = user_integer_input(0,5000);
         cout << "Number of data points [100,10000]:\n";
