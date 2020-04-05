@@ -171,6 +171,7 @@ void initialise_next2nearest_periodic(){
 }
 
 void compute_magnetisation() {
+    // compute the magnetisation of the system
     int m = 0;
     for(int i=0;i<N;i++){
             m += spins[i];
@@ -179,10 +180,11 @@ void compute_magnetisation() {
 }
 
 double compute_denergy(int index) {
+    // copmute the energy change of flipping the site at the index argument
     vector<int> temp_vec;
-    double de_nearest = 0;
-    double de_next2nearest = 0;
-    double de_externalfield = 0;
+    double de_nearest = 0; // energy change due to nearest neighbours
+    double de_next2nearest = 0; // energy change due to next-to-nearest neighbours
+    double de_externalfield = 0; // energy change due to external field
 
     //nearest neighbours
     temp_vec = mapOfNearest[index];
@@ -210,12 +212,12 @@ double compute_denergy(int index) {
 
 void metropolis_function(double Temp, int cycles) {
     // initialise useful variables
-    double de = 0;
+    double de = 0; // energy change
     double beta = 1.0/Temp;
-    double x;
-    double flip_probability;
-    int flips_counter = 0;
-    int index;
+    double x; // probability variable
+    double flip_probability; // probability of flipping
+    int flips_counter = 0; // counts the number of flip to update the magnetisation at the end
+    int index; // site index
 
     for(int r=0; r<cycles; r++){
         for(int k = 0; k<N; k++){
@@ -238,18 +240,19 @@ void metropolis_function(double Temp, int cycles) {
             }
         }
     }
-    M += 2*flips_counter;
+    M += 2*flips_counter; // update magnetisation
 }
 
 void compute_energy() {
+    // compute the total energy of the system
+    // some useful variables
     double e_total = 0;
     int s_sum;
     int sum_nearest = 0;
     int sum_next2nearest = 0;
     vector<int> temp_vec;
-    //cout << "compute_energy()\n";
+
     //nearest neightbours, J=1
-    //cout << "nearests\n";
     for (int i=0; i<N; i++) {
         //cout << i << ": ";
         //notice j+=2 to avoid double counting. For each index we consider left/back/down etc. directions
@@ -289,11 +292,13 @@ void compute_energy() {
 }
 
 double energy_per_link() {
+    // energy per link
     compute_energy();
     return E/N_links;
 }
 
 double energy_per_site() {
+    // energy per site
     compute_energy();
     return E/N;
 }
