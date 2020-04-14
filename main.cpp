@@ -20,7 +20,7 @@ int main(int argc, char** argv)
 {
     clock_t tStart = clock();
     srand(seed);
-    cout << "Ising Model, made by Savvas Shiakas (ss2477)" << endl;
+    cout << "Ising Model, made for Part II Physics Computing Project" << endl;
     cout << "C++ was used to produce data files ('low' level -> faster computation) which were later analysed and plotted using Python.\n";
 
     // user friendly function to run the code. The user will input an integer to choose the desired analysis line. This is enclosed in a try-catch block in case there is a run-time error.

@@ -99,7 +99,7 @@ def plot_2():
 
 def main():
     plot_1()
-    #plot_2()
+    plot_2()
     plt.show()
 
 if (__name__ == '__main__'):
